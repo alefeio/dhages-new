@@ -33,22 +33,20 @@ export interface FaqItem {
     resposta: string;
 }
 
-/**
- * Fotos vinculadas ao Pacote
- */
+/** Fotos vinculadas ao Pacote */
 export interface PacoteFoto {
     id: string;
     url: string;
-    caption?: string | null; // aceita null vindo do banco
+    caption?: string | null;
     pacoteId: string;
     pacote?: Pacote;
-    like?: number;  // novo campo
-    view?: number;  // novo campo
+    like: number;
+    view: number;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
-/**
- * Datas de saída e retorno do Pacote, com preços
- */
+/** Datas de saída e retorno do Pacote, com preços */
 export interface PacoteDate {
     id: string;
     saida: Date;
@@ -60,11 +58,11 @@ export interface PacoteDate {
     status: "disponivel" | "esgotado" | "cancelado";
     notes?: string | null;
     pacoteId: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
-/**
- * Usado no formulário/admin
- */
+/** Usado no formulário/admin */
 export interface PacoteDateInput {
     id: string;
     saida: string;   // no form será string
@@ -78,6 +76,7 @@ export interface PacoteDateInput {
     pacoteId: string;
 }
 
+/** Formulário de Pacote */
 export interface PacoteForm {
     id: string;
     title: string;
@@ -86,44 +85,78 @@ export interface PacoteForm {
     destinoId: string;
     slug: string;
     fotos: PacoteFoto[];
-    dates: PacoteDateInput[]; // aqui usamos Input com string
+    dates: PacoteDateInput[];
+    like?: number;
+    view?: number;
 }
 
-/**
- * Pacote de viagem, vinculado a um Destino
- */
+/** Pacote de viagem, vinculado a um Destino */
 export interface Pacote {
     id: string;
     title: string;
     subtitle?: string | null;
     slug: string;
-    description: any; // JSON
+    description: any;
     destinoId: string;
     fotos: PacoteFoto[];
-    dates: PacoteDate[]; // já vai vir com Date
+    dates: PacoteDate[];
+    like: number;
+    view: number;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date | null;
 }
 
-/**
- * Destino principal, que contém Pacotes
- */
+/** Destino principal, que contém Pacotes */
 export interface Destino {
     id: string;
     title: string;
     subtitle?: string | null;
-    description: any; // JSON (conteúdo rico)
+    description: any;
     image?: string | null;
     slug: string;
-    order: number;   // <-- campo adicionado
+    order: number;
     pacotes: Pacote[];
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date | null;
 }
 
-/**
- * Props usadas na HomePage
- */
+/** Props usadas na HomePage */
 export interface HomePageProps {
     banners: Banner[];
     menu: MenuItem | null;
     testimonials: TestimonialItem[];
     faqs: FaqItem[];
     destinos: Destino[];
+}
+
+export interface Blog {
+    id: string;
+    title: string;
+    slug: string;
+    content: any; // JSON
+    coverImage?: string | null;
+    author?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date | null;
+}
+
+export interface Site {
+    id: string;
+    userId: string;
+    tag_google_ads?: string | null;
+    tag_google_analytics?: string | null;
+    tag_meta?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface Subscriber {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string | null;
+    createdAt: Date;
 }
