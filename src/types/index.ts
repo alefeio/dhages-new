@@ -57,9 +57,36 @@ export interface PacoteDate {
     vagas_disponiveis: number;
     price: number;
     price_card: number;
-    status: 'disponivel' | 'esgotado' | 'cancelado';
+    status: "disponivel" | "esgotado" | "cancelado";
     notes?: string | null;
     pacoteId: string;
+}
+
+/**
+ * Usado no formulário/admin
+ */
+export interface PacoteDateInput {
+    id: string;
+    saida: string;   // no form será string
+    retorno: string; // no form será string
+    vagas_total: number;
+    vagas_disponiveis: number;
+    price: number;
+    price_card: number;
+    status: "disponivel" | "esgotado" | "cancelado";
+    notes?: string | null;
+    pacoteId: string;
+}
+
+export interface PacoteForm {
+    id: string;
+    title: string;
+    subtitle?: string | null;
+    description: any;
+    destinoId: string;
+    slug: string;
+    fotos: PacoteFoto[];
+    dates: PacoteDateInput[]; // aqui usamos Input com string
 }
 
 /**

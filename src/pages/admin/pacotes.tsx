@@ -1,105 +1,47 @@
-import { useState, useEffect } from "react";
-import Head from "next/head";
-import { MdAddPhotoAlternate, MdDelete, MdEdit } from "react-icons/md";
-import AdminLayout from "components/admin/AdminLayout";
-import { Destino, Pacote, PacoteDate, PacoteFoto } from "types";
+import { useEffect, useState } from "react";
+import type { Pacote, PacoteFoto, PacoteDateInput, PacoteForm } from "types";
 
-/**
- * Estado de formulário para criar/editar Pacotes
- */
-interface FormState {
-    id?: string;
-    title: string;
-    subtitle: string;
-    slug: string;
-    description: any; // JSON (editor rich text/tabelas)
-    destinoId: string;
-    fotos: (PacoteFoto | { url?: string; file?: File })[];
-    dates: PacoteDate[];
-}
-
-export default function AdminPacotes() {
+export default function PacotesAdmin() {
     const [pacotes, setPacotes] = useState<Pacote[]>([]);
-    const [destinos, setDestinos] = useState<Destino[]>([]);
-    const [form, setForm] = useState<FormState>({
+    const [form, setForm] = useState<PacoteForm>({
+        id: "",
         title: "",
         subtitle: "",
-        slug: "",
-        description: "",
+        description: {} as any,
         destinoId: "",
+        slug: "",
         fotos: [],
         dates: [],
     });
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-
+    // Buscar pacotes
     useEffect(() => {
-        fetchPacotes();
-        fetchDestinos();
+        fetch("/api/pacotes")
+            .then(res => res.json())
+            .then(data => setPacotes(data.pacotes || []));
     }, []);
 
-    const fetchPacotes = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch("/api/crud/pacotes");
-            const data = await res.json();
-            if (res.ok && data.success) {
-                setPacotes(data.pacotes);
-            } else {
-                setError(data.message || "Erro ao carregar pacotes.");
-            }
-        } catch (e) {
-            setError("Erro ao conectar com a API.");
-        } finally {
-            setLoading(false);
-        }
+    // Atualizar campos do form
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setForm(prev => ({ ...prev, [name]: value }));
     };
 
-    const fetchDestinos = async () => {
-        try {
-            const res = await fetch("/api/crud/destinos");
-            const data = await res.json();
-            if (res.ok && data.success) {
-                setDestinos(data.destinos);
-            }
-        } catch (e) {
-            console.error("Erro ao carregar destinos", e);
-        }
-    };
-
-    const resetForm = () => {
-        setForm({
-            title: "",
-            subtitle: "",
-            slug: "",
-            description: "",
-            destinoId: "",
-            fotos: [],
-            dates: [],
+    // Atualizar campos das datas
+    const handleDateChange = (index: number, field: keyof PacoteDateInput, value: string | number) => {
+        setForm(prev => {
+            const newDates = [...prev.dates];
+            (newDates[index] as any)[field] = value;
+            return { ...prev, dates: newDates };
         });
     };
 
-    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
-    };
-
-    const handleAddFoto = () => {
-        setForm({ ...form, fotos: [...form.fotos, { file: undefined }] });
-    };
-
-    const handleFotoChange = (index: number, file: File) => {
-        const newFotos = [...form.fotos];
-        newFotos[index] = { file };
-        setForm({ ...form, fotos: newFotos });
-    };
-
-    const handleAddDate = () => {
-        setForm({
-            ...form,
+    // Adicionar uma nova data
+    const addDate = () => {
+        setForm(prev => ({
+            ...prev,
             dates: [
-                ...form.dates,
+                ...prev.dates,
                 {
                     id: Math.random().toString(),
                     saida: "",
@@ -109,161 +51,124 @@ export default function AdminPacotes() {
                     price: 0,
                     price_card: 0,
                     status: "disponivel",
-                    pacoteId: form.id || "",
+                    notes: "",
+                    pacoteId: prev.id,
                 },
             ],
+        }));
+    };
+
+    // Enviar formulário
+    const handleSubmit = async () => {
+        // Converte strings para Date antes de enviar ao backend
+        const pacoteData: Pacote = {
+            ...form,
+            dates: form.dates.map(d => ({
+                ...d,
+                saida: new Date(d.saida),     // converte string para Date
+                retorno: new Date(d.retorno), // converte string para Date
+                notes: d.notes ?? null,       // garante compatibilidade com o tipo do Prisma
+            })),
+        };
+
+        await fetch("/api/pacotes", {
+            method: form.id ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(pacoteData),
         });
-    };
 
-    const handleDateChange = (index: number, field: keyof PacoteDate, value: any) => {
-        const newDates = [...form.dates];
-        (newDates[index] as any)[field] = value;
-        setForm({ ...form, dates: newDates });
-    };
+        // Atualiza lista de pacotes
+        const updated = await fetch("/api/pacotes").then(res => res.json());
+        setPacotes(updated.pacotes || []);
 
-    const handleEdit = (pacote: Pacote) => {
+        // Reset do formulário
         setForm({
-            id: pacote.id,
-            title: pacote.title,
-            subtitle: pacote.subtitle || "",  // <- força string
-            slug: pacote.slug,
-            description: pacote.description,
-            destinoId: pacote.destinoId,
-            fotos: pacote.fotos,
-            dates: pacote.dates,
+            id: "",
+            title: "",
+            subtitle: "",
+            description: {} as any,
+            destinoId: "",
+            slug: "",
+            fotos: [],
+            dates: [],
         });
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
-
-        try {
-            const fotosUpload = await Promise.all(
-                form.fotos.map(async (foto) => {
-                    if ("file" in foto && foto.file instanceof File) {
-                        const fd = new FormData();
-                        fd.append("file", foto.file);
-                        const uploadRes = await fetch("/api/upload", { method: "POST", body: fd });
-                        const uploadData = await uploadRes.json();
-                        if (!uploadRes.ok) throw new Error(uploadData.message || "Erro no upload da foto.");
-                        return { url: uploadData.url, pacoteId: form.id || "" };
-                    }
-                    return foto;
-                })
-            );
-
-            const method = form.id ? "PUT" : "POST";
-            const body = { ...form, fotos: fotosUpload };
-
-            const res = await fetch("/api/crud/pacotes", {
-                method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
-            });
-
-            const data = await res.json();
-            if (res.ok && data.success) {
-                alert(`Pacote ${form.id ? "atualizado" : "criado"} com sucesso!`);
-                resetForm();
-                fetchPacotes();
-            } else {
-                setError(data.message || "Erro ao salvar pacote.");
-            }
-        } catch (e: any) {
-            setError(e.message || "Erro ao conectar com a API.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (id: string) => {
-        if (!confirm("Tem certeza que deseja excluir este pacote?")) return;
-
-        try {
-            const res = await fetch("/api/crud/pacotes", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id }),
-            });
-            if (res.ok) {
-                alert("Pacote excluído com sucesso!");
-                fetchPacotes();
-            } else {
-                const data = await res.json();
-                setError(data.message || "Erro ao excluir.");
-            }
-        } catch {
-            setError("Erro ao conectar com a API.");
-        }
     };
 
     return (
-        <>
-            <Head>
-                <title>Admin - Pacotes</title>
-            </Head>
-            <AdminLayout>
-                <h1 className="text-4xl font-extrabold mb-8 text-gray-500">Gerenciar Pacotes</h1>
+        <div className="p-6">
+            <h1 className="text-xl font-bold mb-4">Gerenciar Pacotes</h1>
 
-                {/* Formulário */}
-                <section className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-10">
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                        <input type="text" name="title" value={form.title} onChange={handleFormChange} placeholder="Título" required />
-                        <input type="text" name="subtitle" value={form.subtitle} onChange={handleFormChange} placeholder="Subtítulo" />
-                        <input type="text" name="slug" value={form.slug} onChange={handleFormChange} placeholder="Slug" required />
-                        <textarea name="description" value={form.description} onChange={handleFormChange} placeholder="Descrição (JSON)" />
-                        <select name="destinoId" value={form.destinoId} onChange={handleFormChange} required>
-                            <option value="">Selecione o destino</option>
-                            {destinos.map((d) => (
-                                <option key={d.id} value={d.id}>
-                                    {d.title}
-                                </option>
-                            ))}
-                        </select>
+            {/* Formulário */}
+            <div className="mb-6 border p-4 rounded">
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="Título"
+                    value={form.title}
+                    onChange={handleChange}
+                    className="border p-2 w-full mb-2"
+                />
+                <textarea
+                    name="subtitle"
+                    placeholder="Subtítulo"
+                    value={form.subtitle || ""}
+                    onChange={handleChange}
+                    className="border p-2 w-full mb-2"
+                />
 
-                        {/* Fotos */}
-                        <h3>Fotos</h3>
-                        {form.fotos.map((foto, i) => (
-                            <div key={i}>
-                                {"file" in foto && foto.file ? foto.file.name : (foto as any).url}
-                                <input type="file" onChange={(e) => e.target.files && handleFotoChange(i, e.target.files[0])} />
-                            </div>
-                        ))}
-                        <button type="button" onClick={handleAddFoto}>Adicionar Foto</button>
-
-                        {/* Datas */}
-                        <h3>Datas</h3>
-                        {form.dates.map((date, i) => (
-                            <div key={i}>
-                                <input type="date" value={date.saida} onChange={(e) => handleDateChange(i, "saida", e.target.value)} />
-                                <input type="date" value={date.retorno} onChange={(e) => handleDateChange(i, "retorno", e.target.value)} />
-                                <input type="number" value={date.price} onChange={(e) => handleDateChange(i, "price", parseFloat(e.target.value))} />
-                                <input type="number" value={date.price_card} onChange={(e) => handleDateChange(i, "price_card", parseFloat(e.target.value))} />
-                            </div>
-                        ))}
-                        <button type="button" onClick={handleAddDate}>Adicionar Data</button>
-
-                        <button type="submit">{loading ? "Salvando..." : "Salvar Pacote"}</button>
-                    </form>
-                    {error && <p className="text-red-500">{error}</p>}
-                </section>
-
-                {/* Listagem */}
-                <section>
-                    <h2>Pacotes Existentes</h2>
-                    {pacotes.map((p) => (
-                        <div key={p.id}>
-                            <h3>{p.title}</h3>
-                            <button onClick={() => handleEdit(p)}><MdEdit /></button>
-                            <button onClick={() => handleDelete(p.id)}><MdDelete /></button>
+                {/* Datas */}
+                <div className="mb-2">
+                    <h2 className="font-semibold">Datas</h2>
+                    {form.dates.map((d, i) => (
+                        <div key={d.id} className="flex gap-2 mb-2">
+                            <input
+                                type="date"
+                                value={d.saida}
+                                onChange={e => handleDateChange(i, "saida", e.target.value)}
+                                className="border p-2"
+                            />
+                            <input
+                                type="date"
+                                value={d.retorno}
+                                onChange={e => handleDateChange(i, "retorno", e.target.value)}
+                                className="border p-2"
+                            />
+                            <input
+                                type="number"
+                                placeholder="Vagas Totais"
+                                value={d.vagas_total}
+                                onChange={e => handleDateChange(i, "vagas_total", e.target.value)}
+                                className="border p-2 w-28"
+                            />
+                            <input
+                                type="number"
+                                placeholder="Vagas Disponíveis"
+                                value={d.vagas_disponiveis}
+                                onChange={e => handleDateChange(i, "vagas_disponiveis", e.target.value)}
+                                className="border p-2 w-28"
+                            />
                         </div>
                     ))}
-                </section>
-            </AdminLayout>
-        </>
+                    <button onClick={addDate} className="px-3 py-1 bg-blue-500 text-white rounded">
+                        + Adicionar Data
+                    </button>
+                </div>
+
+                <button
+                    onClick={handleSubmit}
+                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
+                >
+                    {form.id ? "Atualizar" : "Cadastrar"}
+                </button>
+            </div>
+
+            {/* Lista de pacotes */}
+            <h2 className="text-lg font-semibold">Pacotes Cadastrados</h2>
+            <ul className="list-disc pl-6">
+                {pacotes.map(p => (
+                    <li key={p.id}>{p.title}</li>
+                ))}
+            </ul>
+        </div>
     );
 }
