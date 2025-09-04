@@ -1,16 +1,16 @@
-// pages/destinos/[destinoSlug].tsx
+// pages/share/[destinoSlug]/index.tsx
 import Head from 'next/head';
 import Link from 'next/link';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { Destino, Pacote } from 'types';
 import { FaWhatsapp, FaHome } from 'react-icons/fa';
 
-interface DestinoPageProps {
+interface DestinoShareProps {
   destino: Destino;
   shareBaseUrl: string;
 }
 
-export const getServerSideProps: GetServerSideProps<DestinoPageProps> = async (
+export const getServerSideProps: GetServerSideProps<DestinoShareProps> = async (
   context: GetServerSidePropsContext
 ) => {
   const { destinoSlug } = context.params as { destinoSlug: string };
@@ -26,15 +26,15 @@ export const getServerSideProps: GetServerSideProps<DestinoPageProps> = async (
     const data = await res.json();
     const destinos: Destino[] = data.destinos;
 
-    const currentDestino = destinos.find(d => d.slug === destinoSlug);
-    if (!currentDestino) return { notFound: true };
+    const destino = destinos.find(d => d.slug === destinoSlug);
+    if (!destino) return { notFound: true };
 
-    const host = context.req.headers.host;
     const protocol = context.req.headers['x-forwarded-proto'] || 'http';
+    const host = context.req.headers.host;
     const shareBaseUrl = `${protocol}://${host}/share/${destinoSlug}`;
 
     return {
-      props: { destino: currentDestino, shareBaseUrl },
+      props: { destino, shareBaseUrl },
     };
   } catch (error) {
     console.error('Error fetching data for destino page:', error);
@@ -42,7 +42,7 @@ export const getServerSideProps: GetServerSideProps<DestinoPageProps> = async (
   }
 };
 
-const DestinoPage = ({ destino, shareBaseUrl }: DestinoPageProps) => {
+export default function DestinoSharePage({ destino, shareBaseUrl }: DestinoShareProps) {
   if (!destino) return <div>Destino não encontrado.</div>;
 
   const handleWhatsappClick = (pacote: Pacote) => {
@@ -55,9 +55,9 @@ const DestinoPage = ({ destino, shareBaseUrl }: DestinoPageProps) => {
     <div className="bg-background-100 min-h-screen flex flex-col items-center p-4">
       <Head>
         <title>{destino.title}</title>
-        <meta name="description" content={`Confira os pacotes do destino ${destino.title}.`} />
+        <meta name="description" content={`Confira todos os pacotes do destino ${destino.title}.`} />
         <meta property="og:title" content={destino.title} />
-        <meta property="og:description" content={`Confira os pacotes do destino ${destino.title}.`} />
+        <meta property="og:description" content={`Confira todos os pacotes do destino ${destino.title}.`} />
         <meta property="og:image" content={destino.image || destino.pacotes[0]?.fotos[0]?.url || ''} />
         <meta property="og:url" content={shareBaseUrl} />
         <meta name="twitter:card" content="summary_large_image" />
@@ -65,11 +65,11 @@ const DestinoPage = ({ destino, shareBaseUrl }: DestinoPageProps) => {
         <meta name="twitter:image" content={destino.image || destino.pacotes[0]?.fotos[0]?.url || ''} />
       </Head>
 
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-5xl">
         <h1 className="text-3xl font-bold text-center mb-6">{destino.title}</h1>
         {destino.subtitle && <p className="text-center text-gray-600 mb-6">{destino.subtitle}</p>}
 
-        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {destino.pacotes.map((pacote) => (
             <div key={pacote.id} className="bg-background-200 rounded-lg shadow-md overflow-hidden">
               <div className="relative w-full h-64">
@@ -107,6 +107,4 @@ const DestinoPage = ({ destino, shareBaseUrl }: DestinoPageProps) => {
       </div>
     </div>
   );
-};
-
-export default DestinoPage;
+}
