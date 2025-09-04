@@ -29,7 +29,6 @@ interface CatalogPageProps {
 export const getServerSideProps: GetServerSideProps<CatalogPageProps> = async () => {
     try {
         const destinos = await prisma.destino.findMany({
-            orderBy: { order: 'asc' },
             include: {
                 pacotes: {
                     orderBy: [
