@@ -5,7 +5,7 @@ import { Destino, PacoteFoto, PacoteDate } from 'types';
 
 const prisma = new PrismaClient();
 
-// Função utilitária para criar slugs
+// Função utilitária para criar slugs únicos
 function slugify(text: string): string {
   return text
     .toString()
@@ -18,22 +18,22 @@ function slugify(text: string): string {
     .replace(/-+$/, '');
 }
 
-// Função para adicionar slugs e converter campos
+// Adiciona slugs e ajusta datas e notas
 function addSlugs(destinos: any[]): Destino[] {
   return destinos.map((d) => ({
     ...d,
-    slug: d.slug || slugify(d.title),
+    slug: d.slug || slugify(`${d.title}-${d.id}`),
     pacotes: d.pacotes.map((p: any) => ({
       ...p,
-      slug: p.slug || slugify(p.title),
+      slug: p.slug || slugify(`${p.title}-${p.id}`),
       fotos: p.fotos.map((f: any): PacoteFoto => ({
         ...f,
         caption: f.caption ?? undefined,
       })),
       dates: p.dates.map((dt: any): PacoteDate => ({
         ...dt,
-        saida: dt.saida instanceof Date ? dt.saida.toISOString() : dt.saida,
-        retorno: dt.retorno instanceof Date ? dt.retorno.toISOString() : dt.retorno,
+        saida: new Date(dt.saida),
+        retorno: new Date(dt.retorno),
         notes: dt.notes ?? undefined,
       })),
     })),
@@ -60,14 +60,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const createdDestino = await prisma.destino.create({
           data: {
             title,
-            slug: slugify(title),
+            slug: slugify(`${title}-${Date.now()}`), // Garante unicidade no momento da criação
             subtitle,
             description,
             image,
             pacotes: {
               create: (pacotes || []).map((p) => ({
                 title: p.title,
-                slug: slugify(p.title),
+                slug: p.slug || slugify(`${p.title}-${Date.now()}`),
                 subtitle: p.subtitle,
                 description: p.description,
                 fotos: { create: p.fotos?.map(f => ({ url: f.url, caption: f.caption ?? undefined })) || [] },
@@ -91,13 +91,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const txOps = pacotes.map((p) => p.id
             ? prisma.pacote.update({
                 where: { id: p.id },
-                data: { title: p.title, subtitle: p.subtitle, slug: slugify(p.title), description: p.description },
+                data: { 
+                  title: p.title, 
+                  subtitle: p.subtitle, 
+                  slug: p.slug || slugify(`${p.title}-${p.id}`), 
+                  description: p.description 
+                },
               })
             : prisma.pacote.create({
                 data: {
                   title: p.title,
                   subtitle: p.subtitle,
-                  slug: slugify(p.title),
+                  slug: p.slug || slugify(`${p.title}-${Date.now()}`),
                   description: p.description,
                   destinoId: id,
                   fotos: { create: p.fotos?.map(f => ({ url: f.url, caption: f.caption ?? undefined })) || [] },

@@ -47,10 +47,10 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async () =>
         // Gera slugs para destinos e pacotes
         const destinosComSlugs: Destino[] = destinos.map((destino: any) => ({
             ...destino,
-            slug: slugify(destino.title),
+            slug: slugify(`${destino.title}-${destino.id}`),
             pacotes: destino.pacotes.map((pacote: any) => ({
                 ...pacote,
-                slug: slugify(pacote.title),
+                slug: slugify(`${pacote.title}-${pacote.id}`),
             })),
         }));
 

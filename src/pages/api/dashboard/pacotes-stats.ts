@@ -3,9 +3,20 @@ import { PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { PacoteFoto, PacoteDate } from "types";
 import { contarVagasOcupadas } from "utils/contarVagasOcupadas";
-import { slugify } from "utils/slugify";
 
 const prisma = new PrismaClient();
+
+// Função para gerar slug único
+function slugify(text: string) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "")
+    .replace(/--+/g, "-")
+    .replace(/-+$/, "");
+}
 
 // Tipo parcial de Pacote usado apenas para fotos
 type PacoteParcial = {
@@ -13,8 +24,8 @@ type PacoteParcial = {
   title: string;
   slug: string;
   destinoId: string;
-  description: unknown; // compatível com o tipo original
-  fotos: PacoteFoto[];  // necessário para compatibilidade
+  description: unknown;
+  fotos: PacoteFoto[];
   dates: (Omit<PacoteDate, "status"> & { status: "disponivel" | "esgotado" | "cancelado" })[];
 };
 
@@ -22,10 +33,11 @@ type PacoteFotoComPacote = PacoteFoto & {
   pacote?: PacoteParcial;
 };
 
-// Função para mapear e corrigir tipos do raw do Prisma
+// Mapear raw do Prisma para PacoteFotoComPacote
 function mapPacoteFoto(raw: any[]): PacoteFotoComPacote[] {
   return raw.map(f => ({
     ...f,
+    pacoteId: f.pacoteId, // <--- garante que PacoteFotoComPacote tenha pacoteId
     pacote: f.pacote
       ? {
         ...f.pacote,
@@ -33,7 +45,8 @@ function mapPacoteFoto(raw: any[]): PacoteFotoComPacote[] {
         fotos: f.pacote.fotos ?? [],
         dates: f.pacote.dates.map((d: any) => ({
           ...d,
-          // Converte status string para literal do tipo PacoteDate
+          saida: new Date(d.saida),
+          retorno: new Date(d.retorno),
           status:
             d.status === "disponivel" || d.status === "esgotado" || d.status === "cancelado"
               ? d.status
@@ -41,6 +54,15 @@ function mapPacoteFoto(raw: any[]): PacoteFotoComPacote[] {
         })) as PacoteDate[],
       }
       : undefined,
+  }));
+}
+
+// Adicionar slug único para fotos/pacotes
+function addSlug(items: PacoteFotoComPacote[]): PacoteFotoComPacote[] {
+  return items.map(item => ({
+    ...item,
+    caption: item.caption ?? undefined,
+    slug: slugify(`${item.pacote?.title || item.caption || "foto"}-${item.id}`),
   }));
 }
 
@@ -57,19 +79,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       take: 8,
       include: {
         pacote: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            description: true,
-            destinoId: true,
-            fotos: true,
-            dates: true,
-          },
+          select: { id: true, title: true, slug: true, description: true, destinoId: true, fotos: true, dates: true },
         },
       },
     });
-    const mostLiked: PacoteFotoComPacote[] = mapPacoteFoto(mostLikedRaw);
+    const mostLiked = mapPacoteFoto(mostLikedRaw);
 
     // --- Fotos mais visualizadas ---
     const mostViewedRaw = await prisma.pacoteFoto.findMany({
@@ -77,26 +91,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       take: 8,
       include: {
         pacote: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            description: true,
-            destinoId: true,
-            fotos: true,
-            dates: true,
-          },
+          select: { id: true, title: true, slug: true, description: true, destinoId: true, fotos: true, dates: true },
         },
       },
     });
-    const mostViewed: PacoteFotoComPacote[] = mapPacoteFoto(mostViewedRaw);
+    const mostViewed = mapPacoteFoto(mostViewedRaw);
 
-    // --- Todos os pacotes com datas e fotos ---
+    // --- Todos os pacotes ---
     const allPackagesRaw = await prisma.pacote.findMany({ include: { dates: true, fotos: true } });
     const allPackages = allPackagesRaw.map(pkg => ({
       ...pkg,
       dates: pkg.dates.map(d => ({
         ...d,
+        saida: new Date(d.saida),
+        retorno: new Date(d.retorno),
         status: d.status as "disponivel" | "esgotado" | "cancelado",
       })),
     }));
@@ -112,13 +120,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       0
     );
     const totalSubscribers = await prisma.subscriber.count();
-
-    const addSlug = (items: PacoteFotoComPacote[]) =>
-      items.map(item => ({
-        ...item,
-        caption: item.caption ?? undefined,
-        slug: slugify(item.pacote?.title || item.caption || "foto"),
-      }));
 
     return res.status(200).json({
       success: true,

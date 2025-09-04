@@ -28,14 +28,10 @@ function slugify(text: string): string {
         .replace(/-+$/, '');
 }
 
-interface CatalogPageProps {
-    destinos: Destino[];
-}
-
 export const getServerSideProps: GetServerSideProps<CatalogPageProps> = async () => {
     try {
         const destinosRaw = await prisma.destino.findMany({
-            // Ajuste: removi `order` porque não existe na tabela
+            orderBy: { title: 'asc' }, // coluna existente para ordenar destinos
             include: {
                 pacotes: {
                     orderBy: [
@@ -52,24 +48,24 @@ export const getServerSideProps: GetServerSideProps<CatalogPageProps> = async ()
 
         const destinos: Destino[] = destinosRaw.map(destino => ({
             ...destino,
-            slug: slugify(destino.title),
+            slug: slugify(`${destino.title}-${destino.id}`), // garante slug único
             pacotes: destino.pacotes.map(pacote => ({
                 ...pacote,
-                slug: slugify(`${pacote.title}-${pacote.subtitle || ''}`),
+                slug: slugify(`${pacote.title}-${pacote.subtitle || ''}-${pacote.id}`), // slug único
                 fotos: pacote.fotos || [],
                 dates: pacote.dates.map(d => ({
                     ...d,
                     status:
                         d.status === "disponivel" || d.status === "esgotado" || d.status === "cancelado"
                             ? d.status
-                            : "disponivel", // default se vier outro valor do banco
+                            : "disponivel", // default se vier outro valor
                 })) as PacoteDate[],
             })),
         }));
 
         return {
             props: {
-                destinos: JSON.parse(JSON.stringify(destinos)), // garante que Date vira string
+                destinos: JSON.parse(JSON.stringify(destinos)), // converte Date para string
             },
         };
     } catch (error) {
