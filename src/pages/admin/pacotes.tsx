@@ -3,7 +3,12 @@ import Head from "next/head";
 import { MdAdd, MdAddPhotoAlternate, MdDelete, MdEdit, MdCalendarMonth } from 'react-icons/md';
 import AdminLayout from "components/admin/AdminLayout";
 import { slugify } from "utils/slugify";
-import RichTextEditor from "components/RichTextEditor"; // Importa o componente do editor
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(
+    () => import("components/RichTextEditor"),
+    { ssr: false } // ISSO é a chave!
+);
 
 // Definições de tipo atualizadas para o novo schema
 interface PacoteFoto {
