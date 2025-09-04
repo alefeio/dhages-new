@@ -127,6 +127,8 @@ model Pacote {
   destinoId   String
   fotos       PacoteFoto[]
   dates       PacoteDate[] // todas as saídas disponíveis
+  like        Int          @default(0)  // quantidade de curtidas
+  view        Int          @default(0)  // quantidade de visualizações
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   deletedAt   DateTime?
@@ -138,6 +140,8 @@ model PacoteFoto {
   caption   String?
   pacote    Pacote   @relation(fields: [pacoteId], references: [id], onDelete: Cascade)
   pacoteId  String
+  like      Int      @default(0) // curtidas da foto
+  view      Int      @default(0) // visualizações da foto
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

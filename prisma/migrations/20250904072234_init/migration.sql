@@ -134,6 +134,8 @@ CREATE TABLE "public"."Pacote" (
     "slug" TEXT NOT NULL,
     "description" JSONB NOT NULL,
     "destinoId" TEXT NOT NULL,
+    "like" INTEGER NOT NULL DEFAULT 0,
+    "view" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
@@ -147,6 +149,8 @@ CREATE TABLE "public"."PacoteFoto" (
     "url" TEXT NOT NULL,
     "caption" TEXT,
     "pacoteId" TEXT NOT NULL,
+    "like" INTEGER NOT NULL DEFAULT 0,
+    "view" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
