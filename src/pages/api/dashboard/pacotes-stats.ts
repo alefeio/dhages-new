@@ -23,7 +23,7 @@ type PacoteFotoComPacote = PacoteFoto & {
 };
 
 // Função para mapear e corrigir tipos do raw do Prisma
-function mapPacoteFoto(raw: (PacoteFoto & { pacote?: any })[]): PacoteFotoComPacote[] {
+function mapPacoteFoto(raw: any[]): PacoteFotoComPacote[] {
   return raw.map(f => ({
     ...f,
     pacote: f.pacote
@@ -33,10 +33,12 @@ function mapPacoteFoto(raw: (PacoteFoto & { pacote?: any })[]): PacoteFotoComPac
         fotos: f.pacote.fotos ?? [],
         dates: f.pacote.dates.map((d: any) => ({
           ...d,
-          status: ["disponivel", "esgotado", "cancelado"].includes(d.status)
-            ? (d.status as "disponivel" | "esgotado" | "cancelado")
-            : "disponivel", // valor padrão seguro
-        })),
+          // Converte status string para literal do tipo PacoteDate
+          status:
+            d.status === "disponivel" || d.status === "esgotado" || d.status === "cancelado"
+              ? d.status
+              : "disponivel",
+        })) as PacoteDate[],
       }
       : undefined,
   }));
