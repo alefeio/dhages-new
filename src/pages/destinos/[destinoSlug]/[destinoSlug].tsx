@@ -55,8 +55,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
         })) as PacoteFoto[],
         dates: p.dates.map(d => ({
           ...d,
-          saida: d.saida.toISOString(),
-          retorno: d.retorno.toISOString(),
           notes: d.notes ?? undefined,
         })) as PacoteDate[],
       })) as Pacote[],
