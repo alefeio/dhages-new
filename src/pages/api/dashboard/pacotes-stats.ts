@@ -33,7 +33,9 @@ function mapPacoteFoto(raw: (PacoteFoto & { pacote?: any })[]): PacoteFotoComPac
         fotos: f.pacote.fotos ?? [],
         dates: f.pacote.dates.map((d: any) => ({
           ...d,
-          status: d.status as "disponivel" | "esgotado" | "cancelado",
+          status: ["disponivel", "esgotado", "cancelado"].includes(d.status)
+            ? (d.status as "disponivel" | "esgotado" | "cancelado")
+            : "disponivel", // valor padrão seguro
         })),
       }
       : undefined,
