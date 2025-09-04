@@ -1,15 +1,11 @@
 // pages/api/destinos.ts
 import { PrismaClient } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import {
-  Destino,
-  Pacote,
-  PacoteFoto,
-  PacoteDate,
-} from 'types';
+import { Destino, Pacote, PacoteFoto, PacoteDate } from 'types';
 
 const prisma = new PrismaClient();
 
+// Função utilitária para criar slugs
 function slugify(text: string): string {
   return text
     .toString()
@@ -21,7 +17,7 @@ function slugify(text: string): string {
     .replace(/-+$/, '');
 }
 
-// Tipos auxiliares para expandir relações do Prisma
+// Tipos auxiliares com relações
 type PacoteWithRelations = Pacote & {
   fotos: PacoteFoto[];
   dates: PacoteDate[];
@@ -30,6 +26,18 @@ type PacoteWithRelations = Pacote & {
 type DestinoWithRelations = Destino & {
   pacotes: PacoteWithRelations[];
 };
+
+// Função para adicionar slugs a destinos e pacotes
+function addSlugs(destinos: (Destino & { pacotes: PacoteWithRelations[] })[]): DestinoWithRelations[] {
+  return destinos.map(destino => ({
+    ...destino,
+    slug: slugify(destino.title),
+    pacotes: destino.pacotes.map(pacote => ({
+      ...pacote,
+      slug: slugify(pacote.title),
+    })),
+  }));
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -50,53 +58,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             orderBy: { createdAt: 'desc' },
           });
 
-          const destinos = destinosRaw as DestinoWithRelations[];
-
-          const destinosComSlugs: DestinoWithRelations[] = destinos.map(
-            (destino) => ({
-              ...destino,
-              slug: slugify(destino.title),
-              pacotes: destino.pacotes.map((pacote) => ({
-                ...pacote,
-                slug: slugify(pacote.title),
-              })),
-            }),
-          );
+          const destinosComSlugs = addSlugs(destinosRaw);
 
           return res.status(200).json({ success: true, destinos: destinosComSlugs });
         } catch (error) {
           console.error('Erro ao buscar destinos:', error);
-          return res
-            .status(500)
-            .json({ success: false, message: 'Erro ao buscar destinos.' });
+          return res.status(500).json({ success: false, message: 'Erro ao buscar destinos.' });
         }
       }
 
       case 'POST': {
         try {
-          const { title, subtitle, description, image, pacotes } =
-            req.body as Destino;
+          const { title, subtitle, description, image, pacotes } = req.body as Destino & { pacotes?: Pacote[] };
 
-          const createdDestino = (await prisma.destino.create({
+          const createdDestino = await prisma.destino.create({
             data: {
               title,
               subtitle,
               description,
               image,
               pacotes: {
-                create: (pacotes || []).map((pacote) => ({
+                create: (pacotes || []).map(pacote => ({
                   title: pacote.title,
                   subtitle: pacote.subtitle,
                   slug: slugify(pacote.title),
                   description: pacote.description,
                   fotos: {
-                    create: (pacote.fotos || []).map((foto) => ({
+                    create: (pacote.fotos || []).map(foto => ({
                       url: foto.url,
                       caption: foto.caption,
                     })),
                   },
                   dates: {
-                    create: (pacote.dates || []).map((date) => ({
+                    create: (pacote.dates || []).map(date => ({
                       saida: new Date(date.saida),
                       retorno: new Date(date.retorno),
                       vagas_total: date.vagas_total,
@@ -110,37 +104,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 })),
               },
             },
-            include: {
-              pacotes: { include: { fotos: true, dates: true } },
-            },
-          })) as DestinoWithRelations;
+            include: { pacotes: { include: { fotos: true, dates: true } } },
+          });
 
-          return res.status(201).json({ success: true, data: createdDestino });
+          const destinoComSlug = addSlugs([createdDestino])[0];
+
+          return res.status(201).json({ success: true, data: destinoComSlug });
         } catch (error) {
           console.error('Erro ao criar destino:', error);
-          return res
-            .status(500)
-            .json({ success: false, message: 'Erro ao criar destino.' });
+          return res.status(500).json({ success: false, message: 'Erro ao criar destino.' });
         }
       }
 
       case 'PUT': {
         try {
-          const { id, pacotes, ...rest } = req.body as Destino & { id: string };
+          const { id, pacotes, ...rest } = req.body as Destino & { id: string; pacotes?: Pacote[] };
 
-          if (!id) {
-            return res
-              .status(400)
-              .json({ success: false, message: 'ID do destino é obrigatório.' });
-          }
+          if (!id) return res.status(400).json({ success: false, message: 'ID do destino é obrigatório.' });
 
-          await prisma.destino.update({
-            where: { id },
-            data: { ...rest },
-          });
+          // Atualiza dados do destino
+          await prisma.destino.update({ where: { id }, data: rest });
 
+          // Atualiza ou cria pacotes
           if (pacotes && Array.isArray(pacotes)) {
-            const txOps = pacotes.map((p) => {
+            const txOps = pacotes.map(p => {
               if (p.id) {
                 return prisma.pacote.update({
                   where: { id: p.id },
@@ -159,64 +146,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     slug: slugify(p.title),
                     description: p.description,
                     destinoId: id,
-                    fotos: {
-                      create: (p.fotos || []).map((f) => ({
-                        url: f.url,
-                        caption: f.caption,
-                      })),
-                    },
-                    dates: {
-                      create: (p.dates || []).map((d) => ({
-                        saida: new Date(d.saida),
-                        retorno: new Date(d.retorno),
-                        vagas_total: d.vagas_total,
-                        vagas_disponiveis: d.vagas_disponiveis,
-                        price: d.price,
-                        price_card: d.price_card,
-                        status: d.status,
-                        notes: d.notes,
-                      })),
-                    },
+                    fotos: { create: (p.fotos || []).map(f => ({ url: f.url, caption: f.caption })) },
+                    dates: { create: (p.dates || []).map(d => ({
+                      saida: new Date(d.saida),
+                      retorno: new Date(d.retorno),
+                      vagas_total: d.vagas_total,
+                      vagas_disponiveis: d.vagas_disponiveis,
+                      price: d.price,
+                      price_card: d.price_card,
+                      status: d.status,
+                      notes: d.notes,
+                    })) },
                   },
                 });
               }
             });
-
             await prisma.$transaction(txOps);
           }
 
-          const destinoComPacotes = (await prisma.destino.findUnique({
+          const updatedDestino = await prisma.destino.findUnique({
             where: { id },
             include: { pacotes: { include: { fotos: true, dates: true } } },
-          })) as DestinoWithRelations | null;
+          });
 
-          return res.status(200).json({ success: true, data: destinoComPacotes });
+          if (!updatedDestino) return res.status(404).json({ success: false, message: 'Destino não encontrado.' });
+
+          const destinoComSlug = addSlugs([updatedDestino])[0];
+
+          return res.status(200).json({ success: true, data: destinoComSlug });
         } catch (error) {
           console.error('Erro ao atualizar destino:', error);
-          return res
-            .status(500)
-            .json({ success: false, message: 'Erro ao atualizar destino.' });
+          return res.status(500).json({ success: false, message: 'Erro ao atualizar destino.' });
         }
       }
 
       case 'DELETE': {
         try {
           const { id } = req.query;
-          if (!id || typeof id !== 'string') {
-            return res
-              .status(400)
-              .json({ success: false, message: 'ID do destino é obrigatório.' });
-          }
+          if (!id || typeof id !== 'string') return res.status(400).json({ success: false, message: 'ID do destino é obrigatório.' });
 
           await prisma.destino.delete({ where: { id } });
-          return res
-            .status(200)
-            .json({ success: true, message: 'Destino excluído com sucesso.' });
+          return res.status(200).json({ success: true, message: 'Destino excluído com sucesso.' });
         } catch (error) {
           console.error('Erro ao excluir destino:', error);
-          return res
-            .status(500)
-            .json({ success: false, message: 'Erro ao excluir destino.' });
+          return res.status(500).json({ success: false, message: 'Erro ao excluir destino.' });
         }
       }
 
