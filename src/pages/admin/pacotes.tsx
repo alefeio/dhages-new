@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import { MdAdd, MdAddPhotoAlternate, MdDelete, MdEdit, MdCalendarMonth } from 'react-icons/md';
 import AdminLayout from "components/admin/AdminLayout";
-import { slugify } from "utils/slugify"; // Você precisará criar uma função para gerar slugs
+import { slugify } from "utils/slugify";
 
 // Definições de tipo atualizadas para o novo schema
 interface PacoteFoto {
@@ -13,8 +13,8 @@ interface PacoteFoto {
 
 interface PacoteDate {
   id?: string;
-  saida: string; // Usaremos string para a entrada do formulário
-  retorno: string; // Usaremos string para a entrada do formulário
+  saida: string;
+  retorno: string;
   vagas_total: number;
   vagas_disponiveis: number;
   price: number;
@@ -38,7 +38,7 @@ interface Destino {
   title: string;
   slug: string;
   subtitle: string;
-  description: any; // Usaremos `any` ou uma interface mais complexa para o JSON
+  description: any;
   image: string;
   order: number;
   pacotes: Pacote[];
@@ -132,15 +132,20 @@ export default function AdminDestinos() {
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, files } = e.target;
+    const { name, value } = e.target;
     if (name === "order") {
       setForm({ ...form, [name]: parseInt(value, 10) || 0 });
-    } else if (name === "image" && files) {
-      setForm({ ...form, [name]: files[0] });
     } else {
       setForm({ ...form, [name]: value });
     }
   };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, files } = e.target;
+      if (files && files[0]) {
+        setForm({ ...form, [name]: files[0] });
+      }
+  }
 
   const handlePacoteChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, pacoteIndex: number) => {
     const { name, value } = e.target;
@@ -236,7 +241,7 @@ export default function AdminDestinos() {
         fotos: pacote.fotos.map(foto => ({ ...foto, url: foto.url as string })),
         dates: pacote.dates.map(date => ({
           ...date,
-          saida: date.saida.substring(0, 16), // Formata para input datetime-local
+          saida: date.saida.substring(0, 16),
           retorno: date.retorno.substring(0, 16),
           notes: date.notes || ""
         }))
@@ -251,7 +256,6 @@ export default function AdminDestinos() {
     setError("");
 
     try {
-      // Upload da imagem do destino
       let imageUrl = form.image;
       if (form.image instanceof File) {
         const formData = new FormData();
@@ -267,7 +271,6 @@ export default function AdminDestinos() {
         imageUrl = uploadData.url;
       }
 
-      // Upload das fotos dos pacotes
       const pacotesWithUrls = await Promise.all(
         form.pacotes.map(async (pacote) => {
           const fotosWithUrls = await Promise.all(
@@ -356,7 +359,6 @@ export default function AdminDestinos() {
       </Head>
       <AdminLayout>
         <h1 className="text-4xl font-extrabold mb-8 text-gray-500">Gerenciar Destinos e Pacotes</h1>
-        {/* Formulário de Criação/Edição */}
         <section className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-10">
           <h2 className="text-2xl font-bold mb-6 text-gray-700 dark:text-gray-400">{form.id ? "Editar Destino" : "Adicionar Novo Destino"}</h2>
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -369,7 +371,8 @@ export default function AdminDestinos() {
               {typeof form.image === 'string' && form.image && (
                 <img src={form.image} alt="Destino" className="w-24 h-24 object-cover rounded-lg" />
               )}
-              <input type="file" name="image" onChange={handleFormChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+              {/* ATUALIZADO: Usando handleImageChange */}
+              <input type="file" name="image" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
             </div>
             <input type="number" name="order" value={form.order} onChange={handleFormChange} placeholder="Ordem" required className="p-3 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
             <hr className="my-6" />
