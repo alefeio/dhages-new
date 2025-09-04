@@ -13,8 +13,8 @@ type PacoteParcial = {
   title: string;
   slug: string;
   destinoId: string;
-  description: unknown;
-  fotos: PacoteFoto[];
+  description: unknown; // compatível com o tipo original
+  fotos: PacoteFoto[];  // necessário para compatibilidade
   dates: (Omit<PacoteDate, "status"> & { status: "disponivel" | "esgotado" | "cancelado" })[];
 };
 
@@ -22,47 +22,23 @@ type PacoteFotoComPacote = PacoteFoto & {
   pacote?: PacoteParcial;
 };
 
-// Função para mapear os PacoteFoto
-const mapPacoteFoto = (
-  items: (PacoteFoto & {
-    pacote?: {
-      id: string;
-      title: string;
-      slug: string;
-      description: unknown;
-      destinoId: string;
-      fotos: PacoteFoto[];
-      dates: {
-        id: string;
-        pacoteId: string;
-        createdAt: Date;
-        updatedAt: Date;
-        saida: Date;
-        retorno: Date;
-        vagas_total: number;
-        vagas_disponiveis: number;
-        price: number;
-        price_card: number;
-        status: string;
-        notes: string | null;
-      }[];
-    };
-  })[]
-): PacoteFotoComPacote[] =>
-  items.map(f => ({
+// Função para mapear e corrigir tipos do raw do Prisma
+function mapPacoteFoto(raw: (PacoteFoto & { pacote?: any })[]): PacoteFotoComPacote[] {
+  return raw.map(f => ({
     ...f,
     pacote: f.pacote
       ? {
-          ...f.pacote,
-          description: f.pacote.description ?? {},
-          fotos: f.pacote.fotos ?? [],
-          dates: f.pacote.dates.map(d => ({
-            ...d,
-            status: d.status as "disponivel" | "esgotado" | "cancelado",
-          })),
-        }
+        ...f.pacote,
+        description: f.pacote.description as unknown,
+        fotos: f.pacote.fotos ?? [],
+        dates: f.pacote.dates.map((d: any) => ({
+          ...d,
+          status: d.status as "disponivel" | "esgotado" | "cancelado",
+        })),
+      }
       : undefined,
   }));
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -112,10 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const mostViewed: PacoteFotoComPacote[] = mapPacoteFoto(mostViewedRaw);
 
     // --- Todos os pacotes com datas e fotos ---
-    const allPackagesRaw = await prisma.pacote.findMany({
-      include: { dates: true, fotos: true },
-    });
-
+    const allPackagesRaw = await prisma.pacote.findMany({ include: { dates: true, fotos: true } });
     const allPackages = allPackagesRaw.map(pkg => ({
       ...pkg,
       dates: pkg.dates.map(d => ({
