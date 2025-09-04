@@ -1,7 +1,7 @@
-// pages/api/destinos.ts
+// pages/api/crud/destinos.ts
 import { PrismaClient } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Destino, PacoteFoto, PacoteDate } from 'types';
+import { Destino } from 'types'; // Certifique-se de que a tipagem está correta
 
 const prisma = new PrismaClient();
 
@@ -18,115 +18,178 @@ function slugify(text: string): string {
     .replace(/-+$/, '');
 }
 
-// Adiciona slugs e ajusta datas e notas
-function addSlugs(destinos: any[]): Destino[] {
-  return destinos.map((d) => ({
-    ...d,
-    slug: d.slug || slugify(`${d.title}-${d.id}`),
-    pacotes: d.pacotes.map((p: any) => ({
-      ...p,
-      slug: p.slug || slugify(`${p.title}-${p.id}`),
-      fotos: p.fotos.map((f: any): PacoteFoto => ({
-        ...f,
-        caption: f.caption ?? undefined,
-      })),
-      dates: p.dates.map((dt: any): PacoteDate => ({
-        ...dt,
-        saida: new Date(dt.saida),
-        retorno: new Date(dt.retorno),
-        notes: dt.notes ?? undefined,
-      })),
-    })),
-  }));
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { method } = req;
 
     switch (method) {
       case 'GET': {
-        const destinosRaw = await prisma.destino.findMany({
+        const destinos = await prisma.destino.findMany({
           include: { pacotes: { include: { fotos: true, dates: { orderBy: { saida: 'asc' } } } } },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { order: 'asc' }, // Ordena por `order` para o frontend
         });
-
-        return res.status(200).json({ success: true, destinos: addSlugs(destinosRaw) });
+        return res.status(200).json({ success: true, destinos });
       }
 
       case 'POST': {
-        const { title, subtitle, description, image, pacotes } = req.body as Destino & { pacotes?: any[] };
+        const { title, subtitle, description, image, order, pacotes } = req.body;
+        if (!title || !description) {
+          return res.status(400).json({ success: false, message: 'Título e descrição são obrigatórios.' });
+        }
 
-        const createdDestino = await prisma.destino.create({
+        const newDestino = await prisma.destino.create({
           data: {
             title,
-            slug: slugify(`${title}-${Date.now()}`), // Garante unicidade no momento da criação
-            subtitle,
+            slug: slugify(`${title}-${Date.now()}`),
+            subtitle: subtitle || null,
             description,
-            image,
+            image: image || null,
+            order: order || 0,
             pacotes: {
-              create: (pacotes || []).map((p) => ({
+              create: (pacotes || []).map((p: any) => ({
                 title: p.title,
-                slug: p.slug || slugify(`${p.title}-${Date.now()}`),
-                subtitle: p.subtitle,
+                slug: slugify(`${p.title}-${Date.now()}`),
+                subtitle: p.subtitle || null,
                 description: p.description,
-                fotos: { create: p.fotos?.map(f => ({ url: f.url, caption: f.caption ?? undefined })) || [] },
-                dates: { create: p.dates?.map(d => ({ ...d, saida: new Date(d.saida), retorno: new Date(d.retorno) })) || [] },
+                fotos: { create: p.fotos.map((f: any) => ({ url: f.url, caption: f.caption || null })) },
+                dates: {
+                  create: p.dates.map((d: any) => ({
+                    saida: new Date(d.saida),
+                    retorno: new Date(d.retorno),
+                    vagas_total: d.vagas_total,
+                    vagas_disponiveis: d.vagas_disponiveis,
+                    price: d.price,
+                    price_card: d.price_card,
+                    status: d.status,
+                    notes: d.notes || null,
+                  })),
+                },
               })),
             },
           },
           include: { pacotes: { include: { fotos: true, dates: true } } },
         });
 
-        return res.status(201).json({ success: true, data: addSlugs([createdDestino])[0] });
+        return res.status(201).json({ success: true, data: newDestino });
       }
 
       case 'PUT': {
-        const { id, pacotes, ...rest } = req.body as Destino & { id: string; pacotes?: any[] };
-        if (!id) return res.status(400).json({ success: false, message: 'ID do destino é obrigatório.' });
+        const { id, title, subtitle, description, image, order, pacotes } = req.body;
+        if (!id) {
+          return res.status(400).json({ success: false, message: 'ID do destino é obrigatório para a atualização.' });
+        }
 
-        await prisma.destino.update({ where: { id }, data: rest });
+        // 1. Encontrar todos os pacotes existentes para este destino
+        const existingPacotes = await prisma.pacote.findMany({ where: { destinoId: id } });
+        const existingPacoteIds = new Set(existingPacotes.map(p => p.id));
+        const incomingPacoteIds = new Set((pacotes || []).filter((p: any) => p.id).map((p: any) => p.id));
 
-        if (pacotes?.length) {
-          const txOps = pacotes.map((p) => p.id
-            ? prisma.pacote.update({
+        const txOps = [];
+
+        // 2. Atualizar ou criar pacotes aninhados e seus subitens
+        for (const p of (pacotes || [])) {
+          if (p.id) {
+            // Se o pacote tem um ID, é uma atualização
+            txOps.push(
+              prisma.pacote.update({
                 where: { id: p.id },
-                data: { 
-                  title: p.title, 
-                  subtitle: p.subtitle, 
-                  slug: p.slug || slugify(`${p.title}-${p.id}`), 
-                  description: p.description 
-                },
-              })
-            : prisma.pacote.create({
                 data: {
                   title: p.title,
-                  subtitle: p.subtitle,
-                  slug: p.slug || slugify(`${p.title}-${Date.now()}`),
+                  subtitle: p.subtitle || null,
+                  slug: slugify(`${p.title}-${p.id}`), // Garante slug atualizado
                   description: p.description,
-                  destinoId: id,
-                  fotos: { create: p.fotos?.map(f => ({ url: f.url, caption: f.caption ?? undefined })) || [] },
-                  dates: { create: p.dates?.map(d => ({ ...d, saida: new Date(d.saida), retorno: new Date(d.retorno) })) || [] },
+                  fotos: {
+                    // Sincroniza fotos: delete as antigas, crie as novas
+                    deleteMany: { pacoteId: p.id },
+                    create: p.fotos.map((f: any) => ({ url: f.url, caption: f.caption || null })),
+                  },
+                  dates: {
+                    // Sincroniza datas: delete as antigas, crie as novas
+                    deleteMany: { pacoteId: p.id },
+                    create: p.dates.map((d: any) => ({
+                      saida: new Date(d.saida),
+                      retorno: new Date(d.retorno),
+                      vagas_total: d.vagas_total,
+                      vagas_disponiveis: d.vagas_disponiveis,
+                      price: d.price,
+                      price_card: d.price_card,
+                      status: d.status,
+                      notes: d.notes || null,
+                    })),
+                  },
                 },
               })
-          );
-          await prisma.$transaction(txOps);
+            );
+          } else {
+            // Se o pacote não tem ID, é uma criação
+            txOps.push(
+              prisma.pacote.create({
+                data: {
+                  title: p.title,
+                  subtitle: p.subtitle || null,
+                  slug: slugify(`${p.title}-${Date.now()}`),
+                  description: p.description,
+                  destinoId: id,
+                  fotos: { create: p.fotos.map((f: any) => ({ url: f.url, caption: f.caption || null })) },
+                  dates: {
+                    create: p.dates.map((d: any) => ({
+                      saida: new Date(d.saida),
+                      retorno: new Date(d.retorno),
+                      vagas_total: d.vagas_total,
+                      vagas_disponiveis: d.vagas_disponiveis,
+                      price: d.price,
+                      price_card: d.price_card,
+                      status: d.status,
+                      notes: d.notes || null,
+                    })),
+                  },
+                },
+              })
+            );
+          }
         }
+
+        // 3. Remover pacotes que não estão mais no payload de entrada
+        const idsToDelete = [...existingPacoteIds].filter(id => !incomingPacoteIds.has(id));
+        if (idsToDelete.length > 0) {
+          txOps.push(prisma.pacote.deleteMany({ where: { id: { in: idsToDelete } } }));
+        }
+
+        // 4. Atualizar o Destino principal
+        txOps.push(
+          prisma.destino.update({
+            where: { id },
+            data: {
+              title,
+              subtitle: subtitle || null,
+              description,
+              image: image || null,
+              order,
+              slug: slugify(title) // Atualiza o slug do destino
+            },
+          })
+        );
+
+        // Executar todas as operações de banco de dados em uma transação
+        await prisma.$transaction(txOps);
 
         const updatedDestino = await prisma.destino.findUnique({
           where: { id },
           include: { pacotes: { include: { fotos: true, dates: true } } },
         });
 
-        if (!updatedDestino) return res.status(404).json({ success: false, message: 'Destino não encontrado.' });
+        if (!updatedDestino) {
+          return res.status(404).json({ success: false, message: 'Destino não encontrado.' });
+        }
 
-        return res.status(200).json({ success: true, data: addSlugs([updatedDestino])[0] });
+        return res.status(200).json({ success: true, data: updatedDestino });
       }
 
       case 'DELETE': {
-        const { id } = req.query;
-        if (!id || typeof id !== 'string') return res.status(400).json({ success: false, message: 'ID do destino é obrigatório.' });
-
+        const { id } = req.body;
+        if (!id || typeof id !== 'string') {
+          return res.status(400).json({ success: false, message: 'ID do destino é obrigatório.' });
+        }
         await prisma.destino.delete({ where: { id } });
         return res.status(200).json({ success: true, message: 'Destino excluído com sucesso.' });
       }
@@ -135,6 +198,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
         return res.status(405).end(`Método ${method} não permitido`);
     }
+  } catch (error) {
+    console.error('API Error:', error);
+    return res.status(500).json({ success: false, message: 'Erro interno do servidor.', error: (error as Error).message });
   } finally {
     await prisma.$disconnect();
   }
