@@ -58,7 +58,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             orderBy: { createdAt: 'desc' },
           });
 
-          const destinosComSlugs = addSlugs(destinosRaw);
+          const destinosComSlugs = destinosRaw.map((d: Destino & { pacotes: Pacote[] }) => ({
+            ...d,
+            slug: d.slug || slugify(d.title),
+            pacotes: d.pacotes.map((p: Pacote) => ({
+              ...p,
+              slug: p.slug || slugify(p.title),
+            })),
+          }));
 
           return res.status(200).json({ success: true, destinos: destinosComSlugs });
         } catch (error) {
@@ -74,33 +81,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const createdDestino = await prisma.destino.create({
             data: {
               title,
+              slug: slugify(title),
               subtitle,
               description,
               image,
               pacotes: {
-                create: (pacotes || []).map(pacote => ({
-                  title: pacote.title,
-                  subtitle: pacote.subtitle,
-                  slug: slugify(pacote.title),
-                  description: pacote.description,
-                  fotos: {
-                    create: (pacote.fotos || []).map(foto => ({
-                      url: foto.url,
-                      caption: foto.caption,
-                    })),
-                  },
-                  dates: {
-                    create: (pacote.dates || []).map(date => ({
-                      saida: new Date(date.saida),
-                      retorno: new Date(date.retorno),
-                      vagas_total: date.vagas_total,
-                      vagas_disponiveis: date.vagas_disponiveis,
-                      price: date.price,
-                      price_card: date.price_card,
-                      status: date.status,
-                      notes: date.notes,
-                    })),
-                  },
+                create: (pacotes || []).map(p => ({
+                  title: p.title,
+                  slug: slugify(p.title),
+                  subtitle: p.subtitle,
+                  description: p.description,
+                  fotos: { create: p.fotos || [] },
+                  dates: { create: p.dates || [] },
                 })),
               },
             },
@@ -147,16 +139,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     description: p.description,
                     destinoId: id,
                     fotos: { create: (p.fotos || []).map(f => ({ url: f.url, caption: f.caption })) },
-                    dates: { create: (p.dates || []).map(d => ({
-                      saida: new Date(d.saida),
-                      retorno: new Date(d.retorno),
-                      vagas_total: d.vagas_total,
-                      vagas_disponiveis: d.vagas_disponiveis,
-                      price: d.price,
-                      price_card: d.price_card,
-                      status: d.status,
-                      notes: d.notes,
-                    })) },
+                    dates: {
+                      create: (p.dates || []).map(d => ({
+                        saida: new Date(d.saida),
+                        retorno: new Date(d.retorno),
+                        vagas_total: d.vagas_total,
+                        vagas_disponiveis: d.vagas_disponiveis,
+                        price: d.price,
+                        price_card: d.price_card,
+                        status: d.status,
+                        notes: d.notes,
+                      }))
+                    },
                   },
                 });
               }

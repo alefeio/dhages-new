@@ -107,6 +107,7 @@ model FAQ {
 model Destino {
   id          String    @id @default(cuid())
   title       String
+  slug        String    @unique
   subtitle    String?
   description Json       // descrição rica com títulos, parágrafos e tabelas
   image       String?

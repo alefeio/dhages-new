@@ -115,6 +115,7 @@ CREATE TABLE "public"."FAQ" (
 CREATE TABLE "public"."Destino" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "subtitle" TEXT,
     "description" JSONB NOT NULL,
     "image" TEXT,
@@ -223,6 +224,9 @@ CREATE UNIQUE INDEX "VerificationToken_token_key" ON "public"."VerificationToken
 
 -- CreateIndex
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "public"."VerificationToken"("identifier", "token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Destino_slug_key" ON "public"."Destino"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Pacote_slug_key" ON "public"."Pacote"("slug");
