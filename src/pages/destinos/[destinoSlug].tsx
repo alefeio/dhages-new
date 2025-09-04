@@ -1,42 +1,79 @@
-// pages/destinos/[destinoSlug].tsx
+// src/pages/destinos/[destinoSlug].tsx
 import { GetServerSideProps } from 'next';
 import Home from '../index';
+import { Banner, MenuItem, TestimonialItem, FaqItem, Destino, Pacote, PacoteFoto, PacoteDate } from 'types';
 import { PrismaClient } from '@prisma/client';
-import { Destino } from 'types';
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const prisma = new PrismaClient();
+const prisma = new PrismaClient();
+
+// Função para gerar slug
+function slugify(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
   try {
-    const [banners, menus, testimonials, faqs, destinos] = await Promise.all([
-      prisma.banner.findMany(),
-      prisma.menu.findMany(),
-      prisma.testimonial.findMany(),
-      prisma.fAQ.findMany({ orderBy: { pergunta: 'asc' } }),
-      prisma.destino.findMany({
-        include: {
-          pacotes: {
-            include: {
-              fotos: true,
-              dates: true,
+    const [bannersRaw, menusRaw, testimonialsRaw, faqsRaw, destinosRaw] =
+      await Promise.all([
+        prisma.banner.findMany(),
+        prisma.menu.findMany(),
+        prisma.testimonial.findMany(),
+        prisma.fAQ.findMany({ orderBy: { pergunta: 'asc' } }),
+        prisma.destino.findMany({
+          include: {
+            pacotes: {
+              include: {
+                fotos: true,
+                dates: true,
+              },
             },
           },
-        },
-      }),
-    ]);
+        }),
+      ]);
 
-    const menu = menus.length > 0 ? menus[0] : null;
+    // Pega apenas o primeiro menu
+    const menu = menusRaw.length > 0 ? menusRaw[0] : null;
+
+    // Acrescenta slug nos destinos e pacotes
+    const destinos: Destino[] = destinosRaw.map(d => ({
+      ...d,
+      slug: d.slug || slugify(d.title),
+      pacotes: d.pacotes.map(p => ({
+        ...p,
+        slug: p.slug || slugify(p.title),
+        fotos: p.fotos.map(f => ({
+          ...f,
+          caption: f.caption ?? undefined,
+        })) as PacoteFoto[],
+        dates: p.dates.map(d => ({
+          ...d,
+          saida: d.saida.toISOString(),
+          retorno: d.retorno.toISOString(),
+          notes: d.notes ?? undefined,
+        })) as PacoteDate[],
+      })) as Pacote[],
+    }));
+
 
     return {
       props: {
-        banners: JSON.parse(JSON.stringify(banners)),
-        menu: JSON.parse(JSON.stringify(menu)),
-        testimonials: JSON.parse(JSON.stringify(testimonials)),
-        faqs: JSON.parse(JSON.stringify(faqs)),
-        destinos: JSON.parse(JSON.stringify(destinos)),
+        banners: JSON.parse(JSON.stringify(bannersRaw)) as Banner[],
+        menu: JSON.parse(JSON.stringify(menu)) as MenuItem | null,
+        testimonials: JSON.parse(JSON.stringify(testimonialsRaw)) as TestimonialItem[],
+        faqs: JSON.parse(JSON.stringify(faqsRaw)) as FaqItem[],
+        destinos: JSON.parse(JSON.stringify(destinos)) as Destino[],
       },
     };
   } catch (error) {
-    console.error("Erro ao buscar dados do banco de dados:", error);
+    console.error('Erro ao buscar dados do banco de dados:', error);
     return {
       props: {
         banners: [],
@@ -46,16 +83,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         destinos: [],
       },
     };
-  } finally {
-    await prisma.$disconnect();
   }
 };
 
 interface DestinoPageProps {
-  banners: any[];
-  menu: any | null;
-  testimonials: any[];
-  faqs: any[];
+  banners: Banner[];
+  menu: MenuItem | null;
+  testimonials: TestimonialItem[];
+  faqs: FaqItem[];
   destinos: Destino[];
 }
 
