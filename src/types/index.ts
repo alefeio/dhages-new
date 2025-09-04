@@ -113,6 +113,7 @@ export interface Destino {
     description: any; // JSON (conteúdo rico)
     image?: string | null;
     slug: string;
+    order: number;   // <-- campo adicionado
     pacotes: Pacote[];
 }
 
