@@ -20,7 +20,7 @@ const Footer = () => {
 
           {/* Links e redes sociais */}
           <div className="flex space-x-6 mb-4 md:mb-0">
-            <a href="https://www.instagram.com/mydressbelem/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <a href="https://www.instagram.com/dhages_turismo" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <FaInstagram className="h-6 w-6 text-gray-400 hover:text-white transition-colors" />
             </a>
             <a href="https://wa.me/5591985810208" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">

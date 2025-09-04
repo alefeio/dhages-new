@@ -11,7 +11,7 @@ export default function WhatsAppButton() {
     return (
         <div className="fixed flex justify-between gap-2 bottom-4 right-4 z-30">
             <a
-                href="https://www.instagram.com/mydress.aluguel"
+                href="https://www.instagram.com/dhages_turismo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="z-10 bg-pink-600 text-textcolor-50 hover:bg-pink-700 text-white rounded-full shadow-lg p-3 font-bold text-lg transition"

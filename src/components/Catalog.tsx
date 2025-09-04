@@ -1,19 +1,18 @@
-// src/components/Catalog.tsx
+// src/components/PacotesCatalog.tsx
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
-import ModalPhotos from "./ModalPhotos";
-import { ColecaoProps, ColecaoItem } from "../types";
-import CollectionGalleryCatalog from "./CollectionGalleryCatalog";
-import { FaShareAlt } from "react-icons/fa";
 import FloatingButtons from "./FloatingButtons";
+import { Destino } from "../types";
+import { FaShareAlt } from "react-icons/fa";
+import ModalPacoteFotos from "./ModalPacoteFotos";
 
-interface DressesGalleryProps {
-    colecoes: ColecaoProps[];
+interface PacotesGalleryProps {
+    destinos: Destino[];
 }
 
-export default function Catalog({ colecoes }: DressesGalleryProps) {
-    const [modalType, setModalType] = useState<string | null>(null);
+export default function Catalog({ destinos }: PacotesGalleryProps) {
+    const [modalDestino, setModalDestino] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [modalIdx, setModalIdx] = useState(0);
 
@@ -21,34 +20,38 @@ export default function Catalog({ colecoes }: DressesGalleryProps) {
     const [isSharing, setIsSharing] = useState(false);
 
     const router = useRouter();
-    const { collectionSlug, itemSlug } = router.query;
+    const { destinoSlug, pacoteSlug } = router.query;
 
-    const openModal = useCallback((collectionSlug: string, itemSlug: string) => {
-        if (collectionSlug && itemSlug) {
-            router.push({
-                pathname: router.pathname,
-                query: { collectionSlug, itemSlug }
-            }, undefined, { shallow: true, scroll: false });
-        } else {
-            console.error("Erro: slugs da coleção ou do item são nulos/undefined. Verifique seus dados.");
-        }
-    }, [router]);
+    const openModal = useCallback(
+        (destinoSlug: string, pacoteSlug: string) => {
+            if (destinoSlug && pacoteSlug) {
+                router.push(
+                    { pathname: router.pathname, query: { destinoSlug, pacoteSlug } },
+                    undefined,
+                    { shallow: true, scroll: false }
+                );
+            } else {
+                console.error("Erro: slugs de destino ou pacote são nulos/undefined.");
+            }
+        },
+        [router]
+    );
 
     const closeModal = useCallback(() => {
-        setModalType(null);
+        setModalDestino(null);
         setModalIdx(0);
         setShowModal(false);
         router.replace(router.pathname, undefined, { shallow: true, scroll: false });
     }, [router]);
 
     useEffect(() => {
-        if (router.isReady && colecoes.length > 0) {
-            if (typeof collectionSlug === "string" && typeof itemSlug === "string") {
-                const col = colecoes.find(c => c.slug === collectionSlug);
-                const idx = col?.items.findIndex(item => item.slug === itemSlug);
+        if (router.isReady && destinos.length > 0) {
+            if (typeof destinoSlug === "string" && typeof pacoteSlug === "string") {
+                const destino = destinos.find(d => d.slug === destinoSlug);
+                const idx = destino?.pacotes.findIndex(p => p.slug === pacoteSlug);
 
-                if (col && idx !== -1 && idx !== undefined) {
-                    setModalType(col.slug);
+                if (destino && idx !== undefined && idx !== -1) {
+                    setModalDestino(destino.slug);
                     setModalIdx(idx);
                     setShowModal(true);
                 } else if (showModal) {
@@ -58,13 +61,11 @@ export default function Catalog({ colecoes }: DressesGalleryProps) {
                 closeModal();
             }
         }
-    }, [router.isReady, collectionSlug, itemSlug, colecoes, showModal, closeModal]);
+    }, [router.isReady, destinoSlug, pacoteSlug, destinos, showModal, closeModal]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                closeModal();
-            }
+            if (e.key === "Escape") closeModal();
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
@@ -78,12 +79,11 @@ export default function Catalog({ colecoes }: DressesGalleryProps) {
 
     const handleSharePage = async () => {
         if (isSharing) return;
-
         setIsSharing(true);
         try {
             await navigator.share({
-                title: 'Catálogo My Dress',
-                text: 'Confira a nova coleção de vestidos da My Dress!',
+                title: 'Pacotes Dhages Turismo',
+                text: 'Confira os pacotes e destinos incríveis da Dhages Turismo!',
                 url: window.location.href,
             });
         } catch (error) {
@@ -93,18 +93,18 @@ export default function Catalog({ colecoes }: DressesGalleryProps) {
         }
     };
 
-    if (!colecoes || colecoes.length === 0) {
-        return <p className="text-center py-8">Falha ao carregar a galeria.</p>;
+    if (!destinos || destinos.length === 0) {
+        return <p className="text-center py-8">Nenhum destino encontrado.</p>;
     }
 
     return (
         <>
-            <div id="colecao">&nbsp;</div>
+            <div id="destinos">&nbsp;</div>
             <section>
-                <div className="flex justify-between items-center justify-center text-center md:max-w-7xl mx-auto px-4 py-2">
+                <div className="flex justify-between items-center text-center md:max-w-7xl mx-auto px-4 py-2">
                     <img
                         src={"/images/logo.png"}
-                        alt="Logomarca My Dress"
+                        alt="Logomarca Dhages Turismo"
                         className="transition-all duration-300 w-24"
                     />
                     {canShare && (
@@ -121,71 +121,45 @@ export default function Catalog({ colecoes }: DressesGalleryProps) {
                 </div>
 
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-center mt-16">
-                    Catálogo de Vestidos
+                    Nossos Destinos e Pacotes
                 </h2>
 
-                {/* Conteúdo da seção de informações importantes */}
-                <div className="bg-white p-6 rounded-lg shadow-lg mx-auto max-w-7xl mt-8 mb-16">
-                    <h2 className="text-xl font-semibold text-gray-800 text-center">Informações Essenciais para a Sua Experiência</h2>
-
-                    <p className="text-gray-600 mb-4 text-center text-sm">
-                        Para que sua experiência seja a mais tranquila e agradável possível, preparamos alguns detalhes importantes sobre nosso serviço de aluguel.
-                    </p>
-
-                    <ul className="list-none list-inside text-center space-y-3 text-gray-700">
-                        <li>
-                            <span className="text-lg font-semibold text-gray-800">Corteria</span>
-                        </li>
-                        <li className="text-sm">
-                            Alugue com sua amiga para ganharem o aluguel da clutch (bolsa) de cortesia.
-                        </li>
-                        <li>
-                            <span className="text-lg font-semibold text-gray-800">Tudo Incluso</span>
-                        </li>
-                        <li className="text-sm">
-                            O valor do aluguel já cobre os ajustes necessários e a lavagem profissional da peça.
-                        </li>
-                        <li>
-                            <span className="text-lg font-semibold text-gray-800">Feito para Você</span>
-                        </li>
-                        <li className="text-sm">
-                            Nossos modelos são, em sua maioria, ajustáveis, garantindo um caimento perfeito sem a necessidade de numeração exata.
-                        </li>
-                        <li>
-                            <span className="text-lg font-semibold text-gray-800">Facilidade no Pagamento</span>
-                        </li>
-                        <li className="text-sm">
-                            Aceitamos Pix, dinheiro ou cartão. E para as reservas pagas com Pix ou dinheiro, oferecemos um desconto especial!
-                        </li>
-                        <li>
-                            <span className="text-lg font-semibold text-gray-800">Reserva Garantida</span>
-                        </li>
-                        <li className="text-sm">
-                            Para confirmar a sua reserva, solicitamos um adiantamento de 50% do valor do aluguel.
-                        </li>
-                    </ul>
-                </div>
-
                 <div className="block sticky top-8 md:top-12 transform -translate-y-1/2 z-20">
-                    <FloatingButtons colecoes={colecoes} />
+                    <FloatingButtons destinos={destinos} />
                 </div>
 
-                {colecoes.map((colecao: ColecaoProps) => (
-                    <div key={colecao.slug} id={colecao.slug}>
-                        <CollectionGalleryCatalog
-                            collection={colecao}
-                            openModal={openModal}
-                        />
+                {destinos.map(destino => (
+                    <div key={destino.slug} id={destino.slug} className="mb-16">
+                        <h3 className="text-2xl font-bold mb-4">{destino.title}</h3>
+                        {destino.pacotes.map((pacote, idx) => (
+                            <div
+                                key={pacote.id}
+                                className="flex gap-4 items-center bg-gray-50 dark:bg-gray-900 p-4 rounded-lg shadow-sm mb-4 cursor-pointer"
+                                onClick={() => openModal(destino.slug, pacote.slug)}
+                            >
+                                <img
+                                    src={pacote.fotos[0]?.url || "/placeholder.jpg"}
+                                    alt={pacote.title}
+                                    className="w-24 h-24 object-cover rounded-lg"
+                                />
+                                <div className="flex-1">
+                                    <h4 className="font-semibold text-gray-800 dark:text-gray-400">{pacote.title}</h4>
+                                    {pacote.subtitle && (
+                                        <p className="text-sm text-gray-500">{pacote.subtitle}</p>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ))}
 
-                {showModal && modalType && (
-                    <ModalPhotos
-                        colecoes={colecoes}
-                        modalType={modalType}
+                {showModal && modalDestino && (
+                    <ModalPacoteFotos
+                        destinos={destinos}
+                        destinoSlug={modalDestino}
                         setModalIdx={setModalIdx}
-                        setShowModal={setShowModal}
                         modalIdx={modalIdx}
+                        setShowModal={setShowModal}
                         onClose={closeModal}
                     />
                 )}

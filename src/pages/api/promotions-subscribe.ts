@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Envia o email de boas-vindas
         await resend.emails.send({
-            from: "My Dress Belém <contato@mydressbelem.com.br>", // Altere para o seu email verificado
+            from: "My Dress Belém <contato@dhagesturismo.app.br>", // Altere para o seu email verificado
             to: email,
             subject: `Fique por dentro das nossas promoções, ${name}!`,
             html: `
@@ -73,7 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 <body>
                     <div class="container">
                         <div class="header">
-                            <img src="https://mydressbelem.com.br/images/logo.png" alt="Logo My Dress" />
+                            <img src="https://dhagesturismo.app.br/images/logo.png" alt="Logo My Dress" />
                         </div>
                         <div class="content">
                             <p>Olá, ${name}!</p>
@@ -81,7 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             <p>Prepare-se para encontrar o vestido perfeito para a sua próxima ocasião especial!</p>
                             <p>Atenciosamente,</p>
                             <p>A equipe My Dress Belém.</p>
-                            <p><a href="https://mydressbelem.com.br/catalogo" class="cta-button">Ver nosso catálogo</a></p>
+                            <p><a href="https://dhagesturismo.app.br/catalogo" class="cta-button">Ver nosso catálogo</a></p>
                         </div>
                         <div class="footer">
                             <p>My Dress Belém - Sua melhor opção em aluguel de vestidos de festa.</p>
