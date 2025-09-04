@@ -112,41 +112,77 @@ CREATE TABLE "public"."FAQ" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."Colecao" (
+CREATE TABLE "public"."Destino" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "subtitle" TEXT,
-    "description" TEXT,
-    "bgcolor" TEXT,
-    "buttonText" TEXT,
-    "buttonUrl" TEXT,
+    "description" JSONB NOT NULL,
+    "image" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
-    "order" INTEGER,
 
-    CONSTRAINT "Colecao_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Destino_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."ColecaoItem" (
+CREATE TABLE "public"."Pacote" (
     "id" TEXT NOT NULL,
-    "productMark" TEXT NOT NULL,
-    "productModel" TEXT NOT NULL,
-    "cor" TEXT NOT NULL,
-    "img" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "subtitle" TEXT,
     "slug" TEXT NOT NULL,
-    "colecaoId" TEXT NOT NULL,
+    "description" JSONB NOT NULL,
+    "destinoId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
-    "size" TEXT,
-    "price" INTEGER,
-    "price_card" INTEGER,
-    "like" INTEGER,
-    "view" INTEGER,
 
-    CONSTRAINT "ColecaoItem_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Pacote_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."PacoteFoto" (
+    "id" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "caption" TEXT,
+    "pacoteId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PacoteFoto_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."PacoteDate" (
+    "id" TEXT NOT NULL,
+    "saida" TIMESTAMP(3) NOT NULL,
+    "retorno" TIMESTAMP(3) NOT NULL,
+    "vagas_total" INTEGER NOT NULL,
+    "vagas_disponiveis" INTEGER NOT NULL,
+    "price" INTEGER NOT NULL,
+    "price_card" INTEGER NOT NULL,
+    "status" TEXT NOT NULL,
+    "notes" TEXT,
+    "pacoteId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PacoteDate_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Blog" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "content" JSONB NOT NULL,
+    "coverImage" TEXT,
+    "author" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Blog_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -189,7 +225,10 @@ CREATE UNIQUE INDEX "VerificationToken_token_key" ON "public"."VerificationToken
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "public"."VerificationToken"("identifier", "token");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ColecaoItem_slug_key" ON "public"."ColecaoItem"("slug");
+CREATE UNIQUE INDEX "Pacote_slug_key" ON "public"."Pacote"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Blog_slug_key" ON "public"."Blog"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Site_userId_key" ON "public"."Site"("userId");
@@ -204,7 +243,13 @@ ALTER TABLE "public"."Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY 
 ALTER TABLE "public"."Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."ColecaoItem" ADD CONSTRAINT "ColecaoItem_colecaoId_fkey" FOREIGN KEY ("colecaoId") REFERENCES "public"."Colecao"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Pacote" ADD CONSTRAINT "Pacote_destinoId_fkey" FOREIGN KEY ("destinoId") REFERENCES "public"."Destino"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."PacoteFoto" ADD CONSTRAINT "PacoteFoto_pacoteId_fkey" FOREIGN KEY ("pacoteId") REFERENCES "public"."Pacote"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."PacoteDate" ADD CONSTRAINT "PacoteDate_pacoteId_fkey" FOREIGN KEY ("pacoteId") REFERENCES "public"."Pacote"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Site" ADD CONSTRAINT "Site_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -33,49 +33,67 @@ export interface FaqItem {
     resposta: string;
 }
 
-export interface ColecaoItem {
+/**
+ * Fotos vinculadas ao Pacote
+ */
+export interface PacoteFoto {
     id: string;
-    productMark: string;
-    productModel: string;
-    cor: string;
-    img: string;
+    url: string;
+    caption?: string;
+    pacoteId: string;
+    pacote?: Pacote; // opcional, inclui dates
+}
+
+/**
+ * Datas de saída e retorno do Pacote, com preços
+ */
+export interface PacoteDate {
+    id: string;
+    saida: string;   // DateTime → string (ISO) no frontend
+    retorno: string; // DateTime → string (ISO) no frontend
+    vagas_total: number;
+    vagas_disponiveis: number;
+    price: number;       // em centavos
+    price_card: number;  // em centavos
+    status: string;      // disponivel | esgotado | cancelado
+    notes?: string | null;
+    pacoteId: string;
+}
+
+/**
+ * Pacote de viagem, vinculado a um Destino
+ */
+export interface Pacote {
+    id: string;
+    title: string;
+    subtitle?: string | null;
     slug: string;
-    colecaoId: string;
-    
-    // Adicione a propriedade description, se ela existir no seu schema
-    description?: string | null;
-    
-    // Adicione os novos campos aqui, tornando-os opcionais (com '?')
-    size?: string | null;
-    price?: number | null;
-    price_card?: number | null;
-    like?: number | null;
-    view?: number | null;
-
-    // Adicione os campos 'tamanho', 'preco', e 'precoParcelado'
-    tamanho?: string | null;
-    preco?: string | null;
-    precoParcelado?: string | null;
+    description: any; // JSON (conteúdo rico: títulos, parágrafos, tabelas)
+    destinoId: string;
+    fotos: PacoteFoto[];
+    dates: PacoteDate[];
 }
 
-export interface ColecaoProps {
-    id: string; 
-    title: string; 
-    subtitle: string | null; 
-    description: string | null;
-    bgcolor: string | null; 
-    buttonText: string | null; 
-    buttonUrl: string | null;
-    // Adicionado o campo 'order' aqui e ajustado para ser opcional/nulo
-    order: number | null;
-    slug: string; 
-    items: ColecaoItem[];
+/**
+ * Destino principal, que contém Pacotes
+ */
+export interface Destino {
+    id: string;
+    title: string;
+    subtitle?: string | null;
+    description: any; // JSON (conteúdo rico)
+    image?: string | null;
+    slug: string;
+    pacotes: Pacote[];
 }
 
+/**
+ * Props usadas na HomePage
+ */
 export interface HomePageProps {
     banners: Banner[];
     menu: MenuItem | null;
     testimonials: TestimonialItem[];
     faqs: FaqItem[];
-    colecoes: ColecaoProps[];
+    destinos: Destino[];
 }

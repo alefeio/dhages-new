@@ -5,7 +5,7 @@ import Head from 'next/head';
 import Script from 'next/script';
 import HeroSlider from '../components/HeroSlider';
 import WhatsAppButton from '../components/WhatsAppButton';
-import DressesGallery from '../components/DressesGallery';
+import PacotesGallery from '../components/PacotesGallery'; // <-- ajustado
 import Testimonials from '../components/Testimonials';
 import FAQ from '../components/FAQ';
 import LocationMap from '../components/LocationMap';
@@ -13,13 +13,8 @@ import Header from 'components/Header';
 import { Menu as MenuComponent } from 'components/Menu';
 import Hero from 'components/Hero';
 import { Analytics } from "@vercel/analytics/next";
-import {
-    HomePageProps,
-    ColecaoProps,
-    ColecaoItem
-} from '../types/index';
+import { HomePageProps, Destino } from '../types/index';
 import PromotionsForm from 'components/PromotionsForm';
-import FloatingButtons from 'components/FloatingButtons';
 import { useState, useEffect } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 
@@ -38,33 +33,25 @@ const prisma = new PrismaClient();
 
 export const getServerSideProps: GetServerSideProps<HomePageProps> = async () => {
     try {
-        const [banners, menus, testimonials, faqs, colecoes] = await Promise.all([
+        const [banners, menus, testimonials, faqs, destinos] = await Promise.all([
             prisma.banner.findMany(),
             prisma.menu.findMany(),
             prisma.testimonial.findMany({ orderBy: { createdAt: 'desc' } }),
             prisma.fAQ.findMany({ orderBy: { pergunta: 'asc' } }),
-            prisma.colecao.findMany({
-                orderBy: {
-                    order: 'asc',
-                },
-                include: {
-                    items: {
-                        orderBy: [
-                            { view: 'desc' },
-                            { like: 'desc' },
-                        ],
-                    },
-                },
+            prisma.destino.findMany({
+                orderBy: { title: 'asc' },
+                include: { pacotes: { include: { fotos: true, dates: true } } },
             }),
         ]);
 
-        const colecoesComSlugs: ColecaoProps[] = colecoes.map((colecao: any) => ({
-            ...colecao,
-            slug: slugify(colecao.title),
-            items: colecao.items.map((item: any) => ({
-                ...item,
-                slug: slugify(`${item.productMark}-${item.productModel}-${item.cor}`),
-            }))
+        // Gera slugs para destinos e pacotes
+        const destinosComSlugs: Destino[] = destinos.map((destino: any) => ({
+            ...destino,
+            slug: slugify(destino.title),
+            pacotes: destino.pacotes.map((pacote: any) => ({
+                ...pacote,
+                slug: slugify(pacote.title),
+            })),
         }));
 
         const menu: any | null = menus.length > 0 ? menus[0] : null;
@@ -75,7 +62,7 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async () =>
                 menu: JSON.parse(JSON.stringify(menu)),
                 testimonials: JSON.parse(JSON.stringify(testimonials)),
                 faqs: JSON.parse(JSON.stringify(faqs)),
-                colecoes: JSON.parse(JSON.stringify(colecoesComSlugs)),
+                destinos: JSON.parse(JSON.stringify(destinosComSlugs)),
             },
         };
     } catch (error) {
@@ -86,7 +73,7 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async () =>
                 menu: null,
                 testimonials: [],
                 faqs: [],
-                colecoes: [],
+                destinos: [],
             },
         };
     } finally {
@@ -94,29 +81,13 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async () =>
     }
 };
 
-export default function Home({ banners, menu, testimonials, faqs, colecoes }: HomePageProps) {
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "name": "My Dress - Aluguel de Vestidos",
-        "image": "https://www.mydressbelem.com.br/images/logo.png",
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "Passagem Tapajós 6, Tv. da Estrela, 46, Marco",
-            "addressLocality": "Belém",
-            "addressRegion": "PA",
-            "postalCode": "66093-065",
-            "addressCountry": "BR"
-        }
-    };
-    
+export default function Home({ banners, menu, testimonials, faqs, destinos }: HomePageProps) {
     const [showExitModal, setShowExitModal] = useState(false);
 
     useEffect(() => {
         const modalShownInSession = sessionStorage.getItem('exitModalShown');
 
         const handleMouseLeave = (e: MouseEvent) => {
-            // CORREÇÃO: Removida a condição e.clientY <= 0 para tornar a detecção mais robusta.
             if (!modalShownInSession) {
                 setShowExitModal(true);
                 sessionStorage.setItem('exitModalShown', 'true');
@@ -137,85 +108,10 @@ export default function Home({ banners, menu, testimonials, faqs, colecoes }: Ho
     return (
         <>
             <Head>
-                <Script
-                    strategy="afterInteractive"
-                    dangerouslySetInnerHTML={{
-                        __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-W4S948NS');`
-                    }}
-                />
-                <title>My Dress Belém | Aluguel de Vestidos de Festa para Madrinhas, Formandas e Convidadas | O melhor custo-benefício</title>
-                <meta name="description" content="Aluguel de vestidos de festa em Belém‑PA: madrinhas, formandas, convidadas. Atendimento por agendamento, atendimento personalizado, catálogo atualizado, agende via WhatsApp 91 98581-0208." />
-                <meta name="keywords" content="aluguel vestidos festa Belém, aluguel vestidos madrinhas Belém, vestidos formatura Belém, aluguel vestidos convidadas Belém, My Dress Belém, aluguel de trajes finos em belém, aluguel de vestidos de festa belem, aluguel de vestidos de gala belem, aluguel de vestidos de festa para madrinhas belem, aluguel de vestidos de festa para formandas belem, aluguel de vestidos de festa para convidadas belem, loja de aluguel de vestido belem, mydress, vestidos de debutantes, vestidos de festa, aluguel de roupas pedreira, aluguel de roupas marco, aluguel de roupas são brás, aluguel de roupas são braz, aluguel de roupas nazaré, aluguel de roupas umarizal, aluguel de roupas, aluguel roupa festa, aluguel vestidos festa luxo, vestido para alugar" />
-                <meta property="og:title" content="My Dress Belém | Aluguel de Vestidos de Festa" />
-                <meta property="og:description" content="Aluguel de vestidos elegantes para madrinhas, formandas e convidadas em Belém‑PA. Atendimento exclusivo por agendamento via WhatsApp." />
-                <meta property="og:image" content="https://www.mydressbelem.com.br/images/banner/banner1.jpg" />
-                <meta property="og:url" content="https://www.mydressbelem.com.br" />
-                <meta property="og:type" content="website" />
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="My Dress Belém | Aluguel de Vestidos de Festa" />
-                <meta name="twitter:description" content="Aluguel de vestidos elegantes em Belém‑PA. Atendimento por agendamento via WhatsApp." />
-                <meta name="twitter:image" content="https://www.mydressbelem.com.br/images/banner/banner1.jpg" />
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-                <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
-                <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
-                <Script id="google-ads-init" strategy="afterInteractive">
-                    {`
-                        window.dataLayer = window.dataLayer || [];
-                        function gtag(){dataLayer.push(arguments);}
-                        gtag('js', new Date());
-                        gtag('config', 'AW-17411208522');
-                    `}
-                </Script>
-
-                {/* Facebook Pixel */}
-                <Script id="facebook-pixel" strategy="afterInteractive">
-                    {`
-                        !function(f,b,e,v,n,t,s)
-                        {if(f.fbq)return;n=f.fbq=function(){
-                        n.callMethod ?
-                        n.callMethod.apply(n,arguments) : n.queue.push(arguments)};
-                        if(!f._fbq)f._fbq=n;
-                        n.push=n; n.loaded=!0; n.version='2.0';
-                        n.queue=[]; t=b.createElement(e); t.async=!0;
-                        t.src=v; s=b.getElementsByTagName(e)[0];
-                        s.parentNode.insertBefore(t,s)}
-                        (window, document,'script',
-                        'https://connect.facebook.net/en_US/fbevents.js');
-                        fbq('init', '754061187167582');
-                        fbq('track', 'PageView');
-                    `}
-                </Script>
+                <title>My Dress Belém | Aluguel de Pacotes e Destinos</title>
+                <meta name="description" content="Descubra os melhores destinos e pacotes de viagem. Atendimento personalizado via WhatsApp." />
+                {/* ... outras meta tags ... */}
             </Head>
-
-            {/* Google Analytics (via GTM) - Código para logo após a tag <body> */}
-            <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W4S948NS"
-                height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}></iframe></noscript>
-
-            {/* JSON-LD */}
-            <Script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-
-            {/* Google Ads */}
-            <Script
-                src="https://www.googletagmanager.com/gtag/js?id=AW-17411208522"
-                strategy="afterInteractive"
-            />
-
-            <noscript>
-                <img
-                    height="1"
-                    width="1"
-                    style={{ display: 'none' }}
-                    src="https://www.facebook.com/tr?id=754061187167582&ev=PageView&noscript=1"
-                    alt="Facebook Pixel"
-                />
-            </noscript>
 
             <div className="min-h-screen">
                 <Analytics />
@@ -223,7 +119,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <HeroSlider banners={banners} />
                 <main className="max-w-full mx-auto">
                     <Hero />
-                    <DressesGallery colecoes={colecoes} />
+                    <PacotesGallery destinos={destinos} /> {/* <-- ajuste aqui */}
                     <Header />
                     <PromotionsForm />
                     <Testimonials testimonials={testimonials} />
@@ -233,21 +129,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 <WhatsAppButton />
             </div>
 
-            {/* Modal de Saída */}
             {showExitModal && (
-                <div 
+                <div
                     className="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm"
-                    onClick={(e) => {
-                        if (e.target === e.currentTarget) {
-                            setShowExitModal(false);
-                        }
-                    }}
+                    onClick={(e) => { if (e.target === e.currentTarget) setShowExitModal(false); }}
                 >
-                    <div 
+                    <div
                         className="bg-background-200 relative rounded-lg shadow-xl p-6 m-4 max-w-lg w-full transform transition-all duration-300 scale-100"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Botão de fechar */}
                         <button
                             onClick={() => setShowExitModal(false)}
                             className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
@@ -255,7 +145,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         >
                             <AiOutlineClose size={24} />
                         </button>
-                        
                         <PromotionsForm />
                     </div>
                 </div>
