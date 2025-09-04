@@ -6,12 +6,20 @@ import Head from 'next/head';
 import Script from 'next/script';
 import WhatsAppButton from '../../components/WhatsAppButton';
 import { Analytics } from "@vercel/analytics/next";
-import { Destino, Pacote } from '../../types';
+import { Destino, Pacote, PacoteDate } from '../../types';
 import Catalog from '../../components/Catalog';
 
-// FUNÇÃO SLUGIFY
+const prisma = new PrismaClient();
+
+interface CatalogPageProps {
+    destinos: Destino[];
+}
+
+// Função para gerar slug
 function slugify(text: string): string {
-    return text.toString().toLowerCase()
+    return text
+        .toString()
+        .toLowerCase()
         .trim()
         .replace(/\s+/g, '-')
         .replace(/[^\w-]+/g, '')
@@ -20,42 +28,52 @@ function slugify(text: string): string {
         .replace(/-+$/, '');
 }
 
-const prisma = new PrismaClient();
-
 interface CatalogPageProps {
     destinos: Destino[];
 }
 
 export const getServerSideProps: GetServerSideProps<CatalogPageProps> = async () => {
     try {
-        const destinos = await prisma.destino.findMany({
+        const destinosRaw = await prisma.destino.findMany({
+            // Ajuste: removi `order` porque não existe na tabela
             include: {
                 pacotes: {
                     orderBy: [
                         { like: 'desc' },
                         { view: 'desc' },
                     ],
-                    include: { fotos: true }
+                    include: {
+                        fotos: true,
+                        dates: true,
+                    },
                 },
             },
         });
 
-        const destinosComSlugs: Destino[] = destinos.map((destino: Destino) => ({
+        const destinos: Destino[] = destinosRaw.map(destino => ({
             ...destino,
             slug: slugify(destino.title),
-            pacotes: destino.pacotes.map((pacote: Pacote) => ({
+            pacotes: destino.pacotes.map(pacote => ({
                 ...pacote,
-                slug: slugify(`${pacote.title}-${pacote.subtitle || ''}`)
-            }))
+                slug: slugify(`${pacote.title}-${pacote.subtitle || ''}`),
+                fotos: pacote.fotos || [],
+                dates: pacote.dates.map(d => ({
+                    ...d,
+                    status:
+                        d.status === "disponivel" || d.status === "esgotado" || d.status === "cancelado"
+                            ? d.status
+                            : "disponivel", // default se vier outro valor do banco
+                })) as PacoteDate[],
+            })),
         }));
 
         return {
             props: {
-                destinos: JSON.parse(JSON.stringify(destinosComSlugs)),
+                destinos: JSON.parse(JSON.stringify(destinos)), // garante que Date vira string
             },
         };
     } catch (error) {
-        console.error("Erro ao buscar dados do banco de dados:", error);
+        console.error('Erro ao buscar destinos do banco de dados:', error);
         return {
             props: {
                 destinos: [],
