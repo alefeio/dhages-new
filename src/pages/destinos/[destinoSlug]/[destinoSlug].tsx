@@ -1,6 +1,6 @@
 // src/pages/destinos/[destinoSlug].tsx
 import { GetServerSideProps } from 'next';
-import Home from '../index';
+import Home from '../../index';
 import { Banner, MenuItem, TestimonialItem, FaqItem, Destino, Pacote, PacoteFoto, PacoteDate } from 'types';
 import { PrismaClient } from '@prisma/client';
 

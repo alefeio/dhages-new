@@ -39,9 +39,11 @@ export interface FaqItem {
 export interface PacoteFoto {
     id: string;
     url: string;
-    caption?: string | undefined; // permite undefined (compatível com Prisma null)
+    caption?: string | null; // aceita null vindo do banco
     pacoteId: string;
-    pacote?: Pacote; // opcional, inclui dates
+    pacote?: Pacote;
+    like?: number;  // novo campo
+    view?: number;  // novo campo
 }
 
 /**
@@ -49,12 +51,12 @@ export interface PacoteFoto {
  */
 export interface PacoteDate {
     id: string;
-    saida: string;   // ISO string no frontend
-    retorno: string; // ISO string no frontend
+    saida: Date;
+    retorno: Date;
     vagas_total: number;
     vagas_disponiveis: number;
-    price: number;       // em centavos
-    price_card: number;  // em centavos
+    price: number;
+    price_card: number;
     status: 'disponivel' | 'esgotado' | 'cancelado';
     notes?: string | null;
     pacoteId: string;
@@ -68,10 +70,10 @@ export interface Pacote {
     title: string;
     subtitle?: string | null;
     slug: string;
-    description: any; // JSON (conteúdo rico: títulos, parágrafos, tabelas)
+    description: any; // JSON
     destinoId: string;
     fotos: PacoteFoto[];
-    dates: PacoteDate[];
+    dates: PacoteDate[]; // já vai vir com Date
 }
 
 /**
