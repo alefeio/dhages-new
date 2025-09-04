@@ -1,0 +1,190 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now()) // Adicionado
+  updatedAt         DateTime @updatedAt // Adicionado
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now()) // Adicionado
+  updatedAt    DateTime @updatedAt // Adicionado
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String?   @default("USER")
+  accounts      Account[]
+  sessions      Session[]
+  site          Site?     // Relacionamento com o novo model Site
+  createdAt     DateTime  @default(now()) // Adicionado
+  updatedAt     DateTime  @updatedAt // Adicionado
+}
+
+model VerificationToken {
+  id         Int      @id @default(autoincrement())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now()) // Adicionado
+  updatedAt  DateTime @updatedAt // Adicionado
+
+  @@unique([identifier, token])
+}
+
+model Menu {
+  id      Int     @id @default(1)
+  logoUrl String?
+  links   Json
+}
+
+model Banner {
+  id      Int  @id @default(1)
+  banners Json
+}
+
+model HomepageSection {
+  id        String    @id @default(cuid())
+  type      String
+  order     Int
+  content   Json
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Testimonial {
+  id        String    @id @default(cuid())
+  name      String
+  type      String
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model FAQ {
+  id        String    @id @default(cuid())
+  pergunta  String
+  resposta  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Destino {
+  id          String    @id @default(cuid())
+  title       String
+  subtitle    String?
+  description Json       // descrição rica com títulos, parágrafos e tabelas
+  image       String?
+  pacotes     Pacote[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model Pacote {
+  id          String       @id @default(cuid())
+  title       String
+  subtitle    String?
+  slug        String       @unique
+  description Json          // descrição detalhada (editor rico)
+  destino     Destino      @relation(fields: [destinoId], references: [id], onDelete: Cascade)
+  destinoId   String
+  fotos       PacoteFoto[]
+  dates       PacoteDate[] // todas as saídas disponíveis
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+}
+
+model PacoteFoto {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  pacote    Pacote   @relation(fields: [pacoteId], references: [id], onDelete: Cascade)
+  pacoteId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PacoteDate {
+  id               String   @id @default(cuid())
+  saida            DateTime
+  retorno          DateTime
+  vagas_total      Int
+  vagas_disponiveis Int
+  price            Int      // preço à vista (em centavos)
+  price_card       Int      // preço no cartão (em centavos)
+  status           String   // disponivel | esgotado | cancelado
+  notes            String?  // informações extras, ex: ponto de saída
+  pacote           Pacote   @relation(fields: [pacoteId], references: [id], onDelete: Cascade)
+  pacoteId         String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     Json     // editor rico (títulos, parágrafos, imagens, tabelas)
+  coverImage  String?
+  author      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+}
+
+// Novo model 'Site'
+model Site {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tag_google_ads       String?
+  tag_google_analytics String?
+  tag_meta             String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+model Subscriber {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  phone     String?
+  createdAt DateTime  @default(now())
+}
