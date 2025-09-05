@@ -406,8 +406,8 @@ export default function AdminDestinos() {
                                     <input type="text" name="title" value={pacote.title} onChange={(e) => handlePacoteChange(e, pacoteIndex)} placeholder="Título do Pacote" required className="p-3 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
                                     <input type="text" name="subtitle" value={pacote.subtitle} onChange={(e) => handlePacoteChange(e, pacoteIndex)} placeholder="Subtítulo do Pacote" className="p-3 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
                                     <label className="block text-gray-700 dark:text-gray-400 font-semibold mt-4 col-span-2">Descrição do Pacote:</label>
-                                    <RichTextEditor value={pacote.description} onChange={(value) => handlePacoteDescriptionChange(value, pacoteIndex)} placeholder="Descrição rica do pacote" />
                                 </div>
+                                <RichTextEditor value={pacote.description} onChange={(value) => handlePacoteDescriptionChange(value, pacoteIndex)} placeholder="Descrição rica do pacote" />
 
                                 {/* Seção de Fotos */}
                                 <h5 className="text-md font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-400">Fotos</h5>

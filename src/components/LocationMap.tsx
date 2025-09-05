@@ -14,7 +14,7 @@ export default function LocationMap() {
                 <h2 className="font-serif text-2xl md:text-3xl font-bold mb-6 text-center">
                     Onde Estamos
                 </h2>
-                <address className="not-italic text-center mb-6 border-t-2 border-textcolor-200 py-6 w-fit m-auto">
+                <address className="not-italic text-center mb-6 border-t-2 border-primary-200 py-6 w-fit m-auto">
                     Passagem Tapajós - Tv. da Estrella, 46 - Marco, Belém - PA, 66093-065
                     <br />
                     <span className="font-semibold">

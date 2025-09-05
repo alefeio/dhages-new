@@ -45,9 +45,9 @@ export function Menu({ menuData }: MenuProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-30 transition-all duration-300 shadow-lg ${isScrolled
-        ? "bg-background-100/50 backdrop-blur-sm pt-2 pb-1"
-        : "bg-background-100 pt-4 pb-2"
+      className={`fixed top-0 left-0 w-full z-40 transition-all duration-300 ${isScrolled
+          ? "bg-primary-800/95 backdrop-blur-sm py-3 shadow-lg"
+          : "bg-primary-800/10 backdrop-blur-sm py-4"
         }`}
     >
       <div className="mx-auto flex items-center justify-between px-4 md:px-8">
@@ -65,7 +65,7 @@ export function Menu({ menuData }: MenuProps) {
             <Link
               key={url}
               href={url}
-              className="hover:text-textcolor-400 transition-colors"
+              className="hover:text-neutral-400 transition-colors"
               onClick={() => setMenuOpen(false)}
               target={target}
             >
@@ -74,17 +74,17 @@ export function Menu({ menuData }: MenuProps) {
           ))}
           {session ? (
             <>
-              <Link href="/admin" className="hover:text-textcolor-400 transition-colors">Minha conta</Link>
+              <Link href="/admin" className="hover:text-neutral-400 transition-colors">Minha conta</Link>
               <button
                 onClick={() => signOut({ callbackUrl: '/' })}
-                className="hover:text-textcolor-400 transition-colors"
+                className="hover:text-neutral-400 transition-colors"
               >
                 Sair
               </button>
             </>
           ) : (
             <button
-              className="hover:text-textcolor-400 transition-colors"
+              className="hover:text-neutral-400 transition-colors"
               onClick={handleSignIn}
             >
               Entrar
@@ -100,15 +100,15 @@ export function Menu({ menuData }: MenuProps) {
           aria-controls="mobile-menu"
         >
           <span
-            className={`block h-0.5 w-6 bg-textcolor-700 transition-transform ${menuOpen ? "rotate-45 translate-y-2" : ""
+            className={`block h-0.5 w-6 bg-primary-700 transition-transform ${menuOpen ? "rotate-45 translate-y-2" : ""
               }`}
           />
           <span
-            className={`block h-0.5 w-6 bg-textcolor-700 transition-opacity ${menuOpen ? "opacity-0" : "opacity-100"
+            className={`block h-0.5 w-6 bg-primary-700 transition-opacity ${menuOpen ? "opacity-0" : "opacity-100"
               }`}
           />
           <span
-            className={`block h-0.5 w-6 bg-textcolor-700 transition-transform ${menuOpen ? "-rotate-45 -translate-y-2" : ""
+            className={`block h-0.5 w-6 bg-primary-700 transition-transform ${menuOpen ? "-rotate-45 -translate-y-2" : ""
               }`}
           />
         </button>
@@ -117,13 +117,13 @@ export function Menu({ menuData }: MenuProps) {
       {menuOpen && (
         <nav
           id="mobile-menu"
-          className="md:hidden py-4 flex flex-col gap-4 font-semibold bg-background-100/95 px-4"
+          className="md:hidden py-4 flex flex-col gap-4 font-semibold bg-primary-100/95 px-4"
         >
           {links.map(({ text, url, target }) => (
             <Link
               key={url}
               href={url}
-              className="hover:text-textcolor-400 border-t border-background-200 transition-colors pt-4"
+              className="hover:text-neutral-400 border-t border-background-200 transition-colors pt-4"
               onClick={() => setMenuOpen(false)}
               target={target}
             >
@@ -132,17 +132,17 @@ export function Menu({ menuData }: MenuProps) {
           ))}
           {session ? (
             <>
-              <Link href="/admin" className="hover:text-textcolor-400 transition-colors">Minha conta</Link>
+              <Link href="/admin" className="hover:text-neutral-400 transition-colors">Minha conta</Link>
               <button
                 onClick={() => signOut({ callbackUrl: '/' })}
-                className="hover:text-textcolor-400 transition-colors"
+                className="hover:text-neutral-400 transition-colors"
               >
                 Sair
               </button>
             </>
           ) : (
             <button
-              className="text-left hover:text-textcolor-400 border-t border-background-200 transition-colors pt-4"
+              className="text-left hover:text-neutral-400 border-t border-background-200 transition-colors pt-4"
               onClick={handleSignIn}
             >
               Entrar

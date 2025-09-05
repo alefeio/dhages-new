@@ -25,12 +25,12 @@ export default function FAQ({ faqs }: FAQPageProps) {
         <h2 className="font-serif text-2xl md:text-3xl font-bold mb-6 text-center">
           Perguntas Frequentes
         </h2>
-        <p className="text-center mb-6 border-t-2 border-textcolor-200 py-6 w-fit m-auto">
+        <p className="text-center mb-6 border-t-2 border-primary-200 py-6 w-fit m-auto">
           Confira as principais dúvidas de nossas clientes e saiba mais sobre o processo de aluguel de vestidos.
         </p>
         <div className="max-w-5xl mx-auto">
           {faqs.map((faq, idx) => (
-            <div key={faq.id} className="mb-4 border-b border-background-1000/20 bg-background-100 px-4 rounded-xl">
+            <div key={faq.id} className="mb-4 border-b border-background-1000/20 bg-primary-100 px-4 rounded-xl">
               <button
                 className="w-full flex justify-between items-center py-4 text-left font-semibold text-lg focus:outline-none"
                 onClick={() => setOpen(open === idx ? null : idx)}

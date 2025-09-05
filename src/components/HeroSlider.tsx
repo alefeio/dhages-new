@@ -70,7 +70,7 @@ export default function HeroSlider({ banners }: HeroSliderProps) {
 
   return (
     <div
-      className="relative w-full h-[200px] md:h-[250px] lg:h-[280px] xl:h-[480px] overflow-hidden shadow-lg mb-8 mt-[4.7rem] md:mt-[7.1rem]"
+      className="relative w-full h-[70vh] overflow-hidden shadow-lg mb-8"
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onTouchStart={handleTouchStart}
@@ -95,7 +95,7 @@ export default function HeroSlider({ banners }: HeroSliderProps) {
           )}
           {slide.title && (
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-graytone-950/60 to-transparent p-6">
-              <h2 className="font-serif text-2xl text-textcolor-50 md:text-3xl font-bold drop-shadow">{slide.title}</h2>
+              <h2 className="font-serif text-2xl text-neutral-50 md:text-3xl font-bold drop-shadow">{slide.title}</h2>
             </div>
           )}
         </div>
@@ -105,7 +105,7 @@ export default function HeroSlider({ banners }: HeroSliderProps) {
         {slides.map((_, idx) => (
           <button
             key={idx}
-            className={`w-3 h-3 rounded-full ${idx === current ? "bg-textcolor-50" : "bg-textcolor-50/50 opacity-70"}`}
+            className={`w-3 h-3 rounded-full ${idx === current ? "bg-primary-50" : "bg-primary-50/50 opacity-70"}`}
             onClick={() => setCurrent(idx)}
             aria-label={`Ir para slide ${idx + 1}`}
           />
@@ -113,7 +113,7 @@ export default function HeroSlider({ banners }: HeroSliderProps) {
       </div>
 
       <button
-        className="absolute top-4 right-4 bg-textcolor-50/80 opacity-70 rounded-full p-2 shadow-lg hover:bg-textcolor-50 z-10"
+        className="absolute top-4 right-4 bg-primary-50/80 opacity-70 rounded-full p-2 shadow-lg hover:bg-primary-50 z-10"
         onClick={() => setPlaying((p) => !p)}
         aria-label={playing ? "Pausar" : "Reproduzir"}
       >

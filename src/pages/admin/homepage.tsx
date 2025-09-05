@@ -231,7 +231,7 @@ export default function HomepageAdmin() {
   return (
     <AdminLayout>
       <div className="p-6">
-        <h1 className="text-3xl font-bold mb-6 text-textcolor-50">Gerenciar Homepage</h1>
+        <h1 className="text-3xl font-bold mb-6 text-neutral-50">Gerenciar Homepage</h1>
         {message && <p className={`mb-4 text-center ${message.startsWith('Erro') || message.startsWith('Acesso') ? 'text-red-600' : 'text-green-600'}`}>{message}</p>}
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-xl font-bold mb-4">Adicionar Nova Sessão</h2>

@@ -5,7 +5,7 @@
 /* Global Styles */
 
 body {
-  @apply font-sans bg-background-50 text-textcolor-900;
+  @apply font-sans bg-primary-50 text-neutral-900;
 }
 
 html {
@@ -14,19 +14,19 @@ html {
 }
 
 h1, h2, h3 {
-  @apply font-bold text-textcolor-800 leading-snug;
+  @apply font-bold text-neutral-800 leading-snug;
 }
 
 p {
-  @apply text-graytone-800 mb-2;
+  @apply text-neutral-800 mb-2;
 }
 
 a {
-  @apply text-textcolor-600 no-underline transition-colors duration-300;
+  @apply text-neutral-600 no-underline transition-colors duration-300;
 }
 
 a:hover {
-  @apply text-textcolor-400;
+  @apply text-neutral-400;
 }
 
 .container {
@@ -36,11 +36,11 @@ a:hover {
 /* Botões */
 
 .btn {
-  @apply inline-block px-6 py-2 rounded-md font-semibold text-white bg-textcolor-500 hover:bg-textcolor-600 transition duration-300;
+  @apply inline-block px-6 py-2 rounded-md font-semibold text-white bg-primary-500 hover:bg-primary-600 transition duration-300;
 }
 
 .btn-outline {
-  @apply inline-block px-6 py-2 rounded-md font-semibold border border-textcolor-500 text-textcolor-500 bg-transparent hover:bg-textcolor-500 hover:text-white transition duration-300;
+  @apply inline-block px-6 py-2 rounded-md font-semibold border border-primary-500 text-neutral-500 bg-transparent hover:bg-primary-500 hover:text-white transition duration-300;
 }
 
 .btn-disabled {
@@ -54,33 +54,33 @@ input[type="email"],
 input[type="password"],
 textarea,
 select {
-  @apply w-full px-4 py-2 border border-graytone-300 rounded-md bg-background-100 text-textcolor-900 placeholder-graytone-500 focus:outline-none focus:ring-2 focus:ring-textcolor-400 focus:border-textcolor-400 transition duration-200;
+  @apply w-full px-4 py-2 border border-primary-300 rounded-md bg-primary-100 text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:border-primary-400 transition duration-200;
 }
 
 label {
-  @apply block mb-1 text-sm font-medium text-textcolor-700;
+  @apply block mb-1 text-sm font-medium text-neutral-700;
 }
 
 /* Cards */
 
 .card {
-  @apply bg-background-100 shadow-lg rounded-xl p-6;
+  @apply bg-primary-100 shadow-lg rounded-xl p-6;
 }
 
 /* Títulos de seção */
 
 .section-title {
-  @apply text-3xl md:text-4xl font-bold text-textcolor-600 mb-6 text-center;
+  @apply text-3xl md:text-4xl font-bold text-neutral-600 mb-6 text-center;
 }
 
 /* Listas */
 
 ul {
-  @apply list-disc list-inside text-textcolor-300;
+  @apply list-disc list-inside text-neutral-300;
 }
 
 ol {
-  @apply list-decimal list-inside text-textcolor-300;
+  @apply list-decimal list-inside text-neutral-300;
 }
 
 /* Imagens */
@@ -92,5 +92,5 @@ img {
 /* SVGs com cor herdada do tema */
 
 svg {
-  @apply text-textcolor-500;
+  @apply text-neutral-500;
 }

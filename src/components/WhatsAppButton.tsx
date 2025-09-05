@@ -14,7 +14,7 @@ export default function WhatsAppButton() {
                 href="https://www.instagram.com/dhages_turismo"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="z-10 bg-pink-600 text-textcolor-50 hover:bg-pink-700 text-white rounded-full shadow-lg p-3 font-bold text-lg transition"
+                className="z-10 bg-pink-600 text-neutral-50 hover:bg-pink-700 text-white rounded-full shadow-lg p-3 font-bold text-lg transition"
                 onClick={() => handleClick('/instagram')}
             >
                 <FaInstagram className="w-7 h-7 text-background-50" />
@@ -23,7 +23,7 @@ export default function WhatsAppButton() {
                 href="https://wa.me//5591985810208?text=Gostaria de mais informações. Estou entrando em contato através do site."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-green-600 text-textcolor-50 hover:bg-green-700 text-white rounded-full shadow-lg p-3 font-bold text-lg transition"
+                className="bg-green-600 text-neutral-50 hover:bg-green-700 text-white rounded-full shadow-lg p-3 font-bold text-lg transition"
                 onClick={() => handleClick('/whatsapp')}
             >
                 <FaWhatsapp className="w-7 h-7 text-background-50" />

@@ -52,7 +52,7 @@ export default function DestinoSharePage({ destino, shareBaseUrl }: DestinoShare
   };
 
   return (
-    <div className="bg-background-100 min-h-screen flex flex-col items-center p-4">
+    <div className="bg-primary-100 min-h-screen flex flex-col items-center p-4">
       <Head>
         <title>{destino.title}</title>
         <meta name="description" content={`Confira todos os pacotes do destino ${destino.title}.`} />
@@ -71,7 +71,7 @@ export default function DestinoSharePage({ destino, shareBaseUrl }: DestinoShare
 
         <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {destino.pacotes.map((pacote) => (
-            <div key={pacote.id} className="bg-background-200 rounded-lg shadow-md overflow-hidden">
+            <div key={pacote.id} className="bg-primary-200 rounded-lg shadow-md overflow-hidden">
               <div className="relative w-full h-64">
                 <img
                   src={pacote.fotos[0]?.url || destino.image || ''}

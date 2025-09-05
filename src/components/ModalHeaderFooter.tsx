@@ -48,7 +48,7 @@ export const ModalHeaderFooter = ({
     };
 
     return (
-        <div className="w-full flex-shrink-0 flex items-start justify-between bg-background-200 gap-4 text-white p-4 z-30">
+        <div className="w-full flex-shrink-0 flex items-start justify-between bg-primary-200 gap-4 text-white p-4 z-30">
             <div className="flex flex-col text-left">
                 <h3 className="font-semibold text-lg">Tecido: {productMark || 'Sem Marca'}</h3>
                 <p className="text-sm mt-1">Modelo: {productModel || 'Sem Modelo'}</p>

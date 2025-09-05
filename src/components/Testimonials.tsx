@@ -25,13 +25,13 @@ export default function Testimonials({ testimonials }: TestimonialsPageProps) {
         <h3 className="font-serif text-2xl md:text-3xl font-bold mb-6 text-center">
           Depoimentos
         </h3>
-        <p className="text-center mb-6 border-t-2 border-textcolor-200 py-6 w-fit m-auto">
+        <p className="text-center mb-6 border-t-2 border-primary-200 py-6 w-fit m-auto">
           Já é nossa cliente?{" "}
           <a
             target="_blank"
             rel="noopener noreferrer"
             href="https://g.page/r/CSDAOXMfoxIIEBM/review"
-            className="text-textcolor-600 underline hover:text-textcolor-800 transition-colors"
+            className="text-neutral-600 underline hover:text-neutral-800 transition-colors"
           >
             Conte-nos como foi sua experiência
           </a>.
@@ -40,11 +40,11 @@ export default function Testimonials({ testimonials }: TestimonialsPageProps) {
           {testimonials.map((t) => (
             <article
               key={t.id}
-              className="bg-background-100 rounded-xl shadow-lg p-6"
+              className="bg-primary-100 rounded-xl shadow-lg p-6"
               aria-label={`Depoimento de ${t.name}`}
             >
-              <p className="text-lg italic mb-4 text-textcolor-700">"{t.content}"</p>
-              <span className="block text-right font-semibold text-textcolor-800">{t.name}</span>
+              <p className="text-lg italic mb-4 text-neutral-700">"{t.content}"</p>
+              <span className="block text-right font-semibold text-neutral-800">{t.name}</span>
             </article>
           ))}
         </div>

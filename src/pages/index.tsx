@@ -129,13 +129,13 @@ export default function Home({ banners, menu, testimonials, faqs, destinos }: Ho
                 <WhatsAppButton />
             </div>
 
-            {showExitModal && (
+            {/* {showExitModal && (
                 <div
                     className="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm"
                     onClick={(e) => { if (e.target === e.currentTarget) setShowExitModal(false); }}
                 >
                     <div
-                        className="bg-background-200 relative rounded-lg shadow-xl p-6 m-4 max-w-lg w-full transform transition-all duration-300 scale-100"
+                        className="bg-primary-200 relative rounded-lg shadow-xl p-6 m-4 max-w-lg w-full transform transition-all duration-300 scale-100"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <button
@@ -148,7 +148,7 @@ export default function Home({ banners, menu, testimonials, faqs, destinos }: Ho
                         <PromotionsForm />
                     </div>
                 </div>
-            )}
+            )} */}
         </>
     );
 }

@@ -63,7 +63,7 @@ const SharePage = ({ pacote, destinoTitle, shareUrl }: ShareProps) => {
   };
 
   return (
-    <div className="bg-background-100 min-h-screen flex items-center justify-center p-4">
+    <div className="bg-primary-100 min-h-screen flex items-center justify-center p-4">
       <Head>
         <title>{`${pacote.title} - ${destinoTitle}`}</title>
         <meta
@@ -79,8 +79,8 @@ const SharePage = ({ pacote, destinoTitle, shareUrl }: ShareProps) => {
         <meta name="twitter:image" content={pacote.fotos[0]?.url || ''} />
       </Head>
 
-      <div className="w-full max-w-xl bg-background-200 rounded-lg shadow-lg overflow-hidden md:max-w-xl">
-        <div className="p-4 bg-background-200 text-center">
+      <div className="w-full max-w-xl bg-primary-200 rounded-lg shadow-lg overflow-hidden md:max-w-xl">
+        <div className="p-4 bg-primary-200 text-center">
           <h1 className="text-xl font-bold">{pacote.title}</h1>
           {pacote.subtitle && <p className="text-sm text-gray-600">{pacote.subtitle}</p>}
         </div>
