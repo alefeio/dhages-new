@@ -50,7 +50,7 @@ export function Menu({ menuData }: MenuProps) {
           : "bg-primary-800/10 backdrop-blur-sm py-4"
         }`}
     >
-      <div className="mx-auto flex items-center justify-between px-4 md:px-8">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8">
         <Link href="/">
           <img
             src={logoUrl || "/images/logo.png"}

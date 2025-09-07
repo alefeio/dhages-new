@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+// src/components/AdminDestinos.tsx
+
+import { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
 import { MdAdd, MdAddPhotoAlternate, MdDelete, MdEdit, MdCalendarMonth } from 'react-icons/md';
 import AdminLayout from "components/admin/AdminLayout";
@@ -7,10 +9,10 @@ import dynamic from "next/dynamic";
 
 const RichTextEditor = dynamic(
     () => import("components/RichTextEditor"),
-    { ssr: false } // ISSO é a chave!
+    { ssr: false }
 );
 
-// Definições de tipo atualizadas para o novo schema
+// Definições de tipo ajustadas
 interface PacoteFoto {
     id?: string;
     url: string | File;
@@ -34,7 +36,8 @@ interface Pacote {
     title: string;
     subtitle: string;
     slug?: string;
-    description: string; // Agora é uma string HTML
+    // Descrição do Pacote é um objeto { html: string } na API, mas string no form state
+    description: { html: string };
     fotos: PacoteFoto[];
     dates: PacoteDate[];
 }
@@ -44,21 +47,39 @@ interface Destino {
     title: string;
     slug: string;
     subtitle: string;
-    description: { html: string }; // Tipo ajustado para refletir o JSON
+    description: { html: string };
     image: string;
     order: number;
     pacotes: Pacote[];
 }
 
+// O estado do formulário armazena a string HTML para compatibilidade com o editor
 interface FormState {
     id?: string;
     title: string;
     subtitle: string;
-    description: string; // O estado do formulário armazena a string HTML
+    description: string;
     image: string | File;
     order: number;
-    pacotes: Pacote[];
+    pacotes: {
+        id?: string;
+        title: string;
+        subtitle: string;
+        description: string;
+        fotos: PacoteFoto[];
+        dates: PacoteDate[];
+    }[];
 }
+
+const formatDateForInput = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+        const d = new Date(dateString);
+        return d.toISOString().substring(0, 16);
+    } catch {
+        return '';
+    }
+};
 
 export default function AdminDestinos() {
     const [destinos, setDestinos] = useState<Destino[]>([]);
@@ -242,29 +263,39 @@ export default function AdminDestinos() {
         setForm({ ...form, pacotes: newPacotes });
     };
 
-    const handleEdit = (destino: Destino) => {
+    const handleEdit = useCallback((destino: Destino) => {
         setForm({
             id: destino.id,
             title: destino.title,
             subtitle: destino.subtitle || "",
-            description: destino.description?.html || "", // Pega a string HTML do JSON
+            description: destino.description?.html || "",
             image: destino.image || "",
             order: destino.order || 0,
-            pacotes: destino.pacotes.map(pacote => ({
-                ...pacote,
+            pacotes: (destino.pacotes || []).map(pacote => ({
+                id: pacote.id,
+                title: pacote.title || "",
                 subtitle: pacote.subtitle || "",
-                description: (pacote.description as any)?.html || "", // Pega a string HTML do JSON do pacote
-                fotos: pacote.fotos.map(foto => ({ ...foto, url: foto.url as string })),
-                dates: pacote.dates.map(date => ({
-                    ...date,
-                    saida: date.saida.substring(0, 16),
-                    retorno: date.retorno.substring(0, 16),
+                description: pacote.description?.html || "",
+                fotos: (pacote.fotos || []).map(foto => ({
+                    id: foto.id,
+                    url: foto.url || "",
+                    caption: foto.caption || ""
+                })),
+                dates: (pacote.dates || []).map(date => ({
+                    id: date.id,
+                    saida: formatDateForInput(date.saida),
+                    retorno: formatDateForInput(date.retorno),
+                    vagas_total: date.vagas_total || 0,
+                    vagas_disponiveis: date.vagas_disponiveis || 0,
+                    price: date.price || 0,
+                    price_card: date.price_card || 0,
+                    status: date.status || "disponivel",
                     notes: date.notes || ""
                 }))
             }))
         });
         window.scrollTo({ top: 0, behavior: "smooth" });
-    };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -311,7 +342,7 @@ export default function AdminDestinos() {
                         ...pacote,
                         slug: slugify(pacote.title),
                         fotos: fotosWithUrls,
-                        description: { html: pacote.description } // Envia como objeto { html: "..." }
+                        description: { html: pacote.description }
                     };
                 })
             );
@@ -321,7 +352,7 @@ export default function AdminDestinos() {
                 ...form,
                 slug: slugify(form.title),
                 image: imageUrl,
-                description: { html: form.description }, // Envia como objeto { html: "..." }
+                description: { html: form.description },
                 pacotes: pacotesWithUrls
             };
 
@@ -396,7 +427,7 @@ export default function AdminDestinos() {
                         {/* Itens de Pacote */}
                         <h3 className="text-xl font-bold mt-6 text-gray-700 dark:text-gray-400">Pacotes do Destino</h3>
                         {form.pacotes.map((pacote, pacoteIndex) => (
-                            <div key={pacoteIndex} className="p-6 border border-dashed border-gray-400 rounded-xl relative mb-8">
+                            <div key={pacote.id || pacoteIndex} className="p-6 border border-dashed border-gray-400 rounded-xl relative mb-8">
                                 <button type="button" onClick={() => handleRemovePacote(pacoteIndex)} className="absolute top-2 right-2 text-red-500 hover:text-red-700 transition duration-200">
                                     <MdDelete size={24} />
                                 </button>
@@ -412,7 +443,7 @@ export default function AdminDestinos() {
                                 {/* Seção de Fotos */}
                                 <h5 className="text-md font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-400">Fotos</h5>
                                 {pacote.fotos.map((foto, fotoIndex) => (
-                                    <div key={fotoIndex} className="flex gap-4 items-center mb-2">
+                                    <div key={foto.id || fotoIndex} className="flex gap-4 items-center mb-2">
                                         <button type="button" onClick={() => handleRemoveFoto(pacoteIndex, fotoIndex)} className="text-red-500 hover:text-red-700">
                                             <MdDelete size={20} />
                                         </button>
@@ -433,7 +464,7 @@ export default function AdminDestinos() {
                                 {/* Seção de Datas */}
                                 <h5 className="text-md font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-400">Datas de Saída</h5>
                                 {pacote.dates.map((date, dateIndex) => (
-                                    <div key={dateIndex} className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-gray-300 rounded-lg mb-2 relative">
+                                    <div key={date.id || dateIndex} className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-gray-300 rounded-lg mb-2 relative">
                                         <button type="button" onClick={() => handleRemoveDate(pacoteIndex, dateIndex)} className="absolute top-2 right-2 text-red-500 hover:text-red-700">
                                             <MdDelete size={20} />
                                         </button>
