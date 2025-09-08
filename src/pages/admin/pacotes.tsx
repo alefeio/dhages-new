@@ -97,8 +97,8 @@ export default function AdminDestinos() {
             dates: [{
                 saida: "",
                 retorno: "",
-                vagas_total: 0,
-                vagas_disponiveis: 0,
+                vagas_total: 50, // VAGAS TOTAIS INICIADAS AUTOMATICAMENTE
+                vagas_disponiveis: 50, // VAGAS DISPONÍVEIS TAMBÉM
                 price: 0,
                 price_card: 0,
                 status: "disponivel",
@@ -147,8 +147,8 @@ export default function AdminDestinos() {
                 dates: [{
                     saida: "",
                     retorno: "",
-                    vagas_total: 0,
-                    vagas_disponiveis: 0,
+                    vagas_total: 50, // VAGAS TOTAIS RESETADAS AUTOMATICAMENTE
+                    vagas_disponiveis: 50, // VAGAS DISPONÍVEIS RESETADAS AUTOMATICAMENTE
                     price: 0,
                     price_card: 0,
                     status: "disponivel",
@@ -210,8 +210,10 @@ export default function AdminDestinos() {
         const newPacotes = [...form.pacotes];
         const newDates = [...newPacotes[pacoteIndex].dates];
 
-        if (name === "price" || name === "price_card" || name === "vagas_total" || name === "vagas_disponiveis") {
+        if (name === "price" || name === "price_card" || name === "vagas_disponiveis") {
             newDates[dateIndex] = { ...newDates[dateIndex], [name]: parseInt(value, 10) || 0 };
+        } else if (name === "vagas_total") {
+            // Este campo agora é fixo, não é alterado pelo usuário
         } else {
             newDates[dateIndex] = { ...newDates[dateIndex], [name]: value };
         }
@@ -227,7 +229,7 @@ export default function AdminDestinos() {
                 subtitle: "",
                 description: "",
                 fotos: [{ url: "", caption: "" }],
-                dates: [{ saida: "", retorno: "", vagas_total: 0, vagas_disponiveis: 0, price: 0, price_card: 0, status: "disponivel", notes: "" }],
+                dates: [{ saida: "", retorno: "", vagas_total: 50, vagas_disponiveis: 50, price: 0, price_card: 0, status: "disponivel", notes: "" }],
             }],
         });
     };
@@ -252,7 +254,7 @@ export default function AdminDestinos() {
 
     const handleAddDate = (pacoteIndex: number) => {
         const newPacotes = [...form.pacotes];
-        newPacotes[pacoteIndex].dates = [...newPacotes[pacoteIndex].dates, { saida: "", retorno: "", vagas_total: 0, vagas_disponiveis: 0, price: 0, price_card: 0, status: "disponivel", notes: "" }];
+        newPacotes[pacoteIndex].dates = [...newPacotes[pacoteIndex].dates, { saida: "", retorno: "", vagas_total: 50, vagas_disponiveis: 50, price: 0, price_card: 0, status: "disponivel", notes: "" }];
         setForm({ ...form, pacotes: newPacotes });
     };
 
@@ -285,8 +287,8 @@ export default function AdminDestinos() {
                     id: date.id,
                     saida: formatDateForInput(date.saida),
                     retorno: formatDateForInput(date.retorno),
-                    vagas_total: date.vagas_total || 0,
-                    vagas_disponiveis: date.vagas_disponiveis || 0,
+                    vagas_total: date.vagas_total || 50,
+                    vagas_disponiveis: date.vagas_disponiveis || 50,
                     price: date.price || 0,
                     price_card: date.price_card || 0,
                     status: date.status || "disponivel",
@@ -421,7 +423,8 @@ export default function AdminDestinos() {
                             )}
                             <input type="file" name="image" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
                         </div>
-                        <input type="number" name="order" value={form.order} onChange={handleFormChange} placeholder="Ordem" required className="p-3 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                        <label className="block text-gray-700 dark:text-gray-400">Ordem de exibição:</label>
+                        <input type="number" name="order" value={form.order} onChange={handleFormChange} required className="p-3 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
                         <hr className="my-6" />
 
                         {/* Itens de Pacote */}
@@ -476,15 +479,31 @@ export default function AdminDestinos() {
                                             Retorno:
                                             <input type="datetime-local" name="retorno" value={date.retorno} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
                                         </label>
-                                        <input type="number" name="vagas_total" value={date.vagas_total} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} placeholder="Vagas Totais" required className="col-span-1 p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        <input type="number" name="price" value={date.price} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} placeholder="Preço à Vista" required className="col-span-1 p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        <input type="number" name="price_card" value={date.price_card} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} placeholder="Preço a Prazo" required className="col-span-1 p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        <select name="status" value={date.status} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} className="col-span-1 p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg">
-                                            <option value="disponivel">Disponível</option>
-                                            <option value="esgotado">Esgotado</option>
-                                            <option value="cancelado">Cancelado</option>
-                                        </select>
-                                        <input type="text" name="notes" value={date.notes} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} placeholder="Observações" className="col-span-2 p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                        {/* REMOVIDO: input de vagas totais */}
+                                        <label className="col-span-1">
+                                            Vagas Disponíveis:
+                                            <input type="number" name="vagas_disponiveis" value={date.vagas_disponiveis} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                        </label>
+                                        <label className="col-span-1">
+                                            Preço à Vista:
+                                            <input type="number" name="price" value={date.price} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                        </label>
+                                        <label className="col-span-1">
+                                            Preço a Prazo:
+                                            <input type="number" name="price_card" value={date.price_card} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                        </label>
+                                        <label className="col-span-1">
+                                            Status:
+                                            <select name="status" value={date.status} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg">
+                                                <option value="disponivel">Disponível</option>
+                                                <option value="esgotado">Esgotado</option>
+                                                <option value="cancelado">Cancelado</option>
+                                            </select>
+                                        </label>
+                                        <label className="col-span-2">
+                                            Observações:
+                                            <input type="text" name="notes" value={date.notes} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                        </label>
                                     </div>
                                 ))}
                                 <button type="button" onClick={() => handleAddDate(pacoteIndex)} className="mt-2 text-blue-500 flex items-center gap-1 hover:text-blue-700">

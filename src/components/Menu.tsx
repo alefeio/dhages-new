@@ -94,8 +94,8 @@ export function Menu({ menuData }: MenuProps) {
   return (
     <header
       className={`fixed top-0 left-0 w-full z-40 transition-all duration-300 ${isScrolled
-          ? "bg-gray-900/95 backdrop-blur-sm py-3 shadow-lg"
-          : "bg-gray-900/10 backdrop-blur-sm py-4"
+          ? "bg-blue-900/95 backdrop-blur-sm py-3 shadow-lg"
+          : "bg-blue-900/10 backdrop-blur-sm py-4"
         }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8">
@@ -103,7 +103,7 @@ export function Menu({ menuData }: MenuProps) {
           <img
             src={logoUrl || "/images/logo.png"}
             alt="Logomarca Curva Engenharia"
-            className={`transition-all duration-300 h-auto ${isScrolled ? "w-10 md:w-15" : "w-36 md:w-44"
+            className={`transition-all duration-300 h-auto ${isScrolled ? "w-10 md:w-15" : "w-16 md:w-24"
               }`}
           />
         </Link>

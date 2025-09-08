@@ -20,6 +20,15 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
     const [originUrl, setOriginUrl] = useState('');
     const [pacoteStats, setPacoteStats] = useState<{ [key: string]: { like: number | null; view: number | null } }>({});
 
+    // Função de formatação de preço corrigida
+    const formatPrice = useCallback((priceInCents: number) => {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+            minimumFractionDigits: 2,
+        }).format(priceInCents / 100);
+    }, []);
+
     const handleLike = useCallback(async (pacoteId: string) => {
         try {
             const response = await fetch('/api/stats/pacote-like', {
@@ -78,8 +87,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
         return <p className="text-center py-8">Destino não encontrado.</p>;
     }
 
-    const firstPacoteWithImage = destino.pacotes.find(p => p.fotos.length > 0);
-    const backgroundImage = firstPacoteWithImage?.fotos[0]?.url || '/placeholder.jpg';
+    const backgroundImage = destino.image || '/placeholder.jpg';
 
     return (
         <article className="py-8 bg-background-50">
@@ -121,11 +129,6 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                         const currentLikes = pacoteStats[pacote.id]?.like ?? pacote.like ?? 0;
                         const hasDates = pacote.dates && pacote.dates.length > 0;
                         const firstDate = hasDates ? pacote.dates[0] : null;
-
-                        const formatPrice = (priceInCents: number) => {
-                            const priceInReals = priceInCents / 100;
-                            return priceInReals.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                        };
 
                         return (
                             <div
@@ -171,21 +174,23 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <div className="p-4 flex flex-col flex-grow">
                                     <h3 className="font-serif text-xl font-semibold mb-1 text-primary-800">{pacote.title}</h3>
                                     {pacote.subtitle && (
                                         <p className="text-sm text-neutral-600 mb-4">{pacote.subtitle}</p>
                                     )}
 
-                                    {firstDate && firstDate.saida && (
+                                    {hasDates && (
                                         <div className="mb-4 text-sm text-neutral-700">
-                                            <p>
-                                                <span className="font-bold">Saída:</span> {format(firstDate.saida, 'dd/MM/yyyy', { locale: ptBR })}
-                                            </p>
-                                            <p>
-                                                <span className="font-bold">Vagas:</span> {firstDate.vagas_disponiveis} disponíveis
-                                            </p>
+                                            <p className="font-bold">{pacote.dates.length > 1 ? 'Saídas:' : 'Saída:'}</p>
+                                            <ul className="list-inside list-disc">
+                                                {pacote.dates.map((date, index) => (
+                                                    <li key={index}>
+                                                        {format(date.saida, 'dd/MM/yyyy', { locale: ptBR })}
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         </div>
                                     )}
 
@@ -215,7 +220,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                                 aria-label="Reservar via WhatsApp"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
-                                                <FaWhatsapp className="mr-2" />
+                                                <FaWhatsapp className="mr-2 text-white" />
                                                 Reservar
                                             </a>
                                             {canShare && (
@@ -228,7 +233,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                                     aria-label="Compartilhar"
                                                     disabled={isSharing}
                                                 >
-                                                    <FaShareAlt className="w-5 h-5" />
+                                                    <FaShareAlt className="w-5 h-5 text-white" />
                                                 </button>
                                             )}
                                         </div>

@@ -39,7 +39,9 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async () =>
             prisma.testimonial.findMany({ orderBy: { createdAt: 'desc' } }),
             prisma.fAQ.findMany({ orderBy: { pergunta: 'asc' } }),
             prisma.destino.findMany({
-                orderBy: { title: 'asc' },
+                // ALTERAÇÃO IMPORTANTE AQUI:
+                // Ordenando por 'order' em ordem ascendente (asc)
+                orderBy: { order: 'asc' },
                 include: { pacotes: { include: { fotos: true, dates: true } } },
             }),
         ]);
