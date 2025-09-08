@@ -9,6 +9,24 @@ export interface Banner {
     }[];
 }
 
+export interface LinkItem {
+  id: string;
+  text: string;
+  url: string;
+  target?: string;
+}
+
+// Este tipo representa a estrutura dos dados do menu.
+export interface MenuData {
+  logoUrl: string;
+  links: LinkItem[];
+}
+
+// Este tipo representa as props que o componente Menu espera.
+export interface MenuProps {
+  menuData: MenuData | null;
+}
+
 export interface MenuItem {
     id: number;
     logoUrl: string;

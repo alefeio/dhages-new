@@ -172,17 +172,17 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <div className="p-4 flex flex-col flex-grow">
                                     <h3 className="font-serif text-xl font-semibold mb-1 text-primary-800">{pacote.title}</h3>
                                     {pacote.subtitle && (
                                         <p className="text-sm text-neutral-600 mb-4">{pacote.subtitle}</p>
                                     )}
 
-                                    {hasDates && (
+                                    {hasDates && firstDate?.saida && (
                                         <div className="mb-4 text-sm text-neutral-700">
                                             <p>
-                                                <span className="font-bold">Saída:</span> {format(parseISO(firstDate?.saida), 'dd/MM/yyyy', { locale: ptBR })}
+                                                <span className="font-bold">Saída:</span> {format(parseISO(firstDate.saida), 'dd/MM/yyyy', { locale: ptBR })}
                                             </p>
                                             <p>
                                                 <span className="font-bold">Vagas:</span> {firstDate?.vagas_disponiveis} disponíveis

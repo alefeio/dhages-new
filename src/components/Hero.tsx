@@ -29,7 +29,7 @@ export default function Hero() {
           </p>
 
           <p className="text-lg md:text-xl mt-2 px-2 md:px-0 drop-shadow-lg font-light text-white">
-            Descubra roteiros inesquecíveis nos **Lençóis Maranhenses**, em **Jericoacoara** e nas paradisíacas praias do Nordeste, tudo com a segurança e o conforto que sua **família** merece.
+            Descubra roteiros inesquecíveis em Carolina-MA, Lençóis Maranhenses, Fortaleza, Jericoacoara, e nas demais paradisíacas praias do Nordeste e litoral brasileiro, tudo com a segurança e o conforto que sua família merece.
           </p>
 
           {/* Botões de Ação */}
