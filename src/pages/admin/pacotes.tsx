@@ -97,8 +97,8 @@ export default function AdminDestinos() {
             dates: [{
                 saida: "",
                 retorno: "",
-                vagas_total: 50, // VAGAS TOTAIS INICIADAS AUTOMATICAMENTE
-                vagas_disponiveis: 50, // VAGAS DISPONÍVEIS TAMBÉM
+                vagas_total: 50, // VALOR PADRÃO
+                vagas_disponiveis: 50, // VALOR PADRÃO
                 price: 0,
                 price_card: 0,
                 status: "disponivel",
@@ -147,8 +147,8 @@ export default function AdminDestinos() {
                 dates: [{
                     saida: "",
                     retorno: "",
-                    vagas_total: 50, // VAGAS TOTAIS RESETADAS AUTOMATICAMENTE
-                    vagas_disponiveis: 50, // VAGAS DISPONÍVEIS RESETADAS AUTOMATICAMENTE
+                    vagas_total: 50, // VALOR RESETADO
+                    vagas_disponiveis: 50, // VALOR RESETADO
                     price: 0,
                     price_card: 0,
                     status: "disponivel",
@@ -210,10 +210,8 @@ export default function AdminDestinos() {
         const newPacotes = [...form.pacotes];
         const newDates = [...newPacotes[pacoteIndex].dates];
 
-        if (name === "price" || name === "price_card" || name === "vagas_disponiveis") {
+        if (name === "price" || name === "price_card") {
             newDates[dateIndex] = { ...newDates[dateIndex], [name]: parseInt(value, 10) || 0 };
-        } else if (name === "vagas_total") {
-            // Este campo agora é fixo, não é alterado pelo usuário
         } else {
             newDates[dateIndex] = { ...newDates[dateIndex], [name]: value };
         }
@@ -479,11 +477,7 @@ export default function AdminDestinos() {
                                             Retorno:
                                             <input type="datetime-local" name="retorno" value={date.retorno} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
                                         </label>
-                                        {/* REMOVIDO: input de vagas totais */}
-                                        <label className="col-span-1">
-                                            Vagas Disponíveis:
-                                            <input type="number" name="vagas_disponiveis" value={date.vagas_disponiveis} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        </label>
+                                        {/* Campos "Vagas Totais" e "Vagas Disponíveis" foram removidos */}
                                         <label className="col-span-1">
                                             Preço à Vista:
                                             <input type="number" name="price" value={date.price} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
