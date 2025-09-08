@@ -12,28 +12,28 @@ export default function Hero() {
   };
 
   return (
-    <header className="relative w-full h-[650px] flex items-center justify-center overflow-hidden bg-primary-950">
+    <header className="relative w-full py-32 flex items-center justify-center overflow-hidden bg-primary-950">
       {/* Bloco de cor diagonal para o design criativo */}
       <div className="absolute top-0 right-0 w-3/5 h-full bg-primary-600 transform -skew-x-12 origin-top-right"></div>
       <div className="absolute top-0 right-0 w-3/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-right"></div>
 
       {/* Conteúdo principal da seção */}
-      <div className="relative z-10 max-w-xs md:max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center md:items-start text-white">
-        <div className="md:w-3/5 text-center md:text-left">
-          <h1 className="font-serif text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg leading-tight">
-            Sua Aventura de Viagem Começa Aqui
+      <div className="relative z-10 max-w-xs md:max-w-7xl mx-auto px-4 text-white">
+        <div className="text-center">
+          <h1 className="font-serif text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg leading-tight text-white">
+            Viaje com a D' Hages
           </h1>
-          
-          <p className="text-xl md:text-2xl mt-4 px-2 md:px-0 drop-shadow-lg font-light">
-            A **D'Hages Turismo** é sua **agência de viagens em Belém - PA**, especializada em **excursões e pacotes de viagem pelo Brasil todo**.
+
+          <p className="text-xl md:text-2xl mt-4 px-2 md:px-0 drop-shadow-lg font-light text-white">
+            A D'Hages Turismo é especializada em excursões e pacotes de viagem por todo o Brasil.
           </p>
-          
-          <p className="text-lg md:text-xl mt-2 px-2 md:px-0 drop-shadow-lg font-light">
+
+          <p className="text-lg md:text-xl mt-2 px-2 md:px-0 drop-shadow-lg font-light text-white">
             Descubra roteiros inesquecíveis nos **Lençóis Maranhenses**, em **Jericoacoara** e nas paradisíacas praias do Nordeste, tudo com a segurança e o conforto que sua **família** merece.
           </p>
-          
+
           {/* Botões de Ação */}
-          <div className="flex flex-col md:flex-row gap-4 mt-12 md:justify-start justify-center">
+          <div className="flex flex-col md:flex-row gap-4 mt-12 justify-center">
             <a
               href="#destinos"
               className="inline-flex items-center justify-center bg-secondary-400 hover:bg-secondary-500 text-primary-950 rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
@@ -53,15 +53,10 @@ export default function Hero() {
               className="inline-flex items-center justify-center bg-transparent border-2 border-white hover:bg-white hover:text-primary-950 text-white rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
               aria-label="Fale conosco pelo WhatsApp"
             >
-              <FaWhatsapp className="mr-2" />
+              <FaWhatsapp className="mr-2 text-white" />
               Fale com nossa equipe
             </a>
           </div>
-        </div>
-
-        {/* Espaço para a logo da D'Hages no layout (removido temporariamente para o exemplo) */}
-        <div className="hidden md:block md:w-2/5">
-          <Image src="/logo.png" alt="D'Hages Turismo Logo" width={200} height={200} />
         </div>
       </div>
     </header>
