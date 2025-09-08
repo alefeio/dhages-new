@@ -90,7 +90,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
     const backgroundImage = destino.image || '/placeholder.jpg';
 
     return (
-        <article className="py-8 bg-background-50">
+        <article className="py-8 bg-gray-800">
             <div className="relative w-full h-[50vh] overflow-hidden">
                 <Image
                     src={backgroundImage}
@@ -100,15 +100,23 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                     className="absolute w-full h-full object-cover"
                 />
 
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0"></div>
+                {/* Alteração: Degradê com opacidade ajustada */}
+                <div className="absolute inset-0 bg-gradient-to-t from-white/100 to-black/0 backdrop-blur-xs z-0"></div>
 
                 <div className="relative z-10 flex flex-col justify-center items-center h-full text-center">
-                    <h2 className="font-serif text-3xl md:text-5xl font-bold mb-4 rounded-xl text-white px-4 py-2 drop-shadow-lg">
+                    <h2 className="font-serif text-3xl md:text-5xl font-bold mb-4 rounded-xl text-gray-900 px-4 py-2 drop-shadow-lg">
                         {destino.title}
                     </h2>
-                    <p className="text-xl md:text-2xl text-white max-w-2xl px-4 drop-shadow-md">
+                    <p className="text-xl md:text-2xl text-gray-900 max-w-2xl px-4 drop-shadow-md">
                         {destino.subtitle}
                     </p>
+                    {/* Alteração: Adicionado o campo description */}
+                    {destino.description?.html && (
+                        <div
+                            className="text-white text-md mt-4 max-w-2xl px-4 drop-shadow-md"
+                            dangerouslySetInnerHTML={{ __html: destino.description.html }}
+                        />
+                    )}
                     <a
                         href={buttonHref}
                         target="_blank"
