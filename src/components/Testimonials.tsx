@@ -1,62 +1,40 @@
 // src/components/Testimonials.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useRef } from 'react';
+import Image from 'next/image';
 
 // Define a tipagem dos dados
 interface Testimonial {
   id: string;
   name: string;
-  type: 'text' | 'video' | 'image';
+  type: 'texto' | 'video' | 'image';
   content: string;
-  starRating?: number; // Adicionei para a nota das avaliações do Google
   thumbnail?: string;
 }
 
-export default function Testimonials() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+// Define a tipagem das props do componente
+interface TestimonialsPageProps {
+  testimonials: Testimonial[];
+}
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const res = await fetch('/api/google-reviews');
-        if (!res.ok) {
-          throw new Error('Falha ao buscar avaliações');
-        }
-        const data: Testimonial[] = await res.json();
-        setTestimonials(data);
-      } catch (error) {
-        setIsError(true);
-        console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchReviews();
-  }, []);
+export default function Testimonials({ testimonials }: TestimonialsPageProps) {
+  const scrollContainer = useRef<HTMLDivElement>(null);
 
-  if (isLoading) {
-    return <div className="text-center py-16">Carregando depoimentos...</div>;
-  }
-
-  if (isError) {
-    return <div className="text-center py-16 text-red-600">Ocorreu um erro ao carregar os depoimentos.</div>;
-  }
-
-  if (!testimonials || testimonials.length === 0) {
-    return <div className="text-center py-16 text-neutral-600">Nenhum depoimento encontrado.</div>;
-  }
+  const scroll = (scrollOffset: number) => {
+    if (scrollContainer.current) {
+      scrollContainer.current.scrollLeft += scrollOffset;
+    }
+  };
 
   return (
     <>
       <div id="depoimentos" className="py-16">&nbsp;</div>
-      <section className="max-w-7xl mx-auto px-4">
+      <section className="mx-auto max-w-7xl px-4">
         <div className="mb-12 text-center">
           <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 leading-tight text-primary-900 drop-shadow-md">
             O que nossos clientes dizem
           </h2>
-          <p className="text-lg text-neutral-700 max-w-2xl mx-auto px-4">
+          <p className="text-lg text-neutral-700 max-w-2xl mx-auto">
             A satisfação dos nossos clientes é a nossa maior viagem. Confira alguns dos depoimentos de quem já viveu uma aventura conosco!
           </p>
           <p className="text-center mt-6 text-neutral-600">
@@ -72,51 +50,78 @@ export default function Testimonials() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {testimonials.map((t) => (
-            <article
-              key={t.id}
-              className="bg-primary-100 rounded-xl shadow-lg p-6 flex flex-col justify-between"
-              aria-label={`Depoimento de ${t.name}`}
+        <div className="relative">
+          <div className="absolute top-1/2 left-0 right-0 z-10 flex justify-between px-4 sm:px-8 -translate-y-1/2">
+            <button
+              onClick={() => scroll(-400)}
+              className="p-2 bg-white rounded-full shadow-lg opacity-75 hover:opacity-100 transition-opacity"
+              aria-label="Anterior"
             >
-              {t.type === 'text' && (
-                <>
-                  <p className="text-lg italic mb-4 text-neutral-700">"{t.content}"</p>
-                  <span className="block text-right font-semibold text-neutral-800">{t.name}</span>
-                </>
-              )}
-              {t.type === 'video' && (
-                <div className="flex flex-col h-full">
-                  <div className="relative aspect-w-16 aspect-h-9 w-full rounded-md overflow-hidden mb-4">
-                    <video
-                      controls
-                      preload="metadata"
-                      poster={t.thumbnail || undefined}
-                      className="absolute inset-0 w-full h-full object-cover rounded-md"
-                      aria-label={`Depoimento em vídeo de ${t.name}`}
-                    >
-                      <source src={t.content} type="video/webm" />
-                      <source src={t.content.replace('.webm', '.mp4')} type="video/mp4" />
-                      Seu navegador não suporta a visualização de vídeos.
-                    </video>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => scroll(400)}
+              className="p-2 bg-white rounded-full shadow-lg opacity-75 hover:opacity-100 transition-opacity"
+              aria-label="Próximo"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          <div
+            ref={scrollContainer}
+            className="flex gap-6 overflow-x-scroll scrollbar-hide snap-x snap-mandatory px-4 md:px-0"
+            style={{ scrollBehavior: 'smooth' }}
+          >
+            {testimonials.map((t) => (
+              <article
+                key={t.id}
+                className="w-full md:max-w-[400px] lg:min-w-[30%] snap-center bg-primary-100 rounded-xl shadow-lg p-6 flex-shrink-0 flex flex-col justify-between min-h-[400px]"
+                aria-label={`Depoimento de ${t.name}`}
+              >
+                {t.type === 'texto' && (
+                  <div className="max-w-[calc(100%-12px)]">
+                    <p className="text-lg italic mb-4 text-neutral-700 break-words">"{t.content}"</p>
+                    <span className="block text-right font-semibold text-neutral-800">{t.name}</span>
                   </div>
-                  <span className="block text-right font-semibold text-neutral-800">{t.name}</span>
-                </div>
-              )}
-              {t.type === 'image' && (
-                <div className="relative w-full h-auto">
-                  <Image
-                    src={t.content}
-                    alt={`Depoimento em foto de ${t.name}`}
-                    width={500}
-                    height={300}
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                  <div className="mt-4 text-right font-semibold text-neutral-800">{t.name}</div>
-                </div>
-              )}
-            </article>
-          ))}
+                )}
+                {t.type === 'video' && (
+                  <div className="flex flex-col h-full">
+                    <div className="relative aspect-w-16 aspect-h-9 w-full rounded-md overflow-hidden mb-4">
+                      <video
+                        className="h-full object-cover"
+                        controls
+                        poster={t.thumbnail || undefined}
+                        playsInline
+                      >
+                        <source src={t.content} type="video/webm" />
+                        <source src={t.content.replace('.webm', '.mp4')} type="video/mp4" />
+                        <source src={t.content.replace('.webm', '.ogg')} type="video/ogg" />
+                        Seu navegador não suporta a tag de vídeo.
+                      </video>
+                    </div>
+                    <span className="block text-right font-semibold text-neutral-800">{t.name}</span>
+                  </div>
+                )}
+                {t.type === 'image' && (
+                  <div className="relative w-full h-auto">
+                    <Image
+                      src={t.content}
+                      alt={`Depoimento em foto de ${t.name}`}
+                      width={500}
+                      height={300}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                    <div className="mt-4 text-right font-semibold text-neutral-800">{t.name}</div>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
         </div>
       </section>
     </>

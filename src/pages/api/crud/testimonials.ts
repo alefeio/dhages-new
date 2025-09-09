@@ -26,30 +26,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
     }
 
-    // Lógica para criar ou atualizar um depoimento
+    // Lógica para criar um depoimento
     if (req.method === 'POST') {
-        const { id, name, type, content } = req.body;
+        const { name, type, content } = req.body;
         if (!name || !type || !content) {
             return res.status(400).json({ message: 'Dados inválidos.' });
         }
-
         try {
-            if (id) {
-                // Lógica de edição
-                const updatedTestimonial = await prisma.testimonial.update({
-                    where: { id },
-                    data: { name, type, content },
-                });
-                return res.status(200).json(updatedTestimonial);
-            } else {
-                // Lógica de criação
-                const newTestimonial = await prisma.testimonial.create({
-                    data: { name, type, content },
-                });
-                return res.status(201).json(newTestimonial);
-            }
+            const newTestimonial = await prisma.testimonial.create({
+                data: { name, type, content },
+            });
+            return res.status(201).json(newTestimonial);
         } catch (error) {
-            return res.status(500).json({ message: 'Erro ao salvar o depoimento.' });
+            return res.status(500).json({ message: 'Erro ao criar o depoimento.' });
+        }
+    }
+
+    // Lógica para atualizar um depoimento
+    if (req.method === 'PUT') {
+        const { id, name, type, content } = req.body;
+        if (!id || !name || !type || !content) {
+            return res.status(400).json({ message: 'ID e dados são obrigatórios para a atualização.' });
+        }
+        try {
+            const updatedTestimonial = await prisma.testimonial.update({
+                where: { id },
+                data: { name, type, content },
+            });
+            return res.status(200).json(updatedTestimonial);
+        } catch (error) {
+            return res.status(500).json({ message: 'Erro ao atualizar o depoimento.' });
         }
     }
 
@@ -59,7 +65,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!id) {
             return res.status(400).json({ message: 'ID não fornecido.' });
         }
-
         try {
             await prisma.testimonial.delete({
                 where: { id: String(id) },
@@ -70,6 +75,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
     }
 
-    res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
+    res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
 }
