@@ -13,12 +13,23 @@ interface ModalPhotosProps {
     onClose: () => void;
 }
 
+const isImage = (url: string) => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    return imageExtensions.some(ext => url.toLowerCase().endsWith(ext));
+};
+
 export default function ModalPhotos({ pacote, onClose }: ModalPhotosProps) {
-    const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+    const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
     const [pacoteStats, setPacoteStats] = useState({ like: pacote.like ?? 0 });
     const canShare = typeof window !== 'undefined' && 'share' in navigator;
 
-    // Apenas a lógica para contar likes, visualizações foi removida
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
+
     const handleLike = useCallback(async () => {
         try {
             const response = await fetch('/api/stats/pacote-like', {
@@ -52,14 +63,14 @@ export default function ModalPhotos({ pacote, onClose }: ModalPhotosProps) {
         }
     };
 
-    const nextPhoto = () => {
-        setCurrentPhotoIndex((prevIndex) =>
+    const nextMedia = () => {
+        setCurrentMediaIndex((prevIndex) =>
             (prevIndex + 1) % pacote.fotos.length
         );
     };
 
-    const prevPhoto = () => {
-        setCurrentPhotoIndex((prevIndex) =>
+    const prevMedia = () => {
+        setCurrentMediaIndex((prevIndex) =>
             (prevIndex - 1 + pacote.fotos.length) % pacote.fotos.length
         );
     };
@@ -68,42 +79,58 @@ export default function ModalPhotos({ pacote, onClose }: ModalPhotosProps) {
         return null;
     }
 
-    const currentPhoto = pacote.fotos[currentPhotoIndex];
+    const currentMedia = pacote.fotos[currentMediaIndex];
     const formatPrice = (priceInCents: number) => {
         const priceInReals = priceInCents / 100;
         return priceInReals.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
+    const isCurrentMediaImage = isImage(currentMedia.url);
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-fade-in" onClick={onClose}>
             <div className="relative w-full max-w-7xl h-full max-h-[90vh] bg-white rounded-lg overflow-hidden shadow-2xl flex flex-col md:flex-row" onClick={(e) => e.stopPropagation()}>
-                
+
                 <button className="absolute top-2 right-2 z-20 text-white bg-black/40 hover:bg-black/60 rounded-full p-2" onClick={onClose} aria-label="Fechar">
                     <FaTimes size={20} />
                 </button>
 
+                {/* Container de Mídia: h-1/2 em mobile, h-full em desktop */}
                 <div className="relative w-full md:w-1/2 h-1/2 md:h-full flex items-center justify-center bg-black">
-                    <Image
-                        src={currentPhoto.url}
-                        alt={pacote.title}
-                        layout="fill"
-                        objectFit="contain"
-                        className="p-4"
-                    />
+                    {isCurrentMediaImage ? (
+                        <Image
+                            src={currentMedia.url}
+                            alt={pacote.title}
+                            width={0}
+                            height={0}
+                            sizes="100vw"
+                            style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+                        />
+                    ) : (
+                        <video
+                            src={currentMedia.url}
+                            controls
+                            autoPlay
+                            muted
+                            playsInline
+                            className="w-full h-full"
+                            style={{ objectFit: 'contain' }}
+                        />
+                    )}
 
                     {pacote.fotos.length > 1 && (
                         <>
                             <button
                                 className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-2 z-30"
-                                onClick={prevPhoto}
-                                aria-label="Foto anterior"
+                                onClick={prevMedia}
+                                aria-label="Mídia anterior"
                             >
                                 <FaChevronLeft size={20} />
                             </button>
                             <button
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-2 z-30"
-                                onClick={nextPhoto}
-                                aria-label="Próxima foto"
+                                onClick={nextMedia}
+                                aria-label="Próxima mídia"
                             >
                                 <FaChevronRight size={20} />
                             </button>
@@ -111,8 +138,31 @@ export default function ModalPhotos({ pacote, onClose }: ModalPhotosProps) {
                     )}
                 </div>
 
-                <div className="w-full md:w-1/2 flex flex-col">
-                    <div className="p-6 flex-grow overflow-y-auto">
+                {/* Container de Conteúdo e Botões */}
+                <div className="w-full md:w-1/2 flex flex-col sm:flex-col-reverse h-full">
+
+                    {/* Rodapé fixo */}
+                    <div className="bg-white/90 backdrop-blur-sm p-2 md:p-6 border-t border-neutral-200 flex flex-row gap-2">
+                        <a
+                            href={`https://wa.me/5591985810208?text=Olá! Gostaria de mais informações sobre o pacote: ${pacote.title}.`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 text-center bg-green-600 hover:bg-green-700 text-white text-xs md:text-base font-bold py-3 px-6 sm: rounded-full transition-colors flex items-center justify-center gap-2"
+                        >
+                            <FaWhatsapp className="text-white" /> Fale Conosco
+                        </a>
+                        {canShare && (
+                            <button
+                                onClick={handleShare}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-base font-bold py-3 px-6 rounded-full transition-colors flex items-center justify-center gap-2"
+                            >
+                                <FaShareAlt className="text-white" /> Compartilhar
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Área de conteúdo rolável */}
+                    <div className="p-6 overflow-y-auto min-h-0">
                         <h2 className="text-3xl font-bold font-serif text-primary-800 mb-2">{pacote.title}</h2>
                         {pacote.subtitle && <p className="text-base text-neutral-600 mb-4">{pacote.subtitle}</p>}
 
@@ -147,30 +197,11 @@ export default function ModalPhotos({ pacote, onClose }: ModalPhotosProps) {
                                 <p className="text-sm text-neutral-500">Nenhuma data de saída disponível no momento.</p>
                             )}
                         </div>
-                        
+
                         <div className="mt-6 border-t border-neutral-200 pt-4">
                             <h3 className="text-lg font-semibold text-primary-800 mb-2">Detalhes do Pacote:</h3>
                             <div className="prose prose-sm max-w-none text-neutral-700" dangerouslySetInnerHTML={{ __html: richTextToHtml(pacote.description) }} />
                         </div>
-                    </div>
-                    
-                    <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm p-6 border-t border-neutral-200 flex flex-col sm:flex-row gap-4">
-                        <a
-                            href={`https://wa.me/5591985810208?text=Olá! Gostaria de mais informações sobre o pacote: ${pacote.title}.`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 text-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full transition-colors flex items-center justify-center gap-2"
-                        >
-                            <FaWhatsapp /> Fale Conosco
-                        </a>
-                        {canShare && (
-                            <button
-                                onClick={handleShare}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors flex items-center justify-center gap-2"
-                            >
-                                <FaShareAlt /> Compartilhar
-                            </button>
-                        )}
                     </div>
                 </div>
             </div>

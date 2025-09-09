@@ -12,53 +12,97 @@ export default function Hero() {
   };
 
   return (
-    <header className="relative w-full py-32 flex items-center justify-center overflow-hidden bg-primary-950">
-      {/* Bloco de cor diagonal para o design criativo */}
-      <div className="absolute top-0 right-0 w-3/5 h-full bg-primary-600 transform -skew-x-12 origin-top-right"></div>
-      <div className="absolute top-0 right-0 w-3/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-right"></div>
+    <>
+      {/* O cabeçalho agora tem um fundo branco (bg-white) */}
+      <header className="relative w-full py-32 flex items-center justify-center overflow-hidden bg-white text-primary-950">
+        {/* O conteúdo do cabeçalho agora tem texto escuro */}
+        <div className="relative z-10 max-w-xs md:max-w-7xl mx-auto px-4 text-primary-950">
+          <div className="text-center">
+            <h1 className="font-serif text-4xl md:text-6xl font-extrabold mb-4 leading-tight">
+              Viaje com a D' Hages
+            </h1>
 
-      {/* Conteúdo principal da seção */}
-      <div className="relative z-10 max-w-xs md:max-w-7xl mx-auto px-4 text-white">
-        <div className="text-center">
-          <h1 className="font-serif text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg leading-tight text-white">
-            Viaje com a D' Hages
-          </h1>
+            <p className="text-xl md:text-2xl mt-4 px-2 md:px-0">
+              A D'Hages Turismo é especializada em excursões e pacotes de viagem por todo o Brasil.
+            </p>
 
-          <p className="text-xl md:text-2xl mt-4 px-2 md:px-0 drop-shadow-lg font-light text-white">
-            A D'Hages Turismo é especializada em excursões e pacotes de viagem por todo o Brasil.
-          </p>
+            <p className="text-lg md:text-xl mt-2 px-2 md:px-0 font-light">
+              Descubra roteiros inesquecíveis em Carolina-MA, Lençóis Maranhenses, Fortaleza, Jericoacoara, e nas demais paradisíacas praias do Nordeste e litoral brasileiro, tudo com a segurança e o conforto que sua família merece.
+            </p>
 
-          <p className="text-lg md:text-xl mt-2 px-2 md:px-0 drop-shadow-lg font-light text-white">
-            Descubra roteiros inesquecíveis em Carolina-MA, Lençóis Maranhenses, Fortaleza, Jericoacoara, e nas demais paradisíacas praias do Nordeste e litoral brasileiro, tudo com a segurança e o conforto que sua família merece.
-          </p>
-
-          {/* Botões de Ação */}
-          <div className="flex flex-col md:flex-row gap-4 mt-12 justify-center">
-            <a
-              href="#destinos"
-              className="inline-flex items-center justify-center bg-secondary-400 hover:bg-secondary-500 text-primary-950 rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
-              onClick={(e) => {
-                e.preventDefault();
-                const section = document.getElementById('destinos');
-                section?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              aria-label="Explore nossos pacotes de viagem"
-            >
-              Explore Nossos Pacotes
-            </a>
-            <a
-              href="https://wa.me/5591985810208?text=Olá! Gostaria de mais informações sobre os pacotes de viagem."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center bg-transparent border-2 border-white hover:bg-white hover:text-primary-950 text-white rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
-              aria-label="Fale conosco pelo WhatsApp"
-            >
-              <FaWhatsapp className="mr-2 text-white" />
-              Fale com nossa equipe
-            </a>
+            {/* Botões de Ação */}
+            <div className="flex flex-col md:flex-row gap-4 mt-12 justify-center">
+              <a
+                href="#destinos"
+                className="inline-flex items-center justify-center bg-secondary-400 hover:bg-secondary-500 text-primary-950 rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const section = document.getElementById('destinos');
+                  section?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                aria-label="Explore nossos pacotes de viagem"
+              >
+                Explore Nossos Pacotes
+              </a>
+              <a
+                href="https://wa.me/5591985810208?text=Olá! Gostaria de mais informações sobre os pacotes de viagem."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center bg-transparent border-2 border-primary-950 hover:bg-primary-950 hover:text-white text-primary-950 rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
+                aria-label="Fale conosco pelo WhatsApp"
+              >
+                <FaWhatsapp className="mr-2 text-primary-950" />
+                Fale com nossa equipe
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* A seção de frota agora tem o fundo com a diagonal (bg-primary-950) */}
+      <section id="frota" className="relative w-full py-20 md:py-32 flex items-center justify-center overflow-hidden bg-primary-950 text-white">
+        {/* Bloco de cor diagonal para o design criativo, movido para cá */}
+        <div className="absolute top-0 right-0 w-3/5 h-full bg-primary-600 transform -skew-x-12 origin-top-right"></div>
+        <div className="absolute top-0 right-0 w-3/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-right"></div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+          <h2 className="text-4xl text-white md:text-6xl text-center font-bold font-serif mb-16">
+            Conforto e Segurança Garantidos
+          </h2>
+
+          <div className="flex flex-col md:flex-row items-center md:gap-12">
+            {/* Bloco de Texto Principal */}
+            <div className="w-full flex flex-col justify-center mb-12 md:mb-0">
+              <h3 className="text-xl text-white md:text-2xl mb-4 font-bold">
+                Nossos ônibus são modernos e projetados para oferecer uma experiência de viagem de primeira classe.
+              </h3>
+              <p className="text-base text-gray-200 mb-4">
+                Com interiores **elegantemente equipados**, assentos confortáveis e reclináveis, e um sistema de **ar-condicionado** de última geração, garantimos que sua jornada será tranquila e totalmente agradável.
+              </p>
+              <p className="text-base text-gray-200 mb-6">
+                Cada detalhe foi pensado para a sua **segurança e bem-estar**, para que você e sua família possam relaxar e aproveitar o trajeto.
+              </p>
+              <p className="text-lg text-white font-bold">
+                Viaje com a D' Hages Turismo e descubra o que é viajar com **conforto, segurança e excelência**.
+              </p>
+            </div>
+
+            {/* Vídeo principal */}
+            <div className="relative w-full md:w-1/3 rounded-xl overflow-hidden shadow-lg mb-8 md:mb-0">
+              <video
+                className="w-full h-auto"
+                controls
+                poster="/images/frota.png"
+                playsInline
+              >
+                <source src="/videos/frota.mp4" type="video/mp4" />
+                <source src="/videos/frota.ogg" type="video/ogg" />
+                Seu navegador não suporta a tag de vídeo.
+              </video>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

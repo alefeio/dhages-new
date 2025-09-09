@@ -70,16 +70,14 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
 
     return (
         <>
-            <div id="destinos" className='my-16'>&nbsp;</div>
-            <section>
+            <section className="bg-blue-100 py-32">
+                <div id="destinos">&nbsp;</div>
                 <div className="text-center md:max-w-7xl mx-auto mb-16">
-                    <h2 className="font-serif text-3xl md:text-4xl font-bold mb-6">
-                        Explore nossos Destinos
+                    <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6 leading-tight text-primary-900 drop-shadow-md">
+                        Explore Nossos Destinos
                     </h2>
-                    <p className="border-t-2 border-primary-200 text-background-700 px-4 pt-6 w-fit m-auto">
-                        <strong>
-                            Pacotes de viagem completos e experiências inesquecíveis, para que você possa focar apenas em aproveitar.
-                        </strong>
+                    <p className="text-neutral-700 max-w-2xl mx-auto text-lg px-4">
+                        Pacotes de viagem completos e experiências inesquecíveis, para que você possa focar apenas em aproveitar.
                     </p>
                 </div>
                 <div className="block sticky top-24 md:top-32 transform -translate-y-1/2 z-20">
@@ -90,7 +88,6 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
                     <div key={destino.slug} id={destino.slug}>
                         <DestinoGallerySection
                             destino={destino}
-                            // Corrigido para 'openModal'
                             openModal={openModal}
                         />
                     </div>
@@ -98,7 +95,6 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
 
                 {showModal && pacoteExibido && (
                     <ModalPhotos
-                        // Propriedade 'pacote'
                         pacote={pacoteExibido}
                         onClose={closeModal}
                     />

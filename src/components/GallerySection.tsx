@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { FaWhatsapp, FaShareAlt, FaHeart } from "react-icons/fa";
+import { FaWhatsapp, FaShareAlt, FaHeart, FaPlayCircle } from "react-icons/fa";
 import { Destino, Pacote } from "../types";
 import Image from "next/image";
 import { format } from 'date-fns';
@@ -14,13 +14,17 @@ type GallerySectionProps = {
     buttonHref: string;
 };
 
+// **Nova função para verificar se a URL é de um vídeo**
+const isVideo = (url: string) => {
+    return url.includes('/video/') || url.endsWith('.mp4') || url.endsWith('.mov') || url.endsWith('.webm');
+};
+
 export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySectionProps) {
     const [canShare, setCanShare] = useState(false);
     const [isSharing, setIsSharing] = useState(false);
     const [originUrl, setOriginUrl] = useState('');
     const [pacoteStats, setPacoteStats] = useState<{ [key: string]: { like: number | null; view: number | null } }>({});
 
-    // Função de formatação de preço corrigida
     const formatPrice = useCallback((priceInCents: number) => {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -90,18 +94,30 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
     const backgroundImage = destino.image || '/placeholder.jpg';
 
     return (
-        <article className="py-8 bg-gray-800">
-            <div className="relative w-full h-[50vh] overflow-hidden">
-                <Image
-                    src={backgroundImage}
-                    alt={`Background para ${destino.title}`}
-                    layout="fill"
-                    objectFit="cover"
-                    className="absolute w-full h-full object-cover"
-                />
+        <article className="py-8 bg-">
+            <div className="relative w-full py-24 overflow-hidden">
+                {/* Renderização condicional para vídeo ou imagem de fundo */}
+                {isVideo(backgroundImage) ? (
+                    <video
+                        src={backgroundImage}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="absolute w-full h-full object-cover"
+                        aria-label={`Vídeo de fundo para ${destino.title}`}
+                    />
+                ) : (
+                    <Image
+                        src={backgroundImage}
+                        alt={`Background para ${destino.title}`}
+                        layout="fill"
+                        objectFit="cover"
+                        className="absolute w-full h-full object-cover"
+                    />
+                )}
 
-                {/* Alteração: Degradê com opacidade ajustada */}
-                <div className="absolute inset-0 bg-gradient-to-t from-white/100 to-black/0 backdrop-blur-xs z-0"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-100 to-black/0 backdrop-blur-xs z-0"></div>
 
                 <div className="relative z-10 flex flex-col justify-center items-center h-full text-center">
                     <h2 className="font-serif text-3xl md:text-5xl font-bold mb-4 rounded-xl text-gray-900 px-4 py-2 drop-shadow-lg">
@@ -110,14 +126,13 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                     <p className="text-xl md:text-2xl text-gray-900 max-w-2xl px-4 drop-shadow-md">
                         {destino.subtitle}
                     </p>
-                    {/* Alteração: Adicionado o campo description */}
                     {destino.description?.html && (
                         <div
                             className="text-white text-md mt-4 max-w-2xl px-4 drop-shadow-md"
                             dangerouslySetInnerHTML={{ __html: destino.description.html }}
                         />
                     )}
-                    <a
+                    {/* <a
                         href={buttonHref}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -125,15 +140,16 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                         aria-label={`Fale conosco sobre ${destino.title}`}
                     >
                         Reserve sua aventura
-                    </a>
+                    </a> */}
                 </div>
             </div>
 
             <div className="max-w-7xl mx-auto px-4 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 md:gap-8">
                     {destino.pacotes.map(pacote => {
                         const shareUrl = `${originUrl}/pacotes/${destino.slug}/${pacote.slug}`;
-                        const firstPhotoUrl = pacote.fotos[0]?.url || '/placeholder.jpg';
+                        const firstMedia = pacote.fotos[0] || { url: '/placeholder.jpg' };
+                        const isFirstMediaVideo = isVideo(firstMedia.url);
                         const currentLikes = pacoteStats[pacote.id]?.like ?? pacote.like ?? 0;
                         const hasDates = pacote.dates && pacote.dates.length > 0;
                         const firstDate = hasDates ? pacote.dates[0] : null;
@@ -142,108 +158,131 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                             <div
                                 key={pacote.id}
                                 className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer"
+                                onClick={() => onOpenModal(pacote.id)}
                             >
-                                <div className="relative w-full h-52">
-                                    <Image
-                                        src={firstPhotoUrl}
-                                        alt={`${pacote.title}`}
-                                        layout="fill"
-                                        objectFit="cover"
-                                        className="transition-transform duration-500 hover:scale-105"
-                                        onClick={() => onOpenModal(pacote.id)}
-                                    />
-                                    <div className="absolute top-2 left-2 z-10">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleLike(pacote.id);
-                                            }}
-                                            className="inline-flex items-center gap-1 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
-                                            aria-label="Curtir pacote"
-                                        >
-                                            <FaHeart className="w-5 h-5" />
-                                            {currentLikes > 0 && (
-                                                <span className="text-sm font-bold">{currentLikes}</span>
-                                            )}
-                                        </button>
-                                    </div>
-                                    <div className="absolute top-2 right-2 z-10">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                onOpenModal(pacote.id);
-                                            }}
-                                            className="bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
-                                            aria-label="Ver mais detalhes"
-                                        >
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="p-4 flex flex-col flex-grow">
-                                    <h3 className="font-serif text-xl font-semibold mb-1 text-primary-800">{pacote.title}</h3>
-                                    {pacote.subtitle && (
-                                        <p className="text-sm text-neutral-600 mb-4">{pacote.subtitle}</p>
-                                    )}
-
-                                    {hasDates && (
-                                        <div className="mb-4 text-sm text-neutral-700">
-                                            <p className="font-bold">{pacote.dates.length > 1 ? 'Saídas:' : 'Saída:'}</p>
-                                            <ul className="list-inside list-disc">
-                                                {pacote.dates.map((date, index) => (
-                                                    <li key={index}>
-                                                        {format(date.saida, 'dd/MM/yyyy', { locale: ptBR })}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-
-                                    <div className="mt-auto pt-4 border-t border-neutral-200">
-                                        {firstDate && (
-                                            <div className="flex justify-between items-end mb-4">
-                                                <div>
-                                                    <p className="text-2xl font-bold text-primary-800">
-                                                        {formatPrice(firstDate.price)}
-                                                    </p>
-                                                    <p className="text-sm text-neutral-500">
-                                                        à vista no Pix
-                                                    </p>
-                                                    <p className="text-sm text-neutral-500">
-                                                        ou {formatPrice(firstDate.price_card)} no cartão
-                                                    </p>
+                                {/* Container flex para a mídia e o conteúdo */}
+                                <div className="flex flex-col sm:flex-row h-full">
+                                    {/* Mídia ocupando metade da largura em telas maiores */}
+                                    <div className="relative w-full h-72 sm:w-1/2 sm:h-auto">
+                                        {isFirstMediaVideo ? (
+                                            <>
+                                                <video
+                                                    src={firstMedia.url}
+                                                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                                                    muted
+                                                    playsInline
+                                                    loop
+                                                    aria-label={`Vídeo do pacote ${pacote.title}`}
+                                                />
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 transition-opacity opacity-0 hover:opacity-100 focus-within:opacity-100">
+                                                    <FaPlayCircle className="w-16 h-16 text-white" aria-hidden="true" />
                                                 </div>
+                                            </>
+                                        ) : (
+                                            <Image
+                                                src={firstMedia.url}
+                                                alt={`${pacote.title}`}
+                                                layout="fill"
+                                                objectFit="cover"
+                                                className="transition-transform duration-500 hover:scale-105"
+                                            />
+                                        )}
+                                        <div className="absolute top-2 left-2 z-10">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleLike(pacote.id);
+                                                }}
+                                                className="inline-flex items-center gap-1 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
+                                                aria-label="Curtir pacote"
+                                            >
+                                                <FaHeart className="w-5 h-5" />
+                                                {currentLikes > 0 && (
+                                                    <span className="text-sm font-bold">{currentLikes}</span>
+                                                )}
+                                            </button>
+                                        </div>
+                                        <div className="absolute top-2 right-2 z-10">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onOpenModal(pacote.id);
+                                                }}
+                                                className="bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
+                                                aria-label="Ver mais detalhes"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {/* Texto e botões, ocupando metade da largura */}
+                                    <div className="p-4 flex flex-col flex-grow w-full sm:w-1/2">
+                                        <h3 className="font-serif text-xl font-semibold mb-1 text-primary-800">{pacote.title}</h3>
+                                        {pacote.subtitle && (
+                                            <p className="text-sm text-neutral-600 mb-4">{pacote.subtitle}</p>
+                                        )}
+
+                                        {hasDates && (
+                                            <div className="mb-4 text-sm text-neutral-700">
+                                                <p className="font-bold">{pacote.dates.length > 1 ? 'Saídas:' : 'Saída:'}</p>
+                                                <ul className="list-inside list-disc">
+                                                    {pacote.dates.slice(0, 3).map((date, index) => (
+                                                        <li key={index}>
+                                                            {format(date.saida, 'dd/MM/yyyy', { locale: ptBR })}
+                                                        </li>
+                                                    ))}
+                                                    {pacote.dates.length > 3 && (
+                                                        <li>...</li>
+                                                    )}
+                                                </ul>
                                             </div>
                                         )}
 
-                                        <div className="flex justify-between items-center gap-2">
-                                            <a
-                                                href={`https://wa.me/5591985810208?text=Olá! Gostaria de mais informações sobre o pacote de ${destino.title}: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex-1 inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded-full shadow-md py-3 font-bold transition-colors duration-300"
-                                                aria-label="Reservar via WhatsApp"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <FaWhatsapp className="mr-2 text-white" />
-                                                Reservar
-                                            </a>
-                                            {canShare && (
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleShare(pacote, shareUrl);
-                                                    }}
-                                                    className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md p-3 transition-colors duration-300"
-                                                    aria-label="Compartilhar"
-                                                    disabled={isSharing}
-                                                >
-                                                    <FaShareAlt className="w-5 h-5 text-white" />
-                                                </button>
+                                        <div className="mt-auto pt-4 border-t border-neutral-200">
+                                            {firstDate && (
+                                                <div className="flex justify-between items-end mb-4">
+                                                    <div>
+                                                        <p className="text-2xl font-bold text-primary-800">
+                                                            {formatPrice(firstDate.price)}
+                                                        </p>
+                                                        <p className="text-sm text-neutral-500">
+                                                            à vista no Pix
+                                                        </p>
+                                                        <p className="text-sm text-neutral-500">
+                                                            ou {formatPrice(firstDate.price_card)} no cartão
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             )}
+
+                                            <div className="flex justify-between items-center gap-2">
+                                                <a
+                                                    href={`https://wa.me/5591985810208?text=Olá! Gostaria de mais informações sobre o pacote de ${destino.title}: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex-1 inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded-full shadow-md py-3 font-bold transition-colors duration-300"
+                                                    aria-label="Reservar via WhatsApp"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <FaWhatsapp className="mr-2 text-white" />
+                                                    Reservar
+                                                </a>
+                                                {canShare && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleShare(pacote, shareUrl);
+                                                        }}
+                                                        className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md p-3 transition-colors duration-300"
+                                                        aria-label="Compartilhar"
+                                                        disabled={isSharing}
+                                                    >
+                                                        <FaShareAlt className="w-5 h-5 text-white" />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

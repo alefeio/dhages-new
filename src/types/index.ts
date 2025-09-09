@@ -64,6 +64,19 @@ export interface PacoteFoto {
     updatedAt: Date;
 }
 
+export interface PacoteMidia {
+    id: string;
+    url: string;
+    type: "image" | "video"; // Adicione o tipo de mídia
+    caption?: string | null;
+    pacoteId: string;
+    pacote?: Pacote;
+    like: number;
+    view: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 /** Datas de saída e retorno do Pacote, com preços */
 export interface PacoteDate {
     id: string;
@@ -102,7 +115,7 @@ export interface PacoteForm {
     description: any;
     destinoId: string;
     slug: string;
-    fotos: PacoteFoto[];
+    fotos: PacoteMidia[];
     dates: PacoteDateInput[];
     like?: number;
     view?: number;
@@ -116,7 +129,7 @@ export interface Pacote {
     slug: string;
     description: any;
     destinoId: string;
-    fotos: PacoteFoto[];
+    fotos: PacoteMidia[];
     dates: PacoteDate[];
     like: number;
     view: number;
