@@ -2,15 +2,7 @@
 
 import React, { useRef } from 'react';
 import Image from 'next/image';
-
-// Define a tipagem dos dados
-interface Testimonial {
-  id: string;
-  name: string;
-  type: 'texto' | 'video' | 'image';
-  content: string;
-  thumbnail?: string;
-}
+import { Testimonial } from 'types';
 
 // Define a tipagem das props do componente
 interface TestimonialsPageProps {
@@ -95,7 +87,7 @@ export default function Testimonials({ testimonials }: TestimonialsPageProps) {
                       <video
                         className="h-full object-cover"
                         controls
-                        poster={t.thumbnail || undefined}
+                        // poster={t.thumbnail || undefined}
                         playsInline
                       >
                         <source src={t.content} type="video/webm" />
@@ -107,7 +99,7 @@ export default function Testimonials({ testimonials }: TestimonialsPageProps) {
                     <span className="block text-right font-semibold text-neutral-800">{t.name}</span>
                   </div>
                 )}
-                {t.type === 'image' && (
+                {t.type === 'foto' && (
                   <div className="relative w-full h-auto">
                     <Image
                       src={t.content}

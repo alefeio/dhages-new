@@ -10,21 +10,21 @@ export interface Banner {
 }
 
 export interface LinkItem {
-  id: string;
-  text: string;
-  url: string;
-  target?: string;
+    id: string;
+    text: string;
+    url: string;
+    target?: string;
 }
 
 // Este tipo representa a estrutura dos dados do menu.
 export interface MenuData {
-  logoUrl: string;
-  links: LinkItem[];
+    logoUrl: string;
+    links: LinkItem[];
 }
 
 // Este tipo representa as props que o componente Menu espera.
 export interface MenuProps {
-  menuData: MenuData | null;
+    menuData: MenuData | null;
 }
 
 export interface MenuItem {
@@ -38,11 +38,26 @@ export interface MenuItem {
     }[];
 }
 
+export interface Testimonial {
+    id: string;
+    name: string;
+    content: string;
+    // O tipo correto de acordo com seu código
+    type: 'texto' | 'foto' | 'video'; 
+    // Adicione as propriedades de data que estavam faltando
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface TestimonialItem {
     id: string;
     name: string;
     content: string;
-    type: string;
+    // Corrija a tipagem do 'type' para a união de strings literais, se necessário
+    type: 'foto' | 'texto' | 'video';
+    // Adicione as propriedades que estavam faltando
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface FaqItem {
