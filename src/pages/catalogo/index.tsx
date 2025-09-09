@@ -1,4 +1,4 @@
-// pages/catalogo/index.tsx
+// src/pages/catalogo/index.tsx
 
 import { PrismaClient } from '@prisma/client';
 import { GetServerSideProps } from 'next';
@@ -6,7 +6,7 @@ import Head from 'next/head';
 import Script from 'next/script';
 import WhatsAppButton from '../../components/WhatsAppButton';
 import { Analytics } from "@vercel/analytics/next";
-import { Destino, Pacote, PacoteDate } from '../../types';
+import { Destino, Pacote, PacoteDate, PacoteMidia } from '../../types'; // Importe PacoteMidia
 import Catalog from '../../components/Catalog';
 
 const prisma = new PrismaClient();
@@ -31,7 +31,7 @@ function slugify(text: string): string {
 export const getServerSideProps: GetServerSideProps<CatalogPageProps> = async () => {
     try {
         const destinosRaw = await prisma.destino.findMany({
-            orderBy: { title: 'asc' }, // coluna existente para ordenar destinos
+            orderBy: { title: 'asc' },
             include: {
                 pacotes: {
                     orderBy: [
@@ -48,24 +48,28 @@ export const getServerSideProps: GetServerSideProps<CatalogPageProps> = async ()
 
         const destinos: Destino[] = destinosRaw.map(destino => ({
             ...destino,
-            slug: slugify(`${destino.title}-${destino.id}`), // garante slug único
+            slug: slugify(`${destino.title}-${destino.id}`),
             pacotes: destino.pacotes.map(pacote => ({
                 ...pacote,
-                slug: slugify(`${pacote.title}-${pacote.subtitle || ''}-${pacote.id}`), // slug único
-                fotos: pacote.fotos || [],
+                slug: slugify(`${pacote.title}-${pacote.subtitle || ''}-${pacote.id}`),
+                // AQUI ESTÁ A MUDANÇA: 'type: "image"' em vez de 'type: "foto"'
+                fotos: (pacote.fotos || []).map(foto => ({
+                    ...foto,
+                    type: 'image', // <--- Mudei 'foto' para 'image'
+                })) as PacoteMidia[],
                 dates: pacote.dates.map(d => ({
                     ...d,
                     status:
                         d.status === "disponivel" || d.status === "esgotado" || d.status === "cancelado"
                             ? d.status
-                            : "disponivel", // default se vier outro valor
+                            : "disponivel",
                 })) as PacoteDate[],
             })),
         }));
 
         return {
             props: {
-                destinos: JSON.parse(JSON.stringify(destinos)), // converte Date para string
+                destinos: JSON.parse(JSON.stringify(destinos)),
             },
         };
     } catch (error) {
