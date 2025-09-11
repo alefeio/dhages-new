@@ -20,8 +20,8 @@ export default function Testimonials({ testimonials }: TestimonialsPageProps) {
 
   return (
     <>
-      <div id="depoimentos" className="py-16">&nbsp;</div>
-      <section className="mx-auto max-w-7xl px-4">
+      <section className="mx-auto w-full px-4 py-32">
+        <div id="depoimentos">&nbsp;</div>
         <div className="mb-12 text-center">
           <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 leading-tight text-primary-900 drop-shadow-md">
             O que nossos clientes dizem
@@ -42,7 +42,7 @@ export default function Testimonials({ testimonials }: TestimonialsPageProps) {
           </p>
         </div>
 
-        <div className="relative">
+        <div className="relative max-w-7xl mx-auto">
           <div className="absolute top-1/2 left-0 right-0 z-10 flex justify-between px-4 sm:px-8 -translate-y-1/2">
             <button
               onClick={() => scroll(-400)}
@@ -83,7 +83,7 @@ export default function Testimonials({ testimonials }: TestimonialsPageProps) {
                 )}
                 {t.type === 'video' && (
                   <div className="flex flex-col h-full">
-                    <div className="relative aspect-w-16 aspect-h-9 w-full rounded-md overflow-hidden mb-4">
+                    <div className="relative aspect-w-16 aspect-h-9 w-full flex justify-center rounded-md overflow-hidden mb-4">
                       <video
                         className="h-full object-cover"
                         controls

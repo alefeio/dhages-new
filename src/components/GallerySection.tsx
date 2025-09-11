@@ -93,6 +93,11 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
 
     const backgroundImage = destino.image || '/placeholder.jpg';
 
+    // Filtra pacotes para mostrar apenas aqueles com datas futuras
+    const pacotesComDatasFuturas = destino.pacotes.filter(pacote =>
+        pacote.dates?.some(date => new Date(date.saida) >= new Date())
+    );
+
     return (
         <article className="py-8 bg-">
             <div className="relative w-full py-24 overflow-hidden">
@@ -117,9 +122,9 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                     />
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-100 to-black/0 backdrop-blur-xs z-0"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-100 to-blue-100/0 backdrop-blur-xs z-0"></div>
 
-                <div className="relative z-10 flex flex-col justify-center items-center h-full text-center">
+                <div className="relative z-10 flex flex-col justify-center items-center h-full text-center md:mt-16">
                     <h2 className="font-serif text-3xl md:text-5xl font-bold mb-4 rounded-xl text-gray-900 px-4 py-2 drop-shadow-lg">
                         {destino.title}
                     </h2>
@@ -132,27 +137,24 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                             dangerouslySetInnerHTML={{ __html: destino.description.html }}
                         />
                     )}
-                    {/* <a
-                        href={buttonHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-6 inline-flex items-center justify-center bg-secondary-400 hover:bg-secondary-500 text-primary-950 rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
-                        aria-label={`Fale conosco sobre ${destino.title}`}
-                    >
-                        Reserve sua aventura
-                    </a> */}
                 </div>
             </div>
 
             <div className="max-w-7xl mx-auto px-4 py-12">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 md:gap-8">
-                    {destino.pacotes.map(pacote => {
+                    {pacotesComDatasFuturas.map(pacote => {
                         const shareUrl = `${originUrl}/pacotes/${destino.slug}/${pacote.slug}`;
                         const firstMedia = pacote.fotos[0] || { url: '/placeholder.jpg' };
                         const isFirstMediaVideo = isVideo(firstMedia.url);
                         const currentLikes = pacoteStats[pacote.id]?.like ?? pacote.like ?? 0;
-                        const hasDates = pacote.dates && pacote.dates.length > 0;
-                        const firstDate = hasDates ? pacote.dates[0] : null;
+
+                        // Filtra e ordena as datas em ordem ascendente, ignorando datas passadas.
+                        const availableDates = pacote.dates
+                            ?.filter(date => new Date(date.saida) >= new Date())
+                            .sort((a, b) => new Date(a.saida).getTime() - new Date(b.saida).getTime());
+
+                        const hasDates = availableDates && availableDates.length > 0;
+                        const firstDate = hasDates ? availableDates[0] : null;
 
                         return (
                             <div
@@ -196,7 +198,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                                 className="inline-flex items-center gap-1 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
                                                 aria-label="Curtir pacote"
                                             >
-                                                <FaHeart className="w-5 h-5" />
+                                                <FaHeart className="w-5 h-5 text-red-500" />
                                                 {currentLikes > 0 && (
                                                     <span className="text-sm font-bold">{currentLikes}</span>
                                                 )}
@@ -211,7 +213,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                                 className="bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
                                                 aria-label="Ver mais detalhes"
                                             >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" />
                                                 </svg>
                                             </button>
@@ -219,24 +221,22 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                     </div>
                                     {/* Texto e botões, ocupando metade da largura */}
                                     <div className="p-4 flex flex-col flex-grow w-full sm:w-1/2">
-                                        <h3 className="font-serif text-xl font-semibold mb-1 text-primary-800">{pacote.title}</h3>
+                                        <h3 className="font-serif text-2xl font-semibold mb-1 text-orange-500">{pacote.title}</h3>
                                         {pacote.subtitle && (
                                             <p className="text-sm text-neutral-600 mb-4">{pacote.subtitle}</p>
                                         )}
 
                                         {hasDates && (
                                             <div className="mb-4 text-sm text-neutral-700">
-                                                <p className="font-bold">{pacote.dates.length > 1 ? 'Saídas:' : 'Saída:'}</p>
-                                                <ul className="list-inside list-disc">
-                                                    {pacote.dates.slice(0, 3).map((date, index) => (
-                                                        <li key={index}>
-                                                            {format(date.saida, 'dd/MM/yyyy', { locale: ptBR })}
-                                                        </li>
-                                                    ))}
-                                                    {pacote.dates.length > 3 && (
-                                                        <li>...</li>
-                                                    )}
-                                                </ul>
+                                                <p className="font-bold">{availableDates.length > 1 ? 'Próximas Saídas:' : 'Próxima Saída:'}</p>
+                                                {availableDates.slice(0, 3).map((date, index) => (
+                                                    <p key={index}>
+                                                        {format(new Date(date.saida), 'dd/MM/yyyy', { locale: ptBR })}
+                                                    </p>
+                                                ))}
+                                                {availableDates.length > 3 && (
+                                                    <p>...</p>
+                                                )}
                                             </div>
                                         )}
 

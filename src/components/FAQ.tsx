@@ -1,18 +1,12 @@
 // src/components/FAQ.tsx
 
 import { useState } from "react";
-import React from 'react'; // Adicione a importação de React
+import React from 'react';
+import { FAQ as FAQType } from '../types/index';
 
-// Define a tipagem dos dados que serão passados para o componente
-interface FAQItem {
-  id: string;
-  pergunta: string;
-  resposta: string;
-}
-
-// Define a tipagem das props do componente
+// Define a tipagem das props do componente, importando do arquivo de tipos
 interface FAQPageProps {
-  faqs: FAQItem[];
+  faqs: FAQType[];
 }
 
 export default function FAQ({ faqs }: FAQPageProps) {
@@ -20,14 +14,17 @@ export default function FAQ({ faqs }: FAQPageProps) {
 
   return (
     <>
-      <div id="faq">&nbsp;</div>
-      <section className="my-16 md:max-w-7xl mx-auto px-4">
-        <h2 className="font-serif text-2xl md:text-3xl font-bold mb-6 text-center">
-          Perguntas Frequentes
-        </h2>
-        <p className="text-center mb-6 border-t-2 border-primary-200 py-6 w-fit m-auto">
-          Confira as principais dúvidas de nossas clientes e saiba mais sobre o processo de aluguel de vestidos.
-        </p>
+      <section className="mx-auto w-full px-4 py-32 bg-white">
+        <div id="faq">&nbsp;</div>
+        <div className="mb-12 text-center">
+          <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 leading-tight text-primary-900 drop-shadow-md">
+            Perguntas Frequentes
+          </h2>
+          <p className="text-lg text-neutral-700 max-w-2xl mx-auto">
+            Confira as principais dúvidas de nossas clientes e saiba mais sobre o processo de aluguel de vestidos.
+          </p>
+        </div>
+
         <div className="max-w-5xl mx-auto">
           {faqs.map((faq, idx) => (
             <div key={faq.id} className="mb-4 border-b border-background-1000/20 bg-primary-100 px-4 rounded-xl">

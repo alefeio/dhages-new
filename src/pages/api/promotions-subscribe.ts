@@ -52,39 +52,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Envia o email de boas-vindas
         await resend.emails.send({
-            from: "My Dress Belém <contato@dhagesturismo.app.br>", // Altere para o seu email verificado
+            from: "D' Hages Turismo <contato@dhagesturismo.app.br>", // Altere para o seu email verificado da D' Hages
             to: email,
-            subject: `Fique por dentro das nossas promoções, ${name}!`,
+            subject: `Fique por dentro das nossas promoções, ${name}! | D' Hages Turismo`,
             html: `
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Bem-vinda, ${name}!</title>
+                    <title>Bem-vindo(a) à D' Hages Turismo, ${name}!</title>
                     <style>
                         body { font-family: sans-serif; line-height: 1.6; color: #333; }
                         .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
                         .header { text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
-                        .header img { max-width: 150px; }
+                        .header img { max-width: 180px; } /* Ajuste o tamanho do logo se necessário */
                         .content p { margin-bottom: 15px; }
-                        .cta-button { display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #A9876D; text-decoration: none; border-radius: 5px; }
+                        .cta-button { display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #FF5722; /* Cor mais relacionada a viagens, laranja */ text-decoration: none; border-radius: 5px; }
                         .footer { text-align: center; font-size: 12px; color: #777; margin-top: 20px; }
                     </style>
                 </head>
                 <body>
                     <div class="container">
                         <div class="header">
-                            <img src="https://dhagesturismo.app.br/images/logo.png" alt="Logo My Dress" />
-                        </div>
+                            <img src="https://seusite.com/images/logo-dhages.png" alt="Logo D' Hages Turismo" /> </div>
                         <div class="content">
                             <p>Olá, ${name}!</p>
-                            <p>Seja bem-vinda à nossa lista exclusiva de promoções! A partir de agora, você será a primeira a saber sobre os nossos descontos, coleções especiais e novidades imperdíveis.</p>
-                            <p>Prepare-se para encontrar o vestido perfeito para a sua próxima ocasião especial!</p>
+                            <p>Seja bem-vindo(a) à família D' Hages Turismo! Estamos muito felizes em ter você conosco.</p>
+                            <p>A partir de agora, você fará parte da nossa lista exclusiva e receberá em primeira mão as melhores ofertas de pacotes de viagens, destinos imperdíveis, promoções especiais e todas as novidades que preparamos para você.</p>
+                            <p>Prepare-se para embarcar em novas aventuras e criar memórias inesquecíveis. Estamos ansiosos para te levar aos seus sonhos!</p>
                             <p>Atenciosamente,</p>
-                            <p>A equipe My Dress Belém.</p>
-                            <p><a href="https://dhagesturismo.app.br/catalogo" class="cta-button">Ver nosso catálogo</a></p>
-                        </div>
+                            <p>A equipe D' Hages Turismo.</p>
+                            <p><a href="https://seusite.com/pacotes" class="cta-button">Ver Nossos Pacotes de Viagem</a></p> </div>
                         <div class="footer">
-                            <p>My Dress Belém - Sua melhor opção em aluguel de vestidos de festa.</p>
+                            <p>D' Hages Turismo - Sua agência de viagens em Belém, Pará.</p>
+                            <p>&copy; ${new Date().getFullYear()} D' Hages Turismo. Todos os direitos reservados.</p>
                         </div>
                     </div>
                 </body>
@@ -92,7 +92,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             `,
         });
 
-        return res.status(200).json({ success: true, message: 'Cadastro realizado com sucesso!' });
+        return res.status(200).json({ success: true, message: 'Cadastro realizado com sucesso! Em breve você receberá nossas promoções.' });
     } catch (error) {
         console.error('Erro ao cadastrar para promoções:', error);
         return res.status(500).json({ message: 'Erro interno do servidor.' });

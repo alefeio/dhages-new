@@ -14,11 +14,11 @@ export default function Hero() {
   return (
     <>
       {/* O cabeçalho agora tem um fundo branco (bg-white) */}
-      <header className="relative w-full py-32 flex items-center justify-center overflow-hidden bg-white text-primary-950">
+      <header id="sobre" className="relative w-full py-32 flex items-center justify-center overflow-hidden bg-white text-primary-950">
         {/* O conteúdo do cabeçalho agora tem texto escuro */}
         <div className="relative z-10 max-w-xs md:max-w-7xl mx-auto px-4 text-primary-950">
           <div className="text-center">
-            <h1 className="font-serif text-4xl md:text-6xl font-extrabold mb-4 leading-tight">
+            <h1 className="font-serif text-primary-600 text-4xl md:text-6xl font-extrabold mb-4 leading-tight">
               Viaje com a D' Hages
             </h1>
 
@@ -34,7 +34,7 @@ export default function Hero() {
             <div className="flex flex-col md:flex-row gap-4 mt-12 justify-center">
               <a
                 href="#destinos"
-                className="inline-flex items-center justify-center bg-secondary-400 hover:bg-secondary-500 text-primary-950 rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
+                className="inline-flex items-center justify-center bg-secondary-400 hover:bg-secondary-500 hover:text-white text-primary-950 rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
                 onClick={(e) => {
                   e.preventDefault();
                   const section = document.getElementById('destinos');
@@ -51,7 +51,7 @@ export default function Hero() {
                 className="inline-flex items-center justify-center bg-transparent border-2 border-primary-950 hover:bg-primary-950 hover:text-white text-primary-950 rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
                 aria-label="Fale conosco pelo WhatsApp"
               >
-                <FaWhatsapp className="mr-2 text-primary-950" />
+                <FaWhatsapp className="mr-2 text-primary-950 hover:text-white" />
                 Fale com nossa equipe
               </a>
             </div>
@@ -62,8 +62,10 @@ export default function Hero() {
       {/* A seção de frota agora tem o fundo com a diagonal (bg-primary-950) */}
       <section id="frota" className="relative w-full py-20 md:py-32 flex items-center justify-center overflow-hidden bg-primary-950 text-white">
         {/* Bloco de cor diagonal para o design criativo, movido para cá */}
-        <div className="absolute top-0 right-0 w-3/5 h-full bg-primary-600 transform -skew-x-12 origin-top-right"></div>
-        <div className="absolute top-0 right-0 w-3/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-right"></div>
+        <div className="absolute top-0 left-0 w-4/5 h-full bg-primary-600 transform -skew-x-12 origin-top-left"></div>
+        <div className="absolute top-0 left-0 w-3/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-left"></div>
+        <div className="absolute top-0 left-0 w-2/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-left"></div>
+        <div className="absolute top-0 left-0 w-1/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-left"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
           <h2 className="text-4xl text-white md:text-6xl text-center font-bold font-serif mb-16">
@@ -72,14 +74,14 @@ export default function Hero() {
 
           <div className="flex flex-col md:flex-row items-center md:gap-12">
             {/* Bloco de Texto Principal */}
-            <div className="w-full flex flex-col justify-center mb-12 md:mb-0">
-              <h3 className="text-xl text-white md:text-2xl mb-4 font-bold">
+            <div className="w-full flex flex-col justify-center mb-12 md:mb-0 bg-white/20 p-6 rounded-xl shadow-lg md:w-2/3">
+              <h3 className="text-2xl text-white md:text-4xl mb-4 font-bold">
                 Nossos ônibus são modernos e projetados para oferecer uma experiência de viagem de primeira classe.
               </h3>
-              <p className="text-base text-gray-200 mb-4">
+              <p className="text-base text-white mb-4">
                 Com interiores **elegantemente equipados**, assentos confortáveis e reclináveis, e um sistema de **ar-condicionado** de última geração, garantimos que sua jornada será tranquila e totalmente agradável.
               </p>
-              <p className="text-base text-gray-200 mb-6">
+              <p className="text-base text-white mb-6">
                 Cada detalhe foi pensado para a sua **segurança e bem-estar**, para que você e sua família possam relaxar e aproveitar o trajeto.
               </p>
               <p className="text-lg text-white font-bold">

@@ -87,6 +87,10 @@ export default function ModalPhotos({ pacote, onClose }: ModalPhotosProps) {
 
     const isCurrentMediaImage = isImage(currentMedia.url);
 
+    const availableDates = pacote.dates
+        ?.filter(date => new Date(date.saida) >= new Date())
+        .sort((a, b) => new Date(a.saida).getTime() - new Date(b.saida).getTime());
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-fade-in" onClick={onClose}>
             <div className="relative w-full max-w-7xl h-full max-h-[90vh] bg-white rounded-lg overflow-hidden shadow-2xl flex flex-col md:flex-row" onClick={(e) => e.stopPropagation()}>
@@ -140,7 +144,6 @@ export default function ModalPhotos({ pacote, onClose }: ModalPhotosProps) {
 
                 {/* Container de Conteúdo e Botões */}
                 <div className="w-full md:w-1/2 flex flex-col sm:flex-col-reverse h-full">
-
                     {/* Rodapé fixo */}
                     <div className="bg-white/90 backdrop-blur-sm p-2 md:p-6 border-t border-neutral-200 flex flex-row gap-2">
                         <a
@@ -163,44 +166,87 @@ export default function ModalPhotos({ pacote, onClose }: ModalPhotosProps) {
 
                     {/* Área de conteúdo rolável */}
                     <div className="p-6 overflow-y-auto min-h-0">
-                        <h2 className="text-3xl font-bold font-serif text-primary-800 mb-2">{pacote.title}</h2>
+                        <h2 className="text-3xl font-bold font-serif mb-2 text-orange-500">{pacote.title}</h2>
                         {pacote.subtitle && <p className="text-base text-neutral-600 mb-4">{pacote.subtitle}</p>}
 
                         <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center my-4">
-                            {pacote.dates?.length > 0 && (
-                                <div className="flex flex-col">
-                                    <span className="text-xl font-bold text-primary-800">{formatPrice(pacote.dates[0].price)}</span>
-                                    <span className="text-sm text-neutral-500">à vista no Pix</span>
-                                    <span className="text-sm text-neutral-500">ou {formatPrice(pacote.dates[0].price_card)} no cartão</span>
-                                </div>
-                            )}
                             <div className="flex items-center gap-4 mt-4 sm:mt-0">
                                 <button onClick={handleLike} className="flex items-center gap-1 text-primary-800 hover:text-red-500 transition-colors">
-                                    <FaHeart />
+                                    <FaHeart className="text-red-500" />
                                     <span className="font-bold">{pacoteStats.like}</span>
                                 </button>
                             </div>
                         </div>
 
                         <div className="border-t border-neutral-200 pt-4">
-                            <h3 className="text-lg font-semibold text-primary-800 mb-2">Saídas:</h3>
-                            {pacote.dates?.length > 0 ? (
-                                <ul className="list-disc list-inside space-y-1 text-neutral-700">
-                                    {pacote.dates.map((date, index) => (
-                                        <li key={index}>
-                                            <span className="font-bold">{format(date.saida, 'dd/MM/yyyy', { locale: ptBR })}</span>
-                                            {date.notes && <span className="text-sm text-neutral-500"> ({date.notes})</span>}
-                                        </li>
+                            <h3 className="text-lg font-semibold text-primary-800 mb-2 uppercase">Saídas:</h3>
+                            {availableDates?.length > 0 ? (
+                                <div className="flex flex-wrap gap-4 justify-start">
+                                    {availableDates.map((date, index) => (
+                                        <div key={index} className="flex flex-col p-4 border border-neutral-300 rounded-lg shadow-sm bg-gray-50 flex-grow-0 flex-shrink-0 min-w-[200px]">
+                                            <span className="font-bold text-lg text-primary-800 mb-1">
+                                                Saída: {format(new Date(date.saida), 'dd/MM/yyyy', { locale: ptBR })}
+                                            </span>
+                                            {date.retorno && (
+                                                <span className="text-sm text-neutral-600 mb-2">
+                                                    Retorno: {format(new Date(date.retorno), 'dd/MM/yyyy', { locale: ptBR })}
+                                                </span>
+                                            )}
+                                            {date.notes && <span className="text-xs text-neutral-500 mb-2"> ({date.notes})</span>}
+                                            <div className="flex flex-col mt-auto pt-2 border-t border-neutral-200">
+                                                <span className="text-primary-800 font-bold text-xl">{formatPrice(date.price)}</span>
+                                                <span className="text-sm text-neutral-600">à vista no Pix</span>
+                                                <span className="text-sm text-neutral-600">ou <span className="font-medium">{formatPrice(date.price_card)}</span> no cartão</span>
+                                            </div>
+                                        </div>
                                     ))}
-                                </ul>
+                                </div>
                             ) : (
                                 <p className="text-sm text-neutral-500">Nenhuma data de saída disponível no momento.</p>
                             )}
                         </div>
 
                         <div className="mt-6 border-t border-neutral-200 pt-4">
-                            <h3 className="text-lg font-semibold text-primary-800 mb-2">Detalhes do Pacote:</h3>
+                            <h3 className="text-lg font-semibold text-primary-800 mb-2 uppercase">Detalhes do Pacote:</h3>
                             <div className="prose prose-sm max-w-none text-neutral-700" dangerouslySetInnerHTML={{ __html: richTextToHtml(pacote.description) }} />
+                        </div>
+
+                        {/* NOVO CONTEÚDO */}
+                        <div className="mt-6 border-t border-neutral-200 pt-4">
+                            <h3 className="text-lg font-semibold text-primary-800 mb-2">NOSSO PACOTE INCLUI:</h3>
+                            <ul className="list-disc list-inside space-y-1 text-neutral-700">
+                                <li>Transporte em ônibus de turismo, hospedagem com café da manhã, guia acompanhante</li>
+                            </ul>
+
+                            <h3 className="text-lg font-semibold text-primary-800 mt-4 mb-2">IMPORTANTE:</h3>
+                            <ul className="list-disc list-inside space-y-1 text-neutral-700">
+                                <li>Este roteiro não inclui ingressos, nem despesas extras de quaisquer espécies.</li>
+                                <li>A D’ Hages Turismo reserva-se o direito de alterar a ordem da programação e horários, caso necessário, para o bom andamento da excursão.</li>
+                                <li>A D’ Hages não se responsabiliza por alterações de valores, horários e funcionamento dos atrativos citados no roteiro</li>
+                                <li>As poltronas do ônibus serão reservadas conforme a ordem de compra, sendo informado no ato do embarque.</li>
+                                <li>Este roteiro está sujeito a reajuste, sem aviso prévio.</li>
+                                <li>Reservas só serão garantidas mediante confirmação de pagamento.</li>
+                                <li>Parcelamentos em dinheiro ou depósito bancário devem estar quitados até 20 dias antes da saída da viagem.</li>
+                                <li>Hospedagens iniciam às 14h. Entrada antecipada somente se houver disponibilidade.</li>
+                                <li>A acomodação no hotel poderá ser em Apartamento Duplo, Triplo ou Quadruplo, de acordo com a estrutura do hotel/pousada contratado.</li>
+                                <li>A acomodação em Apartamento Duplo será preferencialmente para casais, de acordo com a disponibilidade do hotel.</li>
+                                <li>Documentação exigida para hospedagem de menor: Conforme previsto no Estatuto da Criança e do Adolescente, é proibida a hospedagem em hotel, pousadas e similares de CRIANÇAS ou ADOLESCENTES, menor de 18 anos desacompanhados. É necessário que todas as Crianças e Adolescentes apresentem seus documentos de identidade (RG) ou certidão de nascimento no Check-In. Lei 8.069/90 arts. 82 e 250.
+                                    <ul className="list-disc list-inside space-y-1 ml-4 mt-1">
+                                        <li>Se acompanhado de pai e/ou mãe: certidão de nascimento, cédula de identidade ou passaporte.</li>
+                                        <li>Se desacompanhado de pai e/ou mãe: Autorização formal para hospedagem, assinada por pai e mãe, com firma reconhecida em cartório.</li>
+                                    </ul>
+                                </li>
+                                <li>Favor ler o contrato que rege a compra deste produto.</li>
+                            </ul>
+
+                            <h3 className="text-lg font-semibold text-primary-800 mt-4 mb-2">INFORMAÇÕES E RESERVAS:</h3>
+                            <div className="text-sm text-neutral-700">
+                                <p><strong>D’ HAGES TURISMO</strong> - Trav. Mauriti, 479 (entre Rua Nova e Senador Lemos) Belém – Pará – Brasil - CEP: 66083-000</p>
+                                <p>E-mail: <a href="mailto:dhagesturismo@gmail.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">dhagesturismo@gmail.com</a></p>
+                                <p><a href="https://facebook.com/dhagesturismo" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">facebook.com/dhagesturismo</a></p>
+                                <p>Instagram: <a href="https://www.instagram.com/dhages_turismo" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@dhages_turismo</a></p>
+                                <p>Fones: <a href="https://wa.me/5591981149800" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">91 3348-5063 / 98114-9800 WhatsAp</a></p>
+                            </div>
                         </div>
                     </div>
                 </div>

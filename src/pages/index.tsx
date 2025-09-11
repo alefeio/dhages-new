@@ -5,7 +5,7 @@ import Head from 'next/head';
 import Script from 'next/script';
 import HeroSlider from '../components/HeroSlider';
 import WhatsAppButton from '../components/WhatsAppButton';
-import PacotesGallery from '../components/PacotesGallery'; // <-- ajustado
+import PacotesGallery from '../components/PacotesGallery';
 import Testimonials from '../components/Testimonials';
 import FAQ from '../components/FAQ';
 import LocationMap from '../components/LocationMap';
@@ -17,6 +17,7 @@ import { HomePageProps, Destino } from '../types/index';
 import PromotionsForm from 'components/PromotionsForm';
 import { useState, useEffect } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
+import Footer from 'components/Footer';
 
 // FUNÇÃO SLUGIFY
 function slugify(text: string): string {
@@ -39,14 +40,11 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async () =>
             prisma.testimonial.findMany({ orderBy: { createdAt: 'desc' } }),
             prisma.fAQ.findMany({ orderBy: { pergunta: 'asc' } }),
             prisma.destino.findMany({
-                // ALTERAÇÃO IMPORTANTE AQUI:
-                // Ordenando por 'order' em ordem ascendente (asc)
                 orderBy: { order: 'asc' },
                 include: { pacotes: { include: { fotos: true, dates: true } } },
             }),
         ]);
 
-        // Gera slugs para destinos e pacotes
         const destinosComSlugs: Destino[] = destinos.map((destino: any) => ({
             ...destino,
             slug: slugify(`${destino.title}-${destino.id}`),
@@ -86,6 +84,8 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async () =>
 export default function Home({ banners, menu, testimonials, faqs, destinos }: HomePageProps) {
     const [showExitModal, setShowExitModal] = useState(false);
 
+    console.log('Banners:', banners);
+
     useEffect(() => {
         const modalShownInSession = sessionStorage.getItem('exitModalShown');
 
@@ -107,12 +107,96 @@ export default function Home({ banners, menu, testimonials, faqs, destinos }: Ho
         };
     }, []);
 
+    // Definir uma imagem padrão para Open Graph na página inicial
+    // Adapte esta URL para uma imagem que represente bem a D' Hages Turismo
+    const defaultOgImage = banners.length > 0 && banners[0].banners[0].url 
+        ? banners[0].banners[0].url // Usa a primeira imagem do banner se disponível
+        : 'https://seusite.com/default-og-image.jpg'; // URL de uma imagem padrão do seu site
+
+    const defaultOgImageAlt = "D' Hages Turismo - Sua agência de viagens em Belém";
+
     return (
         <>
             <Head>
-                <title>My Dress Belém | Aluguel de Pacotes e Destinos</title>
-                <meta name="description" content="Descubra os melhores destinos e pacotes de viagem. Atendimento personalizado via WhatsApp." />
-                {/* ... outras meta tags ... */}
+                {/* Título da Página (muito importante para SEO) */}
+                <title>D' Hages Turismo | Agência de Viagens em Belém - Pacotes e Destinos</title>
+                
+                {/* Meta Description (crucial para SEO - aparece nos resultados da busca) */}
+                <meta 
+                    name="description" 
+                    content="Descubra os melhores pacotes de viagens e destinos com a D' Hages Turismo em Belém. Aventuras memoráveis, atendimento personalizado e as melhores ofertas para sua próxima viagem." 
+                />
+                
+                {/* Meta Keywords (menos importante hoje, mas pode ser incluído) */}
+                <meta 
+                    name="keywords" 
+                    content="D' Hages Turismo, viagens, pacotes de viagens, Belém, Pará, destinos turísticos, agência de viagens, excursões, aventura, turismo" 
+                />
+                
+                {/* Canonical URL (ajuda a evitar conteúdo duplicado e consolidar o link) */}
+                <link rel="canonical" href="https://seusite.com/" /> {/* Substitua "https://seusite.com" pela URL raiz do seu site */}
+                
+                {/* Robots Meta Tag (instrui os motores de busca sobre como indexar a página) */}
+                <meta name="robots" content="index, follow" />
+
+                {/* Open Graph Tags (para compartilhamento em redes sociais como Facebook, WhatsApp, LinkedIn) */}
+                <meta property="og:locale" content="pt_BR" />
+                <meta property="og:site_name" content="D' Hages Turismo" />
+                <meta property="og:title" content="D' Hages Turismo | Agência de Viagens em Belém - Pacotes e Destinos" />
+                <meta 
+                    property="og:description" 
+                    content="Descubra os melhores pacotes de viagens e destinos com a D' Hages Turismo em Belém. Aventuras memoráveis, atendimento personalizado e as melhores ofertas para sua próxima viagem." 
+                />
+                <meta property="og:url" content="https://seusite.com/" /> {/* Substitua "https://seusite.com" */}
+                <meta property="og:type" content="website" /> {/* Página inicial geralmente é "website" */}
+                
+                {/* Imagem principal para Open Graph */}
+                <meta property="og:image" content={defaultOgImage} />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:alt" content={defaultOgImageAlt} />
+                
+                {/* Twitter Card Tags (para compartilhamento no Twitter) */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="D' Hages Turismo | Agência de Viagens em Belém - Pacotes e Destinos" />
+                <meta 
+                    name="twitter:description" 
+                    content="Descubra os melhores pacotes de viagens e destinos com a D' Hages Turismo em Belém. Aventuras memoráveis, atendimento personalizado e as melhores ofertas para sua próxima viagem." 
+                />
+                <meta name="twitter:image" content={defaultOgImage} />
+                <meta name="twitter:image:alt" content={defaultOgImageAlt} />
+
+                {/* Schema Markup (JSON-LD) para o Google - Ajuda a enriquecer os resultados de busca */}
+                <script type="application/ld+json">
+                  {`
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "TravelAgency",
+                      "name": "D' Hages Turismo",
+                      "url": "https://seusite.com/",
+                      "logo": "https://seusite.com/images/logo-dhages.png", // Substitua pela URL do seu logo
+                      "description": "Sua agência de viagens em Belém, Pará. Especializada em pacotes turísticos e destinos memoráveis.",
+                      "address": {
+                        "@type": "PostalAddress",
+                        "streetAddress": "Trav. Mauriti, 479",
+                        "addressLocality": "Belém",
+                        "addressRegion": "PA",
+                        "postalCode": "66083-000",
+                        "addressCountry": "BR"
+                      },
+                      "contactPoint": {
+                        "@type": "ContactPoint",
+                        "telephone": "+559133485063",
+                        "contactType": "Sales"
+                      },
+                      "sameAs": [
+                        "https://facebook.com/dhagesturismo",
+                        "https://www.instagram.com/dhages_turismo"
+                        // Adicione outras URLs de redes sociais aqui
+                      ]
+                    }
+                  `}
+                </script>
             </Head>
 
             <div className="min-h-screen">
@@ -121,12 +205,13 @@ export default function Home({ banners, menu, testimonials, faqs, destinos }: Ho
                 <HeroSlider banners={banners} />
                 <main className="max-w-full mx-auto">
                     <Hero />
-                    <PacotesGallery destinos={destinos} /> {/* <-- ajuste aqui */}
+                    <PacotesGallery destinos={destinos} />
                     <Header />
                     <PromotionsForm />
                     <Testimonials testimonials={testimonials} />
                     <FAQ faqs={faqs} />
-                    <LocationMap />
+                    {/* <LocationMap /> Se você tiver um mapa de localização para a página inicial, inclua aqui */}
+                    <Footer menuData={menu} />
                 </main>
                 <WhatsAppButton />
             </div>

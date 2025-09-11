@@ -10,11 +10,11 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
           {/* Informações de contato */}
           <div className="mb-4 md:mb-0">
-            <h3 className="text-lg font-semibold mb-2">My Dress Belém</h3>
+            <h3 className="text-lg font-semibold mb-2">D' Hages Turismo</h3>
             <p className="text-sm text-gray-400">
-              Passagem Tapajós 6, Tv. da Estrela, 46, Marco
+              Tv. Mauriti, 479 - Pedreira, Belém - PA
               <br />
-              Belém - PA, 66093-065
+              Belém - PA, 66087-740
             </p>
           </div>
 
@@ -31,7 +31,7 @@ const Footer = () => {
 
         {/* Direitos autorais */}
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-500">
-          © {currentYear} My Dress Belém. Todos os direitos reservados.
+          © {currentYear} D' Hages Turismo. Todos os direitos reservados.
         </div>
       </div>
     </footer>

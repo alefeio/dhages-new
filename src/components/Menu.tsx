@@ -94,8 +94,8 @@ export function Menu({ menuData }: MenuProps) {
   return (
     <header
       className={`fixed top-0 left-0 w-full z-40 transition-all duration-300 ${isScrolled
-          ? "bg-blue-900/95 backdrop-blur-sm py-3 shadow-lg"
-          : "bg-blue-900/10 backdrop-blur-sm py-4"
+          ? "bg-gray-700/95 backdrop-blur-sm py-3 shadow-lg"
+          : "bg-gray-700/10 backdrop-blur-sm py-4"
         }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8">

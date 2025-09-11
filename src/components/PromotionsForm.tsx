@@ -84,7 +84,7 @@ const PromotionsForm: React.FC = () => {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Nome"
                         required
-                        className="w-full xl:w-1/4 px-4 py-3 border border-primary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                        className="w-full xl:w-1/4 px-4 py-3 border bg-white border-primary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-500"
                     />
                     <input
                         type="email"

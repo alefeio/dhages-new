@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
                 await resend.emails.send({
                     from: from || "contato@dhagesturismo.app.br",
                     to: email,
-                    subject: "Link de login para o My Dress Belém",
+                    subject: "Link de login para o D' Hages Turismo",
                     html: `Clique neste link para entrar: <a href="${url}">${url}</a>`,
                 });
             },
