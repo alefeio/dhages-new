@@ -5,11 +5,12 @@ import { Pacote } from "../types";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { richTextToHtml } from '../utils/richTextToHtml';
+import { PacoteDate } from "./PacoteDate";
 
 interface ModalPhotosProps {
     pacote: Pacote;
     onClose: () => void;
-    shareUrl: string; // <-- A URL de compartilhamento será passada por aqui
+    shareUrl: string;
 }
 
 const isImage = (url: string) => {
@@ -21,6 +22,7 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
     const [pacoteStats, setPacoteStats] = useState({ like: pacote.like ?? 0 });
     const canShare = typeof window !== 'undefined' && 'share' in navigator;
+    const [isSharing, setIsSharing] = useState(false); // Adicionado para evitar cliques múltiplos
 
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -48,16 +50,48 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
         }
     }, [pacote.id]);
 
+    // **NOVA FUNÇÃO: Registra o clique no WhatsApp**
+    const handleWhatsappClick = useCallback(async () => {
+        try {
+            await fetch('/api/stats/pacote-whatsapp', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pacoteId: pacote.id }),
+            });
+        } catch (error) {
+            console.error('Falha ao registrar clique no WhatsApp:', error);
+        }
+    }, [pacote.id]);
+
+    // **NOVA FUNÇÃO: Registra o compartilhamento no banco**
+    const handleSharedClick = useCallback(async () => {
+        try {
+            await fetch('/api/stats/pacote-shared', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pacoteId: pacote.id }),
+            });
+        } catch (error) {
+            console.error('Falha ao registrar compartilhamento:', error);
+        }
+    }, [pacote.id]);
+
+    // **FUNÇÃO EXISTENTE: Atualizada para chamar o handleSharedClick APÓS o sucesso do share**
     const handleShare = async () => {
-        if (canShare) {
+        if (canShare && !isSharing) {
+            setIsSharing(true);
             try {
                 await navigator.share({
                     title: `Pacote: ${pacote.title}`,
                     text: `Confira o pacote de viagem: ${pacote.title}`,
-                    url: shareUrl, // <-- Usa a prop 'shareUrl'
+                    url: shareUrl,
                 });
+                // Registra no banco APENAS se o compartilhamento nativo for bem-sucedido
+                await handleSharedClick();
             } catch (error) {
                 console.error('Erro ao compartilhar:', error);
+            } finally {
+                setIsSharing(false);
             }
         }
     };
@@ -162,6 +196,8 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                                     rel="noopener noreferrer"
                                     className="p-2 text-green-600 hover:text-green-800 transition-colors"
                                     aria-label="Fale conosco no WhatsApp"
+                                    // **CHAMADA DA FUNÇÃO DE WHATSAPP**
+                                    onClick={handleWhatsappClick}
                                 >
                                     <FaWhatsapp size={24} className="text-green-700" />
                                 </a>
@@ -181,22 +217,13 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                                 {availableDates?.length > 0 ? (
                                     <div className="flex flex-wrap gap-4 justify-start">
                                         {availableDates.map((date, index) => (
-                                            <div key={index} className="flex flex-col p-4 border border-neutral-300 rounded-lg shadow-sm bg-gray-50 flex-grow-0 flex-shrink-0 min-w-[200px]">
-                                                <span className="font-bold text-lg text-primary-800 mb-1">
-                                                    Saída: {format(new Date(date.saida), 'dd/MM/yyyy', { locale: ptBR })}
-                                                </span>
-                                                {date.retorno && (
-                                                    <span className="text-sm text-neutral-600 mb-2">
-                                                        Retorno: {format(new Date(date.retorno), 'dd/MM/yyyy', { locale: ptBR })}
-                                                    </span>
-                                                )}
-                                                {date.notes && <span className="text-xs text-neutral-500 mb-2"> ({date.notes})</span>}
-                                                <div className="flex flex-col mt-auto pt-2 border-t border-neutral-200">
-                                                    <span className="text-primary-800 font-bold text-xl">{formatPrice(date.price)}</span>
-                                                    <span className="text-sm text-neutral-600">à vista no Pix</span>
-                                                    <span className="text-sm text-neutral-600">ou <span className="font-medium">{formatPrice(date.price_card)}</span> no cartão</span>
-                                                </div>
-                                            </div>
+                                            <PacoteDate
+                                                key={index}
+                                                pacoteId={pacote.id}
+                                                date={date}
+                                                shareUrl={shareUrl}
+                                                formatPrice={formatPrice}
+                                            />
                                         ))}
                                     </div>
                                 ) : (
@@ -254,6 +281,8 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex-1 text-center bg-green-600 hover:bg-green-700 text-white text-xs md:text-base font-bold py-3 px-6 rounded-full transition-colors flex items-center justify-center gap-2"
+                            // **CHAMADA DA FUNÇÃO DE WHATSAPP**
+                            onClick={handleWhatsappClick}
                         >
                             <FaWhatsapp className="text-white" /> Fale Conosco
                         </a>

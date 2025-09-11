@@ -57,6 +57,30 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
         }
     }, []);
 
+    const handleWhatsappClick = useCallback(async (pacoteId: string) => {
+        try {
+            await fetch('/api/stats/pacote-whatsapp', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pacoteId }),
+            });
+        } catch (error) {
+            console.error('Falha ao registrar clique no WhatsApp:', error);
+        }
+    }, []);
+
+    const handleShareClick = useCallback(async (pacoteId: string) => {
+        try {
+            await fetch('/api/stats/pacote-shared', { // <-- Alterado para 'pacote-shared'
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pacoteId }),
+            });
+        } catch (error) {
+            console.error('Falha ao registrar compartilhamento:', error);
+        }
+    }, []);
+
     const handleShare = async (pacote: Pacote, shareUrl: string) => {
         if (isSharing) return;
         setIsSharing(true);
@@ -66,6 +90,8 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                 text: `${pacote.subtitle ? pacote.subtitle + ' - ' : ''}Confira este pacote de viagem incrível!`,
                 url: shareUrl,
             });
+            // Registra o compartilhamento APENAS se a API nativa for bem-sucedida
+            await handleShareClick(pacote.id);
         } catch (error) {
             console.error('Falha ao compartilhar:', error);
         } finally {
@@ -139,7 +165,6 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
             </div>
 
             <div className="max-w-7xl mx-auto px-2 md:px-4 py-12">
-                {/* LINHA ALTERADA: Agora o grid-cols-2 começa no mobile */}
                 <div className="grid grid-cols-2 gap-2 md:gap-8">
                     {pacotesComDatasFuturas.map(pacote => {
                         const shareUrl = `${originUrl}/pacotes/${destino.slug}/${pacote.slug}`;
@@ -259,7 +284,10 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                                     rel="noopener noreferrer"
                                                     className="flex-1 inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded-full shadow-md py-3 font-bold transition-colors duration-300"
                                                     aria-label="Reservar via WhatsApp"
-                                                    onClick={(e) => e.stopPropagation()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleWhatsappClick(pacote.id);
+                                                    }}
                                                 >
                                                     <FaWhatsapp className="mr-2 text-white" />
                                                     Reservar

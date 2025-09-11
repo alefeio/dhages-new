@@ -164,6 +164,8 @@ model PacoteDate {
   pacoteId            String
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+
+  @@unique([pacoteId, saida])
 }
 
 model Blog {
