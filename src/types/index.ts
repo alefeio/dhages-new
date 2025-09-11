@@ -63,7 +63,7 @@ export interface PacoteMidia {
 export interface PacoteDate {
     id: string;
     saida: Date;
-    retorno: Date;
+    retorno: Date | undefined;
     vagas_total: number;
     vagas_disponiveis: number;
     price: number;
