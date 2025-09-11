@@ -112,6 +112,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <span className="text-sm font-medium">Banner</span>
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/admin/gallery"
+                  className="text-gray-900 dark:text-white flex items-center p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 group"
+                >
+                  <MdViewCarousel className="mr-3 text-xl text-gray-500 group-hover:text-blue-500 transition-colors" />
+                  <span className="text-sm font-medium">Galeria de Fotos</span>
+                </Link>
+              </li>
               {/* <li>
                 <Link
                   href="/admin/homepage"
