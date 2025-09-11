@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import AdminLayout from "components/admin/AdminLayout";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
-import type { PacoteFoto, PacoteDate } from "types";
+import type { PacoteDate, PacoteMidia } from "types";
 
 interface DashboardData {
-  topPackages: PacoteFoto[];
-  topViewedPackages: PacoteFoto[];
+  topPackages: PacoteMidia[];
+  topViewedPackages: PacoteMidia[];
   totalReservations: number;
   totalSubscribers: number;
 }
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const contarVagasOcupadas = (foto?: PacoteFoto): number => {
+  const contarVagasOcupadas = (foto?: PacoteMidia): number => {
     if (!foto?.pacote?.dates) return 0;
     return foto.pacote.dates.reduce((sum: number, d: PacoteDate) => sum + (d.vagas_total - d.vagas_disponiveis), 0);
   };
