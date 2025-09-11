@@ -49,7 +49,7 @@ export function MenuInterno({ menuData }: MenuProps) {
 
   const authButton = status === 'loading' ? (
     <span className="text-gray-400">Carregando...</span>
-  ) : session ? (
+  ) : session && (
     <Link
       href="/admin"
       className="relative text-gray-100 hover:text-orange-500 transition-colors duration-300 group flex items-center gap-1"
@@ -58,19 +58,11 @@ export function MenuInterno({ menuData }: MenuProps) {
       <MdAccountCircle className="w-5 h-5" /> Minha Conta
       <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
     </Link>
-  ) : (
-
-    <button
-      onClick={handleSignIn}
-      className="text-center relative text-gray-100 hover:text-orange-500 transition-colors duration-300 group flex items-center justify-center gap-1 bg-orange-500 px-3 py-1 rounded-md hover:bg-orange-600"
-    >
-      Entrar
-    </button>
   );
 
   const authButtonMobile = status === 'loading' ? (
     <li className="block py-2 text-gray-400 border-b border-gray-700">Carregando...</li>
-  ) : session ? (
+  ) : session && (
     <li>
       <Link
         href="/admin"
@@ -79,15 +71,6 @@ export function MenuInterno({ menuData }: MenuProps) {
       >
         <MdAccountCircle className="w-5 h-5" /> Minha Conta
       </Link>
-    </li>
-  ) : (
-    <li>
-      <button
-        onClick={() => { handleSignIn(); setMenuOpen(false); }}
-        className="w-full text-center py-2 transition-colors border-b border-gray-700 gap-2 bg-orange-500 px-3 rounded-md hover:bg-orange-600 text-white"
-      >
-        Entrar
-      </button>
     </li>
   );
 
