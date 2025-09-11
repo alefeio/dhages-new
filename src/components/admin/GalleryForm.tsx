@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 
 // Interfaces para os modelos de dados
 interface GalleryPhoto {
@@ -31,7 +31,6 @@ export default function GalleryForm() {
         const response = await fetch("/api/crud/gallery");
         if (response.ok) {
           const data = await response.json();
-          // A API pode retornar um array de galerias
           if (Array.isArray(data)) {
             setGalleries(data);
           }
@@ -50,8 +49,8 @@ export default function GalleryForm() {
     setNewPhotos([]);
     setNewPhotoAltTexts([]);
     setEditingGalleryId(null);
-    const fileInputs = document.querySelectorAll('input[type="file"]') as NodeListOf<HTMLInputElement>;
-    fileInputs.forEach(input => input.value = '');
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
     setMessage("");
   };
 
@@ -60,7 +59,6 @@ export default function GalleryForm() {
     setEditingGalleryId(gallery.id);
     setTitle(gallery.title);
     setSlug(gallery.slug);
-    // As fotos existentes são gerenciadas pelo backend na atualização, então não as pré-carregamos no formulário de upload de arquivos
     setNewPhotos([]);
     setNewPhotoAltTexts([]);
     setMessage("");
@@ -78,7 +76,6 @@ export default function GalleryForm() {
       if (!response.ok) {
         throw new Error("Erro ao remover a galeria.");
       }
-      // Atualiza o estado local para remover a galeria excluída
       setGalleries(galleries.filter((gallery) => gallery.id !== idToRemove));
       setMessage("Galeria removida com sucesso!");
       if (editingGalleryId === idToRemove) {
@@ -92,12 +89,13 @@ export default function GalleryForm() {
     }
   };
 
-  // Lida com a mudança de arquivos para o upload
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
-    if (e.target.files && e.target.files[0]) {
-      const updatedPhotos = [...newPhotos];
-      updatedPhotos[index] = e.target.files[0];
-      setNewPhotos(updatedPhotos);
+  // Lida com a seleção de múltiplos arquivos
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setNewPhotos(files);
+      // Inicializa os textos alternativos com strings vazias para cada arquivo
+      setNewPhotoAltTexts(files.map(() => ""));
     }
   };
 
@@ -108,18 +106,10 @@ export default function GalleryForm() {
     setNewPhotoAltTexts(updatedAltTexts);
   };
 
-  // Adiciona um novo campo de upload de foto
-  const handleAddPhotoField = () => {
-    setNewPhotos([...newPhotos, null!]); // Adiciona um item nulo para representar um novo campo de arquivo
-    setNewPhotoAltTexts([...newPhotoAltTexts, ""]);
-  };
-
-  // Remove um campo de upload de foto
-  const handleRemovePhotoField = (index: number) => {
-    const updatedPhotos = newPhotos.filter((_, i) => i !== index);
-    const updatedAltTexts = newPhotoAltTexts.filter((_, i) => i !== index);
-    setNewPhotos(updatedPhotos);
-    setNewPhotoAltTexts(updatedAltTexts);
+  // Remove uma foto da lista de arquivos a serem enviados
+  const handleRemovePhoto = (indexToRemove: number) => {
+    setNewPhotos(newPhotos.filter((_, index) => index !== indexToRemove));
+    setNewPhotoAltTexts(newPhotoAltTexts.filter((_, index) => index !== indexToRemove));
   };
 
   // Envia o formulário
@@ -128,7 +118,6 @@ export default function GalleryForm() {
     setLoading(true);
     setMessage("");
 
-    // Validação básica
     if (!title || !slug) {
       setMessage("O título e o slug são obrigatórios.");
       setLoading(false);
@@ -136,20 +125,17 @@ export default function GalleryForm() {
     }
 
     try {
-      // Cria um array para armazenar as fotos já existentes
       const currentPhotos: GalleryPhoto[] = [];
       if (editingGalleryId) {
         const existingGallery = galleries.find(g => g.id === editingGalleryId);
         if (existingGallery) {
-          // Adiciona todas as fotos existentes da galeria que está sendo editada
           currentPhotos.push(...existingGallery.photos);
         }
       }
 
       // Faz o upload de novas fotos adicionadas no formulário
-      const uploadedPhotos: GalleryPhoto[] = [];
-      for (const [index, file] of newPhotos.entries()) {
-        if (file) {
+      const uploadedPhotos: GalleryPhoto[] = await Promise.all(
+        newPhotos.map(async (file, index) => {
           const formData = new FormData();
           formData.append("file", file);
           formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "");
@@ -163,20 +149,18 @@ export default function GalleryForm() {
             throw new Error(`Erro no upload do arquivo ${file.name}.`);
           }
           const data = await uploadResponse.json();
-          uploadedPhotos.push({ url: data.url, altText: newPhotoAltTexts[index] });
-        }
-      }
+          return { url: data.url, altText: newPhotoAltTexts[index] };
+        })
+      );
 
       const allPhotos = [...currentPhotos, ...uploadedPhotos];
 
-      // Se estiver criando uma nova galeria, as fotos são obrigatórias
       if (!editingGalleryId && allPhotos.length === 0) {
         setMessage("Uma nova galeria precisa de pelo menos uma foto.");
         setLoading(false);
         return;
       }
 
-      // Prepara os dados para a requisição
       const requestData = {
         title,
         slug,
@@ -205,7 +189,6 @@ export default function GalleryForm() {
       const savedGallery = await response.json();
       setMessage(editingGalleryId ? "Galeria atualizada com sucesso!" : "Galeria adicionada com sucesso!");
 
-      // Atualiza a lista de galerias no estado
       if (editingGalleryId) {
         setGalleries(galleries.map(g => g.id === editingGalleryId ? savedGallery : g));
       } else {
@@ -261,41 +244,47 @@ export default function GalleryForm() {
         <div className="border border-dashed border-gray-400 p-4 rounded-md">
           <h4 className="text-lg font-semibold text-gray-600 mb-4">Fotos ({editingGalleryId ? "Novas fotos para adicionar" : "Fotos da galeria"})</h4>
           <div className="space-y-4">
-            {newPhotos.map((_, index) => (
-              <div key={index} className="flex items-center gap-4">
-                <input
-                  type="file"
-                  onChange={(e) => handleFileChange(e, index)}
-                  className="flex-grow text-gray-700 bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                  accept="image/*"
-                  required={!editingGalleryId}
-                />
-                <input
-                  type="text"
-                  value={newPhotoAltTexts[index]}
-                  onChange={(e) => handleAltTextChange(e, index)}
-                  className="w-40 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                  placeholder="Texto alternativo"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemovePhotoField(index)}
-                  className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-                  title="Remover foto"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </button>
+            <label htmlFor="file-input" className="block p-4 text-center text-gray-700 bg-gray-50 rounded-md border-2 border-dashed border-gray-400 cursor-pointer hover:bg-gray-100 transition-colors">
+              Clique para selecionar as fotos
+            </label>
+            <input
+              id="file-input"
+              type="file"
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/*"
+              multiple // Permite a seleção de múltiplos arquivos
+            />
+
+            {newPhotos.length > 0 && (
+              <div className="space-y-4">
+                {newPhotos.map((file, index) => (
+                  <div key={index} className="flex items-center gap-4 p-2 border border-gray-200 rounded-md bg-gray-50">
+                    <img src={URL.createObjectURL(file)} alt="Preview" className="h-16 w-16 object-cover rounded-md" />
+                    <div className="flex-grow">
+                      <p className="text-sm font-medium text-gray-700 truncate">{file.name}</p>
+                      <input
+                        type="text"
+                        value={newPhotoAltTexts[index]}
+                        onChange={(e) => handleAltTextChange(e, index)}
+                        className="w-full p-1 mt-1 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 text-sm"
+                        placeholder="Texto alternativo"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePhoto(index)}
+                      className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors self-start"
+                      title="Remover foto"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddPhotoField}
-              className="mt-4 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-            >
-              Adicionar Nova Foto
-            </button>
+            )}
           </div>
         </div>
 
