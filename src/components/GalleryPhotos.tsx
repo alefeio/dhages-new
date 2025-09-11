@@ -1,18 +1,6 @@
 import React, { useState, useRef } from 'react';
-
-// Interfaces para os modelos de dados
-interface GalleryPhoto {
-    id?: string;
-    url: string;
-    altText?: string;
-}
-
-interface Gallery {
-    id: string;
-    title: string;
-    slug: string;
-    photos: GalleryPhoto[];
-}
+// Importe as interfaces de galeria do arquivo correto
+import { Gallery, GalleryPhoto } from '../types/gallery';
 
 // Define a tipagem das props do componente
 interface GalleryPhotosProps {
@@ -90,7 +78,6 @@ export default function GalleryPhotos({ gallery }: GalleryPhotosProps) {
                         {gallery.photos.map((photo) => (
                             <div
                                 key={photo.id}
-                                // Classes ajustadas para exibir 2 fotos no mobile, 3 em telas médias e 5 em telas grandes
                                 className="w-[calc(50%-1rem)] sm:w-[calc(33.333%-1rem)] xl:w-[calc(20%-1rem)] flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-lg cursor-pointer"
                                 onClick={() => openModal(photo)}
                             >

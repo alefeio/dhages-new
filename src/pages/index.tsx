@@ -15,7 +15,7 @@ import Hero from 'components/Hero';
 import { Analytics } from "@vercel/analytics/next";
 import { HomePageProps, Destino } from '../types/index';
 // Importe a interface de galeria do arquivo correto
-import { Gallery } from 'types';
+import { Gallery } from '../types/gallery';
 import PromotionsForm from 'components/PromotionsForm';
 import { useState, useEffect } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
