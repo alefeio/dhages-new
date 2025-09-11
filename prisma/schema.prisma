@@ -199,3 +199,18 @@ model Subscriber {
   phone     String?
   createdAt DateTime  @default(now())
 }
+
+model Gallery {
+  id     String @id @default(uuid())
+  title  String
+  slug   String @unique
+  photos GalleryPhoto[]
+}
+
+model GalleryPhoto {
+  id        String  @id @default(uuid())
+  url       String
+  altText   String?
+  galleryId String
+  gallery   Gallery @relation(fields: [galleryId], references: [id])
+}

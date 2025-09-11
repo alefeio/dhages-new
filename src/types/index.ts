@@ -160,3 +160,17 @@ export interface Subscriber {
     phone?: string | null;
     createdAt: Date;
 }
+
+export interface Gallery {
+  id: string;
+  title: string;
+  slug: string;
+  photos: GalleryPhoto[];
+}
+
+export interface GalleryPhoto {
+  id: string;
+  url: string;
+  altText: string | null;
+  galleryId: string;
+}
