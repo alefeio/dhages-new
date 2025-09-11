@@ -123,7 +123,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json({
       success: true,
-      topPackages: addSlug(topPackages.flatMap(pkg => pkg.fotos)),
+      topPackages: addSlug(topPackages.flatMap(pkg => pkg.fotos.map(foto => ({ ...foto, type: 'image' })))),
       topLikedPackages: addSlug(mostLiked),
       topViewedPackages: addSlug(mostViewed),
       totalReservations,
