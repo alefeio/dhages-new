@@ -74,7 +74,7 @@ const PromotionsForm: React.FC = () => {
                     Ofertas de Viagem Exclusivas, Direto no seu WhatsApp
                 </h3>
                 <p className="text-lg text-neutral-700 max-w-2xl mx-auto mb-8 px-4">
-                    Quer conhecer os destinos mais incríveis do **Pará** e do Brasil? Cadastre-se e receba **promoções relâmpago**, **roteiros de excursão** e **descontos secretos** que só a nossa comunidade tem acesso. Sua próxima aventura com a D'Hages Turismo está a um clique de distância!
+                    Quer conhecer os destinos mais incríveis do Pará e do Brasil? Cadastre-se e receba promoções relâmpago, roteiros de excursão e descontos secretos que só a nossa comunidade tem acesso. Sua próxima aventura com a D'Hages Turismo está a um clique de distância!
                 </p>
 
                 <form onSubmit={handleSubmit} className="flex flex-col xl:flex-row items-center justify-center gap-4">

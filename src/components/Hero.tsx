@@ -89,13 +89,13 @@ export default function Hero() {
                 Nossos ônibus são modernos e projetados para oferecer uma experiência de viagem de primeira classe.
               </h3>
               <p className="text-base text-white mb-4">
-                Com interiores **elegantemente equipados**, assentos confortáveis e reclináveis, e um sistema de **ar-condicionado** de última geração, garantimos que sua jornada será tranquila e totalmente agradável.
+                Com interiores modernos, assentos confortáveis e reclináveis, e um sistema de ar-condicionado de última geração, garantimos que sua jornada será tranquila e totalmente agradável.
               </p>
               <p className="text-base text-white mb-6">
-                Cada detalhe foi pensado para a sua **segurança e bem-estar**, para que você e sua família possam relaxar e aproveitar o trajeto.
+                Cada detalhe foi pensado para a sua segurança e bem-estar, para que você e sua família possam relaxar e aproveitar o trajeto.
               </p>
               <p className="text-lg text-white font-bold">
-                Viaje com a D' Hages Turismo e descubra o que é viajar com **conforto, segurança e excelência**.
+                Viaje com a D' Hages Turismo e descubra o que é viajar com conforto, segurança e excelência.
               </p>
             </div>
 

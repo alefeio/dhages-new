@@ -50,7 +50,7 @@ export default function AboutSection() {
                         Explore o Brasil com a D'Hages Turismo
                     </h2>
                     <p className="py-6 text-neutral-700 max-w-2xl mx-auto text-lg">
-                        Desde **2015**, a D’Hages Turismo é sua agência de viagens em Belém, PA, especializada em excursões por todo o Brasil. Nosso foco é em viagens econômicas e rápidas, sempre com o máximo de conforto e segurança.
+                        Desde 2015, a D’Hages Turismo é sua agência de viagens em Belém, PA, especializada em excursões por todo o Brasil. Nosso foco é em viagens econômicas e rápidas, sempre com o máximo de conforto e segurança.
                     </p>
                 </div>
 
@@ -77,10 +77,10 @@ export default function AboutSection() {
                             Da riqueza natural do Pará aos encantos de todo o Brasil
                         </h3>
                         <p className="my-4 text-neutral-800">
-                            Somos especialistas em criar experiências inesquecíveis, como **excursões para os Lençóis Maranhenses** e **viagens para Jericoacoara**, que cabem no seu bolso e no seu tempo.
+                            Somos especialistas em criar experiências inesquecíveis, como excursões para os Lençóis Maranhenses e viagens para Jericoacoara, que cabem no seu bolso e no seu tempo.
                         </p>
                         <p className="mb-8 text-neutral-800">
-                            Nossa missão é simplificar sua viagem, oferecendo **viagens em família** e passeios que combinam **qualidade, segurança e o melhor custo-benefício** para você focar apenas em aproveitar.
+                            Nossa missão é simplificar sua viagem, oferecendo viagens em família e passeios que combinam qualidade, segurança e o melhor custo-benefício para você focar apenas em aproveitar.
                         </p>
 
                         {/* Acordeão de Benefícios */}
