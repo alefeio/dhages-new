@@ -14,24 +14,12 @@ import { Menu as MenuComponent } from 'components/Menu';
 import Hero from 'components/Hero';
 import { Analytics } from "@vercel/analytics/next";
 import { HomePageProps, Destino } from '../types/index';
+// Importe a interface de galeria do arquivo correto
+import { Gallery } from 'types';
 import PromotionsForm from 'components/PromotionsForm';
 import { useState, useEffect } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import Footer from 'components/Footer';
-
-// Interfaces para os modelos de dados
-interface GalleryPhoto {
-    id?: string;
-    url: string;
-    altText?: string;
-}
-
-interface Gallery {
-    id: string;
-    title: string;
-    slug: string;
-    photos: GalleryPhoto[];
-}
 
 // Estendendo a interface HomePageProps para incluir as galerias
 interface HomePagePropsExtended extends HomePageProps {
@@ -45,7 +33,6 @@ function slugify(text: string): string {
         .replace(/\s+/g, '-')
         .replace(/[^\w-]+/g, '')
         .replace(/--+/g, '-')
-        .replace(/^-+/, '')
         .replace(/-+$/, '');
 }
 
@@ -100,7 +87,7 @@ export const getServerSideProps: GetServerSideProps<HomePagePropsExtended> = asy
                 testimonials: [],
                 faqs: [],
                 destinos: [],
-                galleries: [], // Garante que a prop 'galleries' é sempre um array
+                galleries: [],
             },
         };
     } finally {
@@ -170,7 +157,7 @@ export default function Home({ banners, menu, testimonials, faqs, destinos, gall
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="D' Hages Turismo | Agência de Viagens em Belém - Pacotes e Destinos" />
                 <meta
-                    name="twitter:description"
+                    property="twitter:description"
                     content="Descubra os melhores pacotes de viagens e destinos com a D' Hages Turismo em Belém. Aventuras memoráveis, atendimento personalizado e as melhores ofertas para sua próxima viagem."
                 />
                 <meta name="twitter:image" content={defaultOgImage} />
