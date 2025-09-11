@@ -7,16 +7,19 @@ import { useRouter } from 'next/router';
 import { FaChevronLeft, FaChevronRight, FaWhatsapp, FaShareAlt, FaHeart, FaTimes, FaGlobe } from "react-icons/fa";
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { PrismaClient } from '@prisma/client';
-import { Pacote } from '../../../types';
+import { Destino, MenuItem, Pacote } from '../../../types';
 import { richTextToHtml } from '../../../utils/richTextToHtml';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
+import { MenuInterno as MenuComponent } from 'components/MenuInterno';
+import Footer from 'components/Footer';
 
 const prisma = new PrismaClient();
 
 interface PacotePageProps {
   pacote: Pacote;
+  menu: MenuItem | null;
 }
 
 const isImage = (url: string) => {
@@ -24,7 +27,7 @@ const isImage = (url: string) => {
   return imageExtensions.some(ext => url.toLowerCase().endsWith(ext));
 };
 
-export default function PacotePage({ pacote }: PacotePageProps) {
+export default function PacotePage({ pacote, menu }: PacotePageProps) {
   const router = useRouter();
   const scrollContainer = useRef<HTMLDivElement>(null);
   const canShare = typeof window !== 'undefined' && 'share' in navigator;
@@ -276,8 +279,9 @@ export default function PacotePage({ pacote }: PacotePageProps) {
                     `}
         </script>
       </Head>
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="container mx-auto px-4">
+        <MenuComponent menuData={menu} />
+        <div className="bg-white pt-32 shadow-lg overflow-hidden">
           <div className="relative my-6">
             {pacote.fotos.length > 1 && (
               <div className="absolute top-1/2 left-0 right-0 z-10 flex justify-between px-4 sm:px-8 -translate-y-1/2">
@@ -399,7 +403,7 @@ export default function PacotePage({ pacote }: PacotePageProps) {
                           rel="noopener noreferrer"
                           className="mt-4 flex items-center justify-center gap-2 text-white bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-full transition-colors"
                         >
-                          <FaWhatsapp size={18} /> Pré-Reserva
+                          <FaWhatsapp size={18} className='text-white' /> Pré-Reserva
                         </a>
                       </div>
                     );
@@ -454,6 +458,7 @@ export default function PacotePage({ pacote }: PacotePageProps) {
           </div>
         </div>
       </div>
+      <Footer menuData={menu} />
     </>
   );
 }
@@ -485,6 +490,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { destinoId, pacoteSlug } = params as { destinoId: string; pacoteSlug: string };
+
+  const [menus] = await Promise.all([
+    prisma.menu.findMany(),
+  ]);
+
+  const menu: any | null = menus.length > 0 ? menus[0] : null;
+
   const destinoIdReal = destinoId.split('-')[1];
 
   const pacote = await prisma.pacote.findUnique({
@@ -527,7 +539,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   };
 
   return {
-    props: { pacote: serializedPacote },
+    props: { pacote: serializedPacote, menu },
     revalidate: 60,
   };
 };
