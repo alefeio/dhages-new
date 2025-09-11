@@ -89,7 +89,7 @@ export default function Catalogo({ destinos }: CatalogPageProps) {
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
         "name": "Dhages Turismo",
-        "image": "https://www.dhagesturismo.app.br/images/logo.png",
+        "image": "https://www.dhagesturismo.com.br/images/logo.png",
         "address": {
             "@type": "PostalAddress",
             "streetAddress": "Exemplo, 123",

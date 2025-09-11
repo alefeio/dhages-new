@@ -15,7 +15,7 @@ export const authOptions: NextAuthOptions = {
             from: process.env.EMAIL_FROM,
             async sendVerificationRequest({ identifier: email, url, provider: { from } }) {
                 await resend.emails.send({
-                    from: from || "contato@dhagesturismo.app.br",
+                    from: from || "contato@dhagesturismo.com.br",
                     to: email,
                     subject: "Link de login para o D' Hages Turismo",
                     html: `Clique neste link para entrar: <a href="${url}">${url}</a>`,

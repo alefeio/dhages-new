@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Envia o email de boas-vindas
         await resend.emails.send({
-            from: "D' Hages Turismo <contato@dhagesturismo.app.br>", // Altere para o seu email verificado da D' Hages
+            from: "D' Hages Turismo <contato@dhagesturismo.com.br>", // Altere para o seu email verificado da D' Hages
             to: email,
             subject: `Fique por dentro das nossas promoções, ${name}! | D' Hages Turismo`,
             html: `
