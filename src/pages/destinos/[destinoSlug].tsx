@@ -1,7 +1,7 @@
 // src/pages/destinos/[destinoSlug].tsx
 import { GetServerSideProps } from 'next';
 import Home from '../index';
-import { Banner, MenuItem, TestimonialItem, FaqItem, Destino, Pacote, PacoteFoto, PacoteDate } from 'types';
+import { Banner, MenuItem, Testimonial, FaqItem, Destino, Pacote, PacoteMidia, PacoteDate } from 'types';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -52,7 +52,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
         fotos: p.fotos.map(f => ({
           ...f,
           caption: f.caption ?? undefined,
-        })) as PacoteFoto[],
+        })) as PacoteMidia[],
         dates: p.dates.map(d => ({
           ...d,
           notes: d.notes ?? undefined,
@@ -65,7 +65,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       props: {
         banners: JSON.parse(JSON.stringify(bannersRaw)) as Banner[],
         menu: JSON.parse(JSON.stringify(menu)) as MenuItem | null,
-        testimonials: JSON.parse(JSON.stringify(testimonialsRaw)) as TestimonialItem[],
+        testimonials: JSON.parse(JSON.stringify(testimonialsRaw)) as Testimonial[],
         faqs: JSON.parse(JSON.stringify(faqsRaw)) as FaqItem[],
         destinos: JSON.parse(JSON.stringify(destinos)) as Destino[],
       },
@@ -87,7 +87,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
 interface DestinoPageProps {
   banners: Banner[];
   menu: MenuItem | null;
-  testimonials: TestimonialItem[];
+  testimonials: Testimonial[];
   faqs: FaqItem[];
   destinos: Destino[];
 }

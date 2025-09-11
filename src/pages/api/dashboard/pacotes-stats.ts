@@ -1,7 +1,7 @@
 // pages/api/dashboard/pacotes-stats.ts
 import { PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { PacoteFoto, PacoteDate } from "types";
+import type { PacoteMidia, PacoteDate } from "types";
 import { contarVagasOcupadas } from "utils/contarVagasOcupadas";
 
 const prisma = new PrismaClient();
@@ -25,11 +25,11 @@ type PacoteParcial = {
   slug: string;
   destinoId: string;
   description: unknown;
-  fotos: PacoteFoto[];
+  fotos: PacoteMidia[];
   dates: (Omit<PacoteDate, "status"> & { status: "disponivel" | "esgotado" | "cancelado" })[];
 };
 
-type PacoteFotoComPacote = PacoteFoto & {
+type PacoteFotoComPacote = PacoteMidia & {
   pacote?: PacoteParcial;
 };
 
