@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import React from 'react';
-import { FAQ as FAQType } from '../types/index';
+import { FaqItem as FAQType } from 'types';
 
 // Define a tipagem das props do componente, importando do arquivo de tipos
 interface FAQPageProps {
