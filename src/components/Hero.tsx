@@ -61,11 +61,21 @@ export default function Hero() {
 
       {/* A seção de frota agora tem o fundo com a diagonal (bg-primary-950) */}
       <section id="frota" className="relative w-full py-20 md:py-32 flex items-center justify-center overflow-hidden bg-primary-950 text-white">
+
+        {/* Imagem de fundo com opacidade e z-index -10 */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url('/images/frota1.jpeg')",
+            opacity: 0.7
+          }}
+        ></div>
+
         {/* Bloco de cor diagonal para o design criativo, movido para cá */}
-        <div className="absolute top-0 left-0 w-4/5 h-full bg-primary-600 transform -skew-x-12 origin-top-left"></div>
-        <div className="absolute top-0 left-0 w-3/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-left"></div>
-        <div className="absolute top-0 left-0 w-2/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-left"></div>
-        <div className="absolute top-0 left-0 w-1/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-left"></div>
+        <div className="absolute top-0 left-0 w-4/5 h-full bg-primary-600 transform -skew-x-12 origin-top-left opacity-30"></div>
+        <div className="absolute top-0 left-0 w-3/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-left opacity-30"></div>
+        <div className="absolute top-0 left-0 w-2/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-left opacity-30"></div>
+        <div className="absolute top-0 left-0 w-1/5 h-full bg-primary-700 opacity-60 transform -skew-x-12 origin-top-left opacity-30"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
           <h2 className="text-4xl text-white md:text-6xl text-center font-bold font-serif mb-16">
@@ -74,7 +84,7 @@ export default function Hero() {
 
           <div className="flex flex-col md:flex-row items-center md:gap-12">
             {/* Bloco de Texto Principal */}
-            <div className="w-full flex flex-col justify-center mb-12 md:mb-0 bg-white/20 p-6 rounded-xl shadow-lg md:w-2/3">
+            <div className="w-full flex flex-col justify-center mb-12 md:mb-0 bg-gray-800/80 p-6 rounded-xl shadow-lg md:w-2/3">
               <h3 className="text-2xl text-white md:text-4xl mb-4 font-bold">
                 Nossos ônibus são modernos e projetados para oferecer uma experiência de viagem de primeira classe.
               </h3>

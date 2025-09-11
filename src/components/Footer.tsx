@@ -30,7 +30,7 @@ const Footer = ({ menuData }: MenuProps) => {
                 {/* Imagem de fundo usando next/image para otimização */}
                 <div className="absolute inset-0 w-full h-full">
                     <Image
-                        src="/images/frota1.jpeg"
+                        src="/images/frota3.jpeg"
                         alt="Background da D'Hages Turismo"
                         layout="fill"
                         objectFit="cover"
@@ -40,7 +40,7 @@ const Footer = ({ menuData }: MenuProps) => {
                 </div>
 
                 {/* Sobreposição para escurecer a imagem e melhorar a legibilidade */}
-                <div className="absolute inset-0 bg-black opacity-50"></div>
+                <div className="absolute inset-0 bg-black opacity-70"></div>
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-32">
