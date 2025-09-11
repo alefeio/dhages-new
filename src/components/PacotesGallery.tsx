@@ -14,17 +14,20 @@ interface PacotesGalleryProps {
 export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
     const [showModal, setShowModal] = useState(false);
     const [pacoteExibido, setPacoteExibido] = useState<Pacote | null>(null);
+    const [shareUrl, setShareUrl] = useState<string>("");
 
     const router = useRouter();
     const { destinoSlug, pacoteId } = router.query;
 
     const openModal = useCallback((id: string) => {
         const destino = destinos.find(d => d.pacotes.some(p => p.id === id));
-        if (destino) {
+        const pacote = destino?.pacotes.find(p => p.id === id);
+
+        if (destino && pacote) {
             router.push({
                 pathname: router.pathname,
-                query: { destinoSlug: destino.slug, pacoteId: id }
-            }, undefined, { shallow: true, scroll: false });
+                query: { destinoSlug: destino.slug, pacoteId: pacote.id }
+            }, `/pacotes/${destino.slug}/${pacote.slug}`, { shallow: true, scroll: false });
         } else {
             console.error("Erro: destino ou pacote não encontrado.");
         }
@@ -33,6 +36,7 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
     const closeModal = useCallback(() => {
         setPacoteExibido(null);
         setShowModal(false);
+        setShareUrl("");
         router.replace(router.pathname, undefined, { shallow: true, scroll: false });
     }, [router]);
 
@@ -45,6 +49,9 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
                 if (destino && pacote) {
                     setPacoteExibido(pacote);
                     setShowModal(true);
+                    // Criando o URL com o formato amigável
+                    const newShareUrl = `${window.location.origin}/pacotes/${destino.slug}/${pacote.slug}`;
+                    setShareUrl(newShareUrl);
                 } else if (showModal) {
                     closeModal();
                 }
@@ -52,7 +59,7 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
                 closeModal();
             }
         }
-    }, [router.isReady, destinoSlug, pacoteId, destinos, showModal, closeModal]);
+    }, [router.isReady, destinoSlug, pacoteId, destinos, showModal, closeModal, router.pathname]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -97,6 +104,7 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
                     <ModalPhotos
                         pacote={pacoteExibido}
                         onClose={closeModal}
+                        shareUrl={shareUrl}
                     />
                 )}
             </section>

@@ -93,7 +93,6 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
 
     const backgroundImage = destino.image || '/placeholder.jpg';
 
-    // Filtra pacotes para mostrar apenas aqueles com datas futuras
     const pacotesComDatasFuturas = destino.pacotes.filter(pacote =>
         pacote.dates?.some(date => new Date(date.saida) >= new Date())
     );
@@ -101,7 +100,6 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
     return (
         <article className="py-8 bg-">
             <div className="relative w-full py-24 overflow-hidden">
-                {/* Renderização condicional para vídeo ou imagem de fundo */}
                 {isVideo(backgroundImage) ? (
                     <video
                         src={backgroundImage}
@@ -140,15 +138,15 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 py-12">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 md:gap-8">
+            <div className="max-w-7xl mx-auto px-2 md:px-4 py-12">
+                {/* LINHA ALTERADA: Agora o grid-cols-2 começa no mobile */}
+                <div className="grid grid-cols-2 gap-2 md:gap-8">
                     {pacotesComDatasFuturas.map(pacote => {
                         const shareUrl = `${originUrl}/pacotes/${destino.slug}/${pacote.slug}`;
                         const firstMedia = pacote.fotos[0] || { url: '/placeholder.jpg' };
                         const isFirstMediaVideo = isVideo(firstMedia.url);
                         const currentLikes = pacoteStats[pacote.id]?.like ?? pacote.like ?? 0;
 
-                        // Filtra e ordena as datas em ordem ascendente, ignorando datas passadas.
                         const availableDates = pacote.dates
                             ?.filter(date => new Date(date.saida) >= new Date())
                             .sort((a, b) => new Date(a.saida).getTime() - new Date(b.saida).getTime());
@@ -162,9 +160,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                 className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer"
                                 onClick={() => onOpenModal(pacote.id)}
                             >
-                                {/* Container flex para a mídia e o conteúdo */}
                                 <div className="flex flex-col sm:flex-row h-full">
-                                    {/* Mídia ocupando metade da largura em telas maiores */}
                                     <div className="relative w-full h-72 sm:w-1/2 sm:h-auto">
                                         {isFirstMediaVideo ? (
                                             <>
@@ -219,9 +215,8 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                             </button>
                                         </div>
                                     </div>
-                                    {/* Texto e botões, ocupando metade da largura */}
                                     <div className="p-4 flex flex-col flex-grow w-full sm:w-1/2">
-                                        <h3 className="font-serif text-2xl font-semibold mb-1 text-orange-500">{pacote.title}</h3>
+                                        <h3 className="font-serif text-lg md:text-2xl font-semibold mb-1 text-orange-500">{pacote.title}</h3>
                                         {pacote.subtitle && (
                                             <p className="text-sm text-neutral-600 mb-4">{pacote.subtitle}</p>
                                         )}
@@ -259,7 +254,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
 
                                             <div className="flex justify-between items-center gap-2">
                                                 <a
-                                                    href={`https://wa.me/5591985810208?text=Olá! Gostaria de mais informações sobre o pacote de ${destino.title}: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
+                                                    href={`https://wa.me/5591981149800?text=Olá! Gostaria de mais informações sobre o pacote de ${destino.title}: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex-1 inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded-full shadow-md py-3 font-bold transition-colors duration-300"

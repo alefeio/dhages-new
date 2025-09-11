@@ -45,7 +45,7 @@ export default function Hero() {
                 Explore Nossos Pacotes
               </a>
               <a
-                href="https://wa.me/5591985810208?text=Olá! Gostaria de mais informações sobre os pacotes de viagem."
+                href="https://wa.me/5591981149800?text=Olá! Gostaria de mais informações sobre os pacotes de viagem."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center bg-transparent border-2 border-primary-950 hover:bg-primary-950 hover:text-white text-primary-950 rounded-full shadow-lg py-3 px-8 font-bold text-lg transition-colors duration-300 transform hover:scale-105"
