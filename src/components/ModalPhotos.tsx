@@ -22,7 +22,7 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
     const [pacoteStats, setPacoteStats] = useState({ like: pacote.like ?? 0 });
     const canShare = typeof window !== 'undefined' && 'share' in navigator;
-    const [isSharing, setIsSharing] = useState(false); // Adicionado para evitar cliques múltiplos
+    const [isSharing, setIsSharing] = useState(false);
 
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -50,7 +50,6 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
         }
     }, [pacote.id]);
 
-    // **NOVA FUNÇÃO: Registra o clique no WhatsApp**
     const handleWhatsappClick = useCallback(async () => {
         try {
             await fetch('/api/stats/pacote-whatsapp', {
@@ -63,7 +62,6 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
         }
     }, [pacote.id]);
 
-    // **NOVA FUNÇÃO: Registra o compartilhamento no banco**
     const handleSharedClick = useCallback(async () => {
         try {
             await fetch('/api/stats/pacote-shared', {
@@ -76,7 +74,6 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
         }
     }, [pacote.id]);
 
-    // **FUNÇÃO EXISTENTE: Atualizada para chamar o handleSharedClick APÓS o sucesso do share**
     const handleShare = async () => {
         if (canShare && !isSharing) {
             setIsSharing(true);
@@ -86,7 +83,6 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                     text: `Confira o pacote de viagem: ${pacote.title}`,
                     url: shareUrl,
                 });
-                // Registra no banco APENAS se o compartilhamento nativo for bem-sucedido
                 await handleSharedClick();
             } catch (error) {
                 console.error('Erro ao compartilhar:', error);
@@ -122,7 +118,12 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
 
     const availableDates = pacote.dates
         ?.filter(date => new Date(date.saida) >= new Date())
-        .sort((a, b) => new Date(a.saida).getTime() - new Date(b.saida).getTime());
+        .sort((a, b) => new Date(a.saida).getTime() - new Date(b.saida).getTime())
+        .map(date => ({
+            ...date,
+            saida: new Date(date.saida),
+            retorno: date.retorno ? new Date(date.retorno) : undefined
+        }));
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-fade-in" onClick={onClose}>
@@ -196,7 +197,6 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                                     rel="noopener noreferrer"
                                     className="p-2 text-green-600 hover:text-green-800 transition-colors"
                                     aria-label="Fale conosco no WhatsApp"
-                                    // **CHAMADA DA FUNÇÃO DE WHATSAPP**
                                     onClick={handleWhatsappClick}
                                 >
                                     <FaWhatsapp size={24} className="text-green-700" />
@@ -223,6 +223,7 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                                                 date={date}
                                                 shareUrl={shareUrl}
                                                 formatPrice={formatPrice}
+                                                pacote={pacote}
                                             />
                                         ))}
                                     </div>
@@ -281,7 +282,6 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex-1 text-center bg-green-600 hover:bg-green-700 text-white text-xs md:text-base font-bold py-3 px-6 rounded-full transition-colors flex items-center justify-center gap-2"
-                            // **CHAMADA DA FUNÇÃO DE WHATSAPP**
                             onClick={handleWhatsappClick}
                         >
                             <FaWhatsapp className="text-white" /> Fale Conosco

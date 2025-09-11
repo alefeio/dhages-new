@@ -2,18 +2,11 @@ import React, { useCallback } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FaWhatsapp } from 'react-icons/fa';
-import { Pacote } from '../types';
+import { Pacote, PacoteDate as PacoteDateType } from '../types';
 
 interface PacoteDateProps {
     pacoteId: string;
-    // CORREÇÃO: 'retorno' também deve ser do tipo Date, assim como 'saida'
-    date: {
-        saida: Date;
-        retorno?: Date | undefined;
-        notes?: string | undefined;
-        price: number;
-        price_card: number;
-    };
+    date: PacoteDateType;
     shareUrl: string;
     formatPrice: (price: number) => string;
     pacote: Pacote;
@@ -26,7 +19,6 @@ export const PacoteDate = ({ pacoteId, date, shareUrl, formatPrice, pacote }: Pa
             await fetch('/api/stats/pacote-date-whatsapp', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                // Converte a data de saída para string ISO antes de enviar para a API
                 body: JSON.stringify({ pacoteId, dateSaida: date.saida.toISOString() }),
             });
         } catch (error) {
@@ -36,7 +28,6 @@ export const PacoteDate = ({ pacoteId, date, shareUrl, formatPrice, pacote }: Pa
 
     const whatsappText = `Olá! Gostaria de fazer uma pré-reserva para o pacote: *${pacote.title}*.\n\n` +
                          `Data de Saída: *${format(date.saida, 'dd/MM/yyyy', { locale: ptBR })}*\n` +
-                         // Usa o objeto Date de retorno diretamente, sem criar um novo
                          (date.retorno ? `Data de Retorno: *${format(date.retorno, 'dd/MM/yyyy', { locale: ptBR })}*\n` : '') +
                          `\nLink para o pacote: ${shareUrl}`;
 
@@ -58,9 +49,9 @@ export const PacoteDate = ({ pacoteId, date, shareUrl, formatPrice, pacote }: Pa
             </div>
             <a
                 href={`https://wa.me/5591981149800?text=${encodeURIComponent(whatsappText)}`}
+                onClick={handlePreReservaClick}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={handlePreReservaClick}
                 className="mt-4 flex items-center justify-center gap-2 text-white bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-full transition-colors"
             >
                 <FaWhatsapp size={18} /> Pré-Reserva
