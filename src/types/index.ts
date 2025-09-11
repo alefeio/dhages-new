@@ -1,12 +1,18 @@
+// src/types.ts
+
+// --- Tipos de Banners e Menus ---
+
+export interface BannerItem {
+    id: string;
+    url: string;
+    link: string;
+    title: string;
+    target: string;
+}
+
 export interface Banner {
-    id: number;
-    banners: {
-        id: string;
-        url: string;
-        link: string;
-        title: string;
-        target: string;
-    }[];
+    id: string;
+    banners: BannerItem[];
 }
 
 export interface LinkItem {
@@ -16,46 +22,19 @@ export interface LinkItem {
     target?: string;
 }
 
-// Este tipo representa a estrutura dos dados do menu.
-export interface MenuData {
+export interface MenuItem {
+    id: string;
     logoUrl: string;
     links: LinkItem[];
 }
 
-// Este tipo representa as props que o componente Menu espera.
-export interface MenuProps {
-    menuData: MenuData | null;
-}
-
-export interface MenuItem {
-    id: number;
-    logoUrl: string;
-    links: {
-        id: string;
-        url: string;
-        text: string;
-        target: string;
-    }[];
-}
+// --- Tipos de Testemunhos e FAQs ---
 
 export interface Testimonial {
     id: string;
     name: string;
     content: string;
-    // O tipo correto de acordo com seu código
-    type: 'texto' | 'foto' | 'video'; 
-    // Adicione as propriedades de data que estavam faltando
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-export interface TestimonialItem {
-    id: string;
-    name: string;
-    content: string;
-    // Corrija a tipagem do 'type' para a união de strings literais, se necessário
-    type: 'foto' | 'texto' | 'video';
-    // Adicione as propriedades que estavam faltando
+    type: 'texto' | 'foto' | 'video';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -66,23 +45,12 @@ export interface FaqItem {
     resposta: string;
 }
 
-/** Fotos vinculadas ao Pacote */
-export interface PacoteFoto {
-    id: string;
-    url: string;
-    caption?: string | null;
-    pacoteId: string;
-    pacote?: Pacote;
-    like: number;
-    view: number;
-    createdAt: Date;
-    updatedAt: Date;
-}
+// --- Tipos de Pacotes e Destinos ---
 
 export interface PacoteMidia {
     id: string;
     url: string;
-    type: "image" | "video"; // Adicione o tipo de mídia
+    type: "image" | "video";
     caption?: string | null;
     pacoteId: string;
     pacote?: Pacote;
@@ -92,7 +60,6 @@ export interface PacoteMidia {
     updatedAt: Date;
 }
 
-/** Datas de saída e retorno do Pacote, com preços */
 export interface PacoteDate {
     id: string;
     saida: Date;
@@ -103,16 +70,16 @@ export interface PacoteDate {
     price_card: number;
     status: "disponivel" | "esgotado" | "cancelado";
     notes?: string | null;
+    whatsapp: number; // Campo `whatsapp` adicionado
     pacoteId: string;
     createdAt: Date;
     updatedAt: Date;
 }
 
-/** Usado no formulário/admin */
 export interface PacoteDateInput {
     id: string;
-    saida: string;   // no form será string
-    retorno: string; // no form será string
+    saida: string;
+    retorno: string;
     vagas_total: number;
     vagas_disponiveis: number;
     price: number;
@@ -122,21 +89,6 @@ export interface PacoteDateInput {
     pacoteId: string;
 }
 
-/** Formulário de Pacote */
-export interface PacoteForm {
-    id: string;
-    title: string;
-    subtitle?: string | null;
-    description: any;
-    destinoId: string;
-    slug: string;
-    fotos: PacoteMidia[];
-    dates: PacoteDateInput[];
-    like?: number;
-    view?: number;
-}
-
-/** Pacote de viagem, vinculado a um Destino */
 export interface Pacote {
     id: string;
     title: string;
@@ -148,12 +100,13 @@ export interface Pacote {
     dates: PacoteDate[];
     like: number;
     view: number;
+    whatsapp: number; // Campo `whatsapp` adicionado
+    shared: number;   // Campo `shared` adicionado
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date | null;
 }
 
-/** Destino principal, que contém Pacotes */
 export interface Destino {
     id: string;
     title: string;
@@ -168,11 +121,12 @@ export interface Destino {
     deletedAt?: Date | null;
 }
 
-/** Props usadas na HomePage */
+// --- Tipos de Página e Outros ---
+
 export interface HomePageProps {
     banners: Banner[];
     menu: MenuItem | null;
-    testimonials: TestimonialItem[];
+    testimonials: Testimonial[];
     faqs: FaqItem[];
     destinos: Destino[];
 }
@@ -181,7 +135,7 @@ export interface Blog {
     id: string;
     title: string;
     slug: string;
-    content: any; // JSON
+    content: any;
     coverImage?: string | null;
     author?: string | null;
     createdAt: Date;

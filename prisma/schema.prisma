@@ -119,19 +119,21 @@ model Destino {
 }
 
 model Pacote {
-  id          String       @id @default(cuid())
+  id          String      @id @default(cuid())
   title       String
   subtitle    String?
-  slug        String       @unique
-  description Json          // descrição detalhada (editor rico)
-  destino     Destino      @relation(fields: [destinoId], references: [id], onDelete: Cascade)
+  slug        String      @unique
+  description Json
+  destino     Destino     @relation(fields: [destinoId], references: [id], onDelete: Cascade)
   destinoId   String
   fotos       PacoteFoto[]
-  dates       PacoteDate[] // todas as saídas disponíveis
-  like        Int          @default(0)  // quantidade de curtidas
-  view        Int          @default(0)  // quantidade de visualizações
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  dates       PacoteDate[]
+  like        Int         @default(0)
+  view        Int         @default(0)
+  whatsapp    Int         @default(0)  // <-- Novo campo para contagem de cliques no WhatsApp
+  shared      Int         @default(0)  // <-- Novo campo para contagem de cliques em Compartilhar
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   deletedAt   DateTime?
 }
 
@@ -148,19 +150,20 @@ model PacoteFoto {
 }
 
 model PacoteDate {
-  id               String   @id @default(cuid())
-  saida            DateTime
-  retorno          DateTime
-  vagas_total      Int
-  vagas_disponiveis Int
-  price            Int      // preço à vista (em centavos)
-  price_card       Int      // preço no cartão (em centavos)
-  status           String   // disponivel | esgotado | cancelado
-  notes            String?  // informações extras, ex: ponto de saída
-  pacote           Pacote   @relation(fields: [pacoteId], references: [id], onDelete: Cascade)
-  pacoteId         String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  saida               DateTime
+  retorno             DateTime
+  vagas_total         Int
+  vagas_disponiveis   Int
+  price               Int
+  price_card          Int
+  status              String
+  notes               String?
+  whatsapp            Int      @default(0)  // <-- Novo campo para contagem de cliques no WhatsApp
+  pacote              Pacote   @relation(fields: [pacoteId], references: [id], onDelete: Cascade)
+  pacoteId            String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model Blog {
