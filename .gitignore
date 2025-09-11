@@ -34,6 +34,8 @@ coverage/
 # Public/uploads (se gerar arquivos temporários)
 public/uploads/
 
+src/data/
+
 # Misc
 *.local
 *.swp
