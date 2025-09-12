@@ -1,5 +1,3 @@
-// src/components/GallerySection.tsx
-
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { FaWhatsapp, FaShareAlt, FaHeart, FaPlayCircle } from "react-icons/fa";
@@ -33,6 +31,41 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
         }).format(priceInCents / 100);
     }, []);
 
+    // **NOVA FUNÇÃO: Lida com a visualização do pacote e atualiza o estado**
+    const handleView = useCallback(async (pacoteId: string) => {
+        try {
+            const response = await fetch('/api/stats/item-view', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pacoteId }),
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Erro na API de visualização:', response.status, errorText);
+                return;
+            }
+            const data = await response.json();
+            if (data.success) {
+                // Atualiza o estado local com o novo número de visualizações
+                setPacoteStats(prevStats => ({
+                    ...prevStats,
+                    [data.pacote.id]: {
+                        ...prevStats[data.pacote.id],
+                        view: data.pacote.view
+                    }
+                }));
+            }
+        } catch (error) {
+            console.error('Falha ao registrar visualização:', error);
+        }
+    }, []);
+
+    // **NOVA FUNÇÃO: Lida com o clique no item da galeria**
+    const handleItemClick = useCallback((pacoteId: string) => {
+        handleView(pacoteId); // Primeiro, chama a função para registrar a visualização
+        onOpenModal(pacoteId); // Em seguida, chama a função para abrir o modal
+    }, [handleView, onOpenModal]);
+
     const handleLike = useCallback(async (pacoteId: string) => {
         try {
             const response = await fetch('/api/stats/pacote-like', {
@@ -49,7 +82,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
             if (data.success) {
                 setPacoteStats(prevStats => ({
                     ...prevStats,
-                    [data.pacote.id]: { like: data.pacote.like, view: data.pacote.view }
+                    [data.pacote.id]: { ...prevStats[data.pacote.id], like: data.pacote.like }
                 }));
             }
         } catch (error) {
@@ -71,7 +104,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
 
     const handleShareClick = useCallback(async (pacoteId: string) => {
         try {
-            await fetch('/api/stats/pacote-shared', { // <-- Alterado para 'pacote-shared'
+            await fetch('/api/stats/pacote-shared', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ pacoteId }),
@@ -90,7 +123,6 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                 text: `${pacote.subtitle ? pacote.subtitle + ' - ' : ''}Confira este pacote de viagem incrível!`,
                 url: shareUrl,
             });
-            // Registra o compartilhamento APENAS se a API nativa for bem-sucedida
             await handleShareClick(pacote.id);
         } catch (error) {
             console.error('Falha ao compartilhar:', error);
@@ -170,7 +202,9 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                         const shareUrl = `${originUrl}/pacotes/${destino.slug}/${pacote.slug}`;
                         const firstMedia = pacote.fotos[0] || { url: '/placeholder.jpg' };
                         const isFirstMediaVideo = isVideo(firstMedia.url);
+                        // Usa o estado local para as visualizações, com fallback para o valor inicial
                         const currentLikes = pacoteStats[pacote.id]?.like ?? pacote.like ?? 0;
+                        const currentViews = pacoteStats[pacote.id]?.view ?? pacote.view ?? 0;
 
                         const availableDates = pacote.dates
                             ?.filter(date => new Date(date.saida) >= new Date())
@@ -183,7 +217,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                             <div
                                 key={pacote.id}
                                 className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer"
-                                onClick={() => onOpenModal(pacote.id)}
+                                onClick={() => handleItemClick(pacote.id)} // Alterado para chamar a nova função
                             >
                                 <div className="flex flex-col sm:flex-row h-full">
                                     <div className="relative w-full h-72 sm:w-1/2 sm:h-auto">
@@ -229,7 +263,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    onOpenModal(pacote.id);
+                                                    handleItemClick(pacote.id);
                                                 }}
                                                 className="bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
                                                 aria-label="Ver mais detalhes"
