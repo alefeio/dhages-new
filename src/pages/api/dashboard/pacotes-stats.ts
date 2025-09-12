@@ -1,7 +1,6 @@
 // pages/api/dashboard/pacotes-stats.ts
 import { PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { PacoteMidia } from "types";
 
 const prisma = new PrismaClient();
 
@@ -17,11 +16,13 @@ function mapPackageStats(packages: any[]) {
   }));
 }
 
-// Mapear dados das datas para o formato do frontend
+// Mapear dados das datas e INCLUIR o nome do pacote
 function mapDateStats(dates: any[]) {
   return dates.map(d => ({
-    date: d.saida.toISOString().split('T')[0], // Formato YYYY-MM-DD
+    date: d.saida.toISOString().split('T')[0],
     clicks: d.whatsapp,
+    // Adicionamos o título do pacote aqui
+    packageName: d.pacote?.title || "Pacote Desconhecido"
   }));
 }
 
@@ -57,12 +58,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // --- Datas mais clicadas em WhatsApp (pré-reserva) ---
+    // Incluímos o pacote aqui para obter o título
     const topWhatsAppClickedDatesRaw = await prisma.pacoteDate.findMany({
       orderBy: { whatsapp: "desc" },
       take: 8,
       select: {
         saida: true,
         whatsapp: true,
+        pacote: {
+          select: { title: true }
+        }
       },
     });
 

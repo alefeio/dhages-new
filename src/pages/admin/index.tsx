@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import AdminLayout from "components/admin/AdminLayout";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
-import type { PacoteDate, PacoteMidia } from "types";
 
-// Novo tipo de dado para os pacotes no dashboard, alinhado com a resposta da API
+// Tipagem para os dados do pacote no dashboard
 interface PacoteDashboardStats {
     id: string;
     caption: string;
@@ -14,10 +13,11 @@ interface PacoteDashboardStats {
     shared: number;
 }
 
-// Tipo de dado para as datas clicadas
+// Tipo de dado para as datas clicadas, agora com o nome do pacote
 interface WhatsAppDateStats {
     date: string;
     clicks: number;
+    packageName: string;
 }
 
 // Tipagem completa para o estado do dashboard
@@ -52,7 +52,6 @@ export default function AdminDashboard() {
             const res = await fetch("/api/dashboard/pacotes-stats");
             const json = await res.json();
             if (res.ok && json.success) {
-                // A API retorna os dados dentro da chave 'data'
                 setData(json.data);
             } else {
                 setError(json.message || "Erro ao carregar dados do dashboard.");
@@ -70,7 +69,8 @@ export default function AdminDashboard() {
         dataKey: "view" | "like" | "whatsapp" | "shared" | "clicks"
     ) => {
         return dataArray.map(item => ({
-            name: item.caption || item.date || "Sem Título",
+            // Agora combinamos a data e o nome do pacote no "name"
+            name: item.date ? `${item.date} (${item.packageName})` : item.caption,
             [dataKey]: item[dataKey]
         }));
     };
