@@ -1,68 +1,27 @@
 // pages/api/dashboard/pacotes-stats.ts
 import { PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { PacoteMidia, PacoteDate } from "types";
-import { contarVagasOcupadas } from "utils/contarVagasOcupadas";
+import type { PacoteMidia } from "types";
 
 const prisma = new PrismaClient();
 
-// Função para gerar slug único
-function slugify(text: string) {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]+/g, "")
-    .replace(/--+/g, "-")
-    .replace(/-+$/, "");
-}
-
-// Tipo parcial de Pacote usado apenas para fotos
-type PacoteParcial = {
-  id: string;
-  title: string;
-  slug: string;
-  destinoId: string;
-  description: unknown;
-  fotos: PacoteMidia[];
-  dates: (Omit<PacoteDate, "status"> & { status: "disponivel" | "esgotado" | "cancelado" })[];
-};
-
-type PacoteFotoComPacote = PacoteMidia & {
-  pacote?: PacoteParcial;
-};
-
-// Mapear raw do Prisma para PacoteFotoComPacote
-function mapPacoteFoto(raw: any[]): PacoteFotoComPacote[] {
-  return raw.map(f => ({
-    ...f,
-    pacoteId: f.pacoteId, // <--- garante que PacoteFotoComPacote tenha pacoteId
-    pacote: f.pacote
-      ? {
-        ...f.pacote,
-        description: f.pacote.description as unknown,
-        fotos: f.pacote.fotos ?? [],
-        dates: f.pacote.dates.map((d: any) => ({
-          ...d,
-          saida: new Date(d.saida),
-          retorno: new Date(d.retorno),
-          status:
-            d.status === "disponivel" || d.status === "esgotado" || d.status === "cancelado"
-              ? d.status
-              : "disponivel",
-        })) as PacoteDate[],
-      }
-      : undefined,
+// Mapear dados do pacote para o formato do frontend
+function mapPackageStats(packages: any[]) {
+  return packages.map(pkg => ({
+    id: pkg.id,
+    caption: pkg.title,
+    view: pkg.view,
+    like: pkg.like,
+    whatsapp: pkg.whatsapp,
+    shared: pkg.shared,
   }));
 }
 
-// Adicionar slug único para fotos/pacotes
-function addSlug(items: PacoteFotoComPacote[]): PacoteFotoComPacote[] {
-  return items.map(item => ({
-    ...item,
-    caption: item.caption ?? undefined,
-    slug: slugify(`${item.pacote?.title || item.caption || "foto"}-${item.id}`),
+// Mapear dados das datas para o formato do frontend
+function mapDateStats(dates: any[]) {
+  return dates.map(d => ({
+    date: d.saida.toISOString().split('T')[0], // Formato YYYY-MM-DD
+    clicks: d.whatsapp,
   }));
 }
 
@@ -73,62 +32,62 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(405).end(`Método ${req.method} não permitido`);
     }
 
-    // --- Fotos mais curtidas ---
-    const mostLikedRaw = await prisma.pacoteFoto.findMany({
-      orderBy: { like: "desc" },
-      take: 8,
-      include: {
-        pacote: {
-          select: { id: true, title: true, slug: true, description: true, destinoId: true, fotos: true, dates: true },
-        },
-      },
-    });
-    const mostLiked = mapPacoteFoto(mostLikedRaw);
-
-    // --- Fotos mais visualizadas ---
-    const mostViewedRaw = await prisma.pacoteFoto.findMany({
+    // --- Pacotes mais visualizados ---
+    const topViewedPackagesRaw = await prisma.pacote.findMany({
       orderBy: { view: "desc" },
       take: 8,
-      include: {
-        pacote: {
-          select: { id: true, title: true, slug: true, description: true, destinoId: true, fotos: true, dates: true },
-        },
+    });
+
+    // --- Pacotes mais curtidos ---
+    const topLikedPackagesRaw = await prisma.pacote.findMany({
+      orderBy: { like: "desc" },
+      take: 8,
+    });
+
+    // --- Pacotes mais clicados em WhatsApp ---
+    const topWhatsAppClickedPackagesRaw = await prisma.pacote.findMany({
+      orderBy: { whatsapp: "desc" },
+      take: 8,
+    });
+
+    // --- Pacotes mais clicados em Compartilhar ---
+    const topSharedPackagesRaw = await prisma.pacote.findMany({
+      orderBy: { shared: "desc" },
+      take: 8,
+    });
+
+    // --- Datas mais clicadas em WhatsApp (pré-reserva) ---
+    const topWhatsAppClickedDatesRaw = await prisma.pacoteDate.findMany({
+      orderBy: { whatsapp: "desc" },
+      take: 8,
+      select: {
+        saida: true,
+        whatsapp: true,
       },
     });
-    const mostViewed = mapPacoteFoto(mostViewedRaw);
 
-    // --- Todos os pacotes ---
-    const allPackagesRaw = await prisma.pacote.findMany({ include: { dates: true, fotos: true } });
-    const allPackages = allPackagesRaw.map(pkg => ({
-      ...pkg,
-      dates: pkg.dates.map(d => ({
-        ...d,
-        saida: new Date(d.saida),
-        retorno: new Date(d.retorno),
-        status: d.status as "disponivel" | "esgotado" | "cancelado",
-      })),
-    }));
-
-    // Top pacotes por vagas ocupadas
-    const topPackages = allPackages
-      .map(pkg => ({ ...pkg, vagasOcupadas: contarVagasOcupadas(pkg.dates) }))
-      .sort((a, b) => b.vagasOcupadas - a.vagasOcupadas)
-      .slice(0, 5);
-
-    const totalReservations = allPackages.reduce(
-      (sum, pkg) => sum + contarVagasOcupadas(pkg.dates),
-      0
-    );
+    // --- Total de inscritos na newsletter ---
     const totalSubscribers = await prisma.subscriber.count();
+
+    // Mapear dados para a resposta final
+    const topViewedPackages = mapPackageStats(topViewedPackagesRaw);
+    const topLikedPackages = mapPackageStats(topLikedPackagesRaw);
+    const topWhatsAppClickedPackages = mapPackageStats(topWhatsAppClickedPackagesRaw);
+    const topSharedPackages = mapPackageStats(topSharedPackagesRaw);
+    const topWhatsAppClickedDates = mapDateStats(topWhatsAppClickedDatesRaw);
 
     return res.status(200).json({
       success: true,
-      topPackages: addSlug(topPackages.flatMap(pkg => pkg.fotos.map(foto => ({ ...foto, type: 'image' })))),
-      topLikedPackages: addSlug(mostLiked),
-      topViewedPackages: addSlug(mostViewed),
-      totalReservations,
-      totalSubscribers,
+      data: {
+        topViewedPackages,
+        topLikedPackages,
+        topWhatsAppClickedPackages,
+        topSharedPackages,
+        topWhatsAppClickedDates,
+        totalSubscribers,
+      },
     });
+
   } catch (error) {
     console.error("Erro ao buscar estatísticas dos pacotes:", error);
     return res.status(500).json({ success: false, message: "Erro ao buscar estatísticas." });

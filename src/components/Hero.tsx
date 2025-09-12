@@ -84,7 +84,7 @@ export default function Hero() {
 
           <div className="flex flex-col md:flex-row items-center md:gap-12">
             {/* Bloco de Texto Principal */}
-            <div className="w-full flex flex-col justify-center mb-12 md:mb-0 bg-gray-800/80 p-6 rounded-xl shadow-lg md:w-2/3">
+            <div className="w-full flex flex-col justify-center mb-12 md:mb-0 bg-gray-900/80 p-6 rounded-xl shadow-lg md:w-2/3">
               <h3 className="text-2xl text-white md:text-4xl mb-4 font-bold">
                 Nossos ônibus são modernos e projetados para oferecer uma experiência de viagem de primeira classe.
               </h3>

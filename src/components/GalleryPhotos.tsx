@@ -1,4 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import Image from 'next/image';
+import { FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
 // Importe as interfaces de galeria do arquivo correto
 import { Gallery, GalleryPhoto } from '../types/gallery';
 
@@ -9,7 +11,8 @@ interface GalleryPhotosProps {
 
 export default function GalleryPhotos({ gallery }: GalleryPhotosProps) {
     const scrollContainer = useRef<HTMLDivElement>(null);
-    const [modalPhoto, setModalPhoto] = useState<GalleryPhoto | null>(null);
+    // Alterado para armazenar o índice da foto no modal
+    const [modalPhotoIndex, setModalPhotoIndex] = useState<number | null>(null);
 
     // Função para rolar o container horizontalmente
     const scroll = (scrollOffset: number) => {
@@ -18,30 +21,52 @@ export default function GalleryPhotos({ gallery }: GalleryPhotosProps) {
         }
     };
 
-    // Função para abrir o modal de zoom
-    const openModal = (photo: GalleryPhoto) => {
-        setModalPhoto(photo);
+    // Função para abrir o modal de zoom com base no índice da foto
+    const openModal = (index: number) => {
+        setModalPhotoIndex(index);
     };
 
     // Função para fechar o modal de zoom
     const closeModal = () => {
-        setModalPhoto(null);
+        setModalPhotoIndex(null);
     };
+    
+    // Função para navegar para a próxima foto
+    const nextPhoto = useCallback(() => {
+        if (modalPhotoIndex !== null && gallery.photos) {
+            setModalPhotoIndex((prevIndex) => 
+                (prevIndex! + 1) % gallery.photos.length
+            );
+        }
+    }, [modalPhotoIndex, gallery.photos]);
+
+    // Função para navegar para a foto anterior
+    const prevPhoto = useCallback(() => {
+        if (modalPhotoIndex !== null && gallery.photos) {
+            setModalPhotoIndex((prevIndex) =>
+                (prevIndex! - 1 + gallery.photos.length) % gallery.photos.length
+            );
+        }
+    }, [modalPhotoIndex, gallery.photos]);
+
 
     // Verifica se a galeria e as fotos existem antes de renderizar
     if (!gallery || !gallery.photos || gallery.photos.length === 0) {
         return null;
     }
 
+    // Acessa a foto atual no modal usando o índice
+    const currentModalPhoto = modalPhotoIndex !== null ? gallery.photos[modalPhotoIndex] : null;
+
     return (
         <>
-            <section className="mx-auto w-full px-4 py-8">
+            <section className="mx-auto w-full px-4 py-32">
                 <div className="mb-8 text-center">
                     <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 leading-tight text-primary-900 drop-shadow-md">
-                        {gallery.title}
+                        Galeria de Fotos
                     </h2>
                     <p className="text-lg text-neutral-700 max-w-2xl mx-auto">
-                        Confira as fotos da nossa galeria: {gallery.title}.
+                        {gallery.title}
                     </p>
                 </div>
 
@@ -53,18 +78,14 @@ export default function GalleryPhotos({ gallery }: GalleryPhotosProps) {
                             className="p-2 bg-white rounded-full shadow-lg opacity-75 hover:opacity-100 transition-opacity"
                             aria-label="Anterior"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
+                            <FaChevronLeft className="h-6 w-6 text-neutral-800" />
                         </button>
                         <button
                             onClick={() => scroll(400)}
                             className="p-2 bg-white rounded-full shadow-lg opacity-75 hover:opacity-100 transition-opacity"
                             aria-label="Próximo"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
+                            <FaChevronRight className="h-6 w-6 text-neutral-800" />
                         </button>
                     </div>
 
@@ -75,16 +96,19 @@ export default function GalleryPhotos({ gallery }: GalleryPhotosProps) {
                         style={{ scrollBehavior: 'smooth' }}
                     >
                         {/* Mapeia as fotos da galeria para exibição */}
-                        {gallery.photos.map((photo) => (
+                        {gallery.photos.map((photo, index) => (
                             <div
                                 key={photo.id}
-                                className="w-[calc(50%-1rem)] sm:w-[calc(33.333%-1rem)] xl:w-[calc(20%-1rem)] flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-lg cursor-pointer"
-                                onClick={() => openModal(photo)}
+                                // Classes para 5 fotos na horizontal e 3 na vertical em telas menores
+                                className="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.67rem)] lg:w-[calc(20%-0.8rem)] flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-lg cursor-pointer aspect-[4/3] relative"
+                                onClick={() => openModal(index)}
                             >
-                                <img
+                                <Image
                                     src={photo.url}
                                     alt={photo.altText || gallery.title}
-                                    className="w-full h-full object-cover rounded-xl"
+                                    fill={true}
+                                    style={{ objectFit: 'cover' }}
+                                    className="rounded-xl"
                                 />
                             </div>
                         ))}
@@ -93,26 +117,50 @@ export default function GalleryPhotos({ gallery }: GalleryPhotosProps) {
             </section>
 
             {/* Modal de Zoom */}
-            {modalPhoto && (
+            {currentModalPhoto && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4"
                     onClick={closeModal}
                 >
-                    <div className="relative max-w-full md:max-w-4xl w-full h-full p-4" onClick={(e) => e.stopPropagation()}>
+                    <div className="relative w-full max-w-7xl h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                        {/* Botão de fechar */}
                         <button
                             onClick={closeModal}
                             className="absolute top-2 right-2 text-white text-4xl p-2 z-50"
                             aria-label="Fechar"
                         >
-                            &times;
+                           <FaTimes />
                         </button>
+
+                        {/* Botão para foto anterior */}
+                        <button
+                            onClick={prevPhoto}
+                            className="absolute left-2 md:left-4 p-2 bg-white rounded-full shadow-lg opacity-75 hover:opacity-100 transition-opacity z-50"
+                            aria-label="Foto anterior"
+                        >
+                            <FaChevronLeft className="h-6 w-6 text-neutral-800" />
+                        </button>
+                        
+                        {/* Imagem no modal */}
                         <div className="relative w-full h-full flex items-center justify-center">
-                            <img
-                                src={modalPhoto.url}
-                                alt={modalPhoto.altText || gallery.title}
-                                className="w-full h-full object-contain rounded-lg"
+                            <Image
+                                src={currentModalPhoto.url}
+                                alt={currentModalPhoto.altText || gallery.title}
+                                fill={true}
+                                style={{ objectFit: 'contain' }}
+                                className="rounded-lg"
                             />
                         </div>
+
+                        {/* Botão para próxima foto */}
+                        <button
+                            onClick={nextPhoto}
+                            className="absolute right-2 md:right-4 p-2 bg-white rounded-full shadow-lg opacity-75 hover:opacity-100 transition-opacity z-50"
+                            aria-label="Próxima foto"
+                        >
+                            <FaChevronRight className="h-6 w-6 text-neutral-800" />
+                        </button>
+
                     </div>
                 </div>
             )}
