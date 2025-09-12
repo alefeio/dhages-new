@@ -60,7 +60,7 @@ export default function GalleryPhotos({ gallery }: GalleryPhotosProps) {
 
     return (
         <>
-            <section className="mx-auto w-full px-4 py-32">
+            <section id="gallery" className="mx-auto w-full px-4 py-32">
                 <div className="mb-8 text-center">
                     <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 leading-tight text-primary-900 drop-shadow-md">
                         Galeria de Fotos
@@ -70,7 +70,7 @@ export default function GalleryPhotos({ gallery }: GalleryPhotosProps) {
                     </p>
                 </div>
 
-                <div className="relative max-w-7xl mx-auto">
+                <div className="relative w-full mx-auto">
                     {/* Botões de navegação para a rolagem */}
                     <div className="absolute top-1/2 left-0 right-0 z-20 flex justify-between px-4 sm:px-8 -translate-y-1/2">
                         <button

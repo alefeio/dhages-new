@@ -1,253 +1,284 @@
-// src/components/admin/MenuForm.tsx
-
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaEdit } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 
+// Interface para os links do menu
 interface MenuLink {
-  id: string;
-  text: string;
-  url: string;
-  target?: string;
+    id: string;
+    text: string;
+    url: string;
+    target?: string;
 }
 
 export default function MenuForm() {
-  const { data: session, status } = useSession();
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string>("");
-  const [links, setLinks] = useState<MenuLink[]>([]);
-  const [newLinkText, setNewLinkText] = useState("");
-  const [newLinkUrl, setNewLinkUrl] = useState("");
-  const [newLinkTarget, setNewLinkTarget] = useState(false);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+    const { data: session, status } = useSession();
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [logoUrl, setLogoUrl] = useState<string>("");
+    const [links, setLinks] = useState<MenuLink[]>([]);
+    const [newLinkText, setNewLinkText] = useState("");
+    const [newLinkUrl, setNewLinkUrl] = useState("");
+    const [newLinkTarget, setNewLinkTarget] = useState(false);
+    const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchMenu = async () => {
-      // Verifica se a sessão existe e o usuário é ADMIN
-      if (session?.user?.role !== "ADMIN") return;
+    useEffect(() => {
+        const fetchMenu = async () => {
+            if (session?.user?.role !== "ADMIN") return;
 
-      try {
-        const response = await fetch("/api/crud/menu");
-        if (response.ok) {
-          const data = await response.json();
-          if (data) {
-            setLogoUrl(data.logoUrl || "");
-            setLinks(data.links || []);
-          }
+            try {
+                const response = await fetch("/api/crud/menu");
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data) {
+                        setLogoUrl(data.logoUrl || "");
+                        setLinks(data.links || []);
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao buscar dados do menu:", error);
+            }
+        };
+        fetchMenu();
+    }, [session, status]);
+
+    const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setLogoFile(e.target.files[0]);
         }
-      } catch (error) {
-        console.error("Erro ao buscar dados do menu:", error);
-      }
     };
-    fetchMenu();
-  }, [session, status]);
 
-  const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setLogoFile(e.target.files[0]);
-    }
-  };
+    const handleLinkSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (newLinkText && newLinkUrl) {
+            const newLink = {
+                id: editingLinkId || String(Date.now()),
+                text: newLinkText,
+                url: newLinkUrl,
+                target: newLinkTarget ? "_blank" : "_self",
+            };
 
-  const handleLinkAdd = (e: FormEvent) => {
-    e.preventDefault();
-    if (newLinkText && newLinkUrl) {
-      setLinks((prevLinks) => [
-        ...prevLinks,
-        {
-          id: String(Date.now()),
-          text: newLinkText,
-          url: newLinkUrl,
-          target: newLinkTarget ? "_blank" : "_self",
-        },
-      ]);
-      setNewLinkText("");
-      setNewLinkUrl("");
-      setNewLinkTarget(false);
-    }
-  };
+            if (editingLinkId) {
+                // Se estiver editando, atualiza o link existente
+                setLinks((prevLinks) => prevLinks.map((link) => (link.id === editingLinkId ? newLink : link)));
+            } else {
+                // Se não estiver editando, adiciona um novo link
+                setLinks((prevLinks) => [...prevLinks, newLink]);
+            }
+            
+            // Limpa o formulário
+            setNewLinkText("");
+            setNewLinkUrl("");
+            setNewLinkTarget(false);
+            setEditingLinkId(null);
+        }
+    };
 
-  const handleLinkRemove = (idToRemove: string) => {
-    setLinks((prevLinks) => prevLinks.filter((link) => link.id !== idToRemove));
-  };
+    const handleEditLink = (link: MenuLink) => {
+        setEditingLinkId(link.id);
+        setNewLinkText(link.text);
+        setNewLinkUrl(link.url);
+        setNewLinkTarget(link.target === "_blank");
+    };
 
-  const handleSave = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+    const handleCancelEdit = () => {
+        setEditingLinkId(null);
+        setNewLinkText("");
+        setNewLinkUrl("");
+        setNewLinkTarget(false);
+    };
 
-    // A requisição de upload não precisa de autenticação se a API for configurada para isso
-    let uploadedLogoUrl = logoUrl;
-    if (logoFile) {
-      const formData = new FormData();
-      formData.append("file", logoFile);
-      formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "");
+    const handleLinkRemove = (idToRemove: string) => {
+        setLinks((prevLinks) => prevLinks.filter((link) => link.id !== idToRemove));
+    };
 
-      try {
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+    const handleSave = async (e: FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setMessage("");
 
-        if (!response.ok) {
-          throw new Error("Erro no upload da logomarca.");
+        let uploadedLogoUrl = logoUrl;
+        if (logoFile) {
+            const formData = new FormData();
+            formData.append("file", logoFile);
+            formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "");
+
+            try {
+                const response = await fetch("/api/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erro no upload da logomarca.");
+                }
+
+                const data = await response.json();
+                uploadedLogoUrl = data.url;
+            } catch (error) {
+                console.error(error);
+                setMessage("Erro ao fazer upload da logomarca.");
+                setLoading(false);
+                return;
+            }
         }
 
-        const data = await response.json();
-        uploadedLogoUrl = data.url;
-      } catch (error) {
-        console.error(error);
-        setMessage("Erro ao fazer upload da logomarca.");
-        setLoading(false);
-        return;
-      }
-    }
+        try {
+            const response = await fetch("/api/crud/menu", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ logoUrl: uploadedLogoUrl, links }),
+            });
 
-    try {
-      // if (!session || session.user?.role !== 'ADMIN') {
-      //   setMessage("Acesso não autorizado.");
-      //   setLoading(false);
-      //   return;
-      // }
+            if (!response.ok) {
+                throw new Error("Erro ao salvar o menu.");
+            }
 
-      const response = await fetch("/api/crud/menu", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ logoUrl: uploadedLogoUrl, links }),
-      });
+            setMessage("Menu salvo com sucesso!");
+        } catch (error) {
+            console.error(error);
+            setMessage("Erro ao salvar o menu.");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const isButtonDisabled = !session || session.user?.role !== "ADMIN" || loading;
+    if (status === 'loading') return <p className="text-gray-700 dark:text-gray-300">Carregando...</p>;
 
-      if (!response.ok) {
-        throw new Error("Erro ao salvar o menu.");
-      }
+    return (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md max-w-2xl mx-auto my-8">
+            {message && (
+                <p className={`mb-4 text-center ${message.includes("sucesso") ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                    {message}
+                </p>
+            )}
 
-      setMessage("Menu salvo com sucesso!");
-    } catch (error) {
-      console.error(error);
-      setMessage("Erro ao salvar o menu.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const isButtonDisabled = !session || session.user?.role !== "ADMIN" || loading;
-  if (status === 'loading') return <p>Carregando...</p>;
-  // if (session?.user?.role !== 'ADMIN') return <p>Acesso não autorizado.</p>;
-
-  return (
-    <div>
-      {message && (
-        <p className={`mb-4 text-center ${message.includes("sucesso") ? "text-green-600" : "text-red-600"}`}>
-          {message}
-        </p>
-      )}
-
-      {/* Seção da Logomarca */}
-      <div className="mb-6">
-        <h3 className="text-xl font-bold mb-2 text-gray-700 dark:text-gray-400">Logomarca</h3>
-        <label className="block font-bold mb-2 text-gray-700 dark:text-gray-400">
-          Imagem da Logomarca
-        </label>
-        <input
-          type="file"
-          onChange={handleLogoChange}
-          className="w-full dark:bg-gray-600 dark:text-gray-200 dark:placeholder-gray-400 text-gray-700 bg-white border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
-        />
-        {logoUrl && (
-          <div className="mt-4">
-            <p className="text-gray-600 text-gray-700 dark:text-gray-400">Logomarca atual:</p>
-            <img src={logoUrl} alt="Logomarca atual" className="h-16 w-auto mt-2" />
-          </div>
-        )}
-      </div>
-
-      {/* Seção de Links do Menu */}
-      <div className="mb-6">
-        <h3 className="text-xl font-bold mb-2 text-gray-700 dark:text-gray-400">Links do Menu</h3>
-        <div className="space-y-4 mb-4">
-          <form onSubmit={handleLinkAdd} className="p-4 border rounded-md">
-            <div className="mb-2">
-              <label htmlFor="link-text" className="block font-bold mb-1 text-gray-700 dark:text-gray-400">
-                Texto do Link
-              </label>
-              <input
-                id="link-text"
-                type="text"
-                value={newLinkText}
-                onChange={(e) => setNewLinkText(e.target.value)}
-                className="w-full dark:bg-gray-600 dark:text-gray-200 dark:placeholder-gray-400 p-2 border border-gray-300 rounded-md"
-                placeholder="Ex: Sobre Nós"
-              />
-            </div>
-            <div className="mb-2">
-              <label htmlFor="link-url" className="block font-bold mb-1 text-gray-700 dark:text-gray-400">
-                URL do Link
-              </label>
-              <input
-                id="link-url"
-                type="text"
-                value={newLinkUrl}
-                onChange={(e) => setNewLinkUrl(e.target.value)}
-                className="w-full dark:bg-gray-600 dark:text-gray-200 dark:placeholder-gray-400 p-2 border border-gray-300 rounded-md"
-                placeholder="Ex: /#sobre"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="flex items-center text-gray-700 font-bold">
+            {/* Seção da Logomarca */}
+            <div className="mb-6">
+                <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">Logomarca</h3>
+                <label className="block font-bold mb-2 text-gray-700 dark:text-gray-300">
+                    Imagem da Logomarca
+                </label>
                 <input
-                  type="checkbox"
-                  checked={newLinkTarget}
-                  onChange={(e) => setNewLinkTarget(e.target.checked)}
-                  className="mr-2"
+                    type="file"
+                    onChange={handleLogoChange}
+                    className="w-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
                 />
-                Abrir em nova aba?
-              </label>
+                {logoUrl && (
+                    <div className="mt-4">
+                        <p className="text-gray-600 dark:text-gray-400">Logomarca atual:</p>
+                        <img src={logoUrl} alt="Logomarca atual" className="h-16 w-auto mt-2 rounded-md" />
+                    </div>
+                )}
             </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-600 transition-colors"
-            >
-              Adicionar Link
-            </button>
-          </form>
-        </div>
 
-        {links.length > 0 && (
-          <ul className="space-y-2">
-            {links.map((link) => (
-              <li
-                key={link.id}
-                className="flex items-center justify-between p-3 border rounded-md bg-gray-50 dark:bg-gray-700"
-              >
-                <div>
-                  <p className="font-semibold text-gray-700 dark:text-gray-400">{link.text}</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-400">{link.url}</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-400">Abre em: {link.target === "_blank" ? "Nova aba" : "Mesma aba"}</p>
+            {/* Seção de Links do Menu */}
+            <div className="mb-6">
+                <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">Links do Menu</h3>
+                <div className="space-y-4 mb-4">
+                    <form onSubmit={handleLinkSubmit} className="p-4 border border-gray-300 dark:border-gray-600 rounded-md">
+                        <div className="mb-2">
+                            <label htmlFor="link-text" className="block font-bold mb-1 text-gray-700 dark:text-gray-300">
+                                Texto do Link
+                            </label>
+                            <input
+                                id="link-text"
+                                type="text"
+                                value={newLinkText}
+                                onChange={(e) => setNewLinkText(e.target.value)}
+                                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                                placeholder="Ex: Sobre Nós"
+                            />
+                        </div>
+                        <div className="mb-2">
+                            <label htmlFor="link-url" className="block font-bold mb-1 text-gray-700 dark:text-gray-300">
+                                URL do Link
+                            </label>
+                            <input
+                                id="link-url"
+                                type="text"
+                                value={newLinkUrl}
+                                onChange={(e) => setNewLinkUrl(e.target.value)}
+                                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                                placeholder="Ex: /#sobre"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="flex items-center text-gray-700 dark:text-gray-300 font-bold">
+                                <input
+                                    type="checkbox"
+                                    checked={newLinkTarget}
+                                    onChange={(e) => setNewLinkTarget(e.target.checked)}
+                                    className="mr-2 rounded-sm text-blue-600 focus:ring-blue-500"
+                                />
+                                Abrir em nova aba?
+                            </label>
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full bg-blue-600 dark:bg-blue-700 text-white p-2 rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors"
+                        >
+                            {editingLinkId ? "Atualizar Link" : "Adicionar Link"}
+                        </button>
+                        {editingLinkId && (
+                            <button
+                                type="button"
+                                onClick={handleCancelEdit}
+                                className="w-full mt-2 bg-gray-400 dark:bg-gray-600 text-gray-800 dark:text-gray-200 p-2 rounded-md hover:bg-gray-500 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                Cancelar Edição
+                            </button>
+                        )}
+                    </form>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleLinkRemove(link.id)}
-                  className="p-2 text-red-500 hover:bg-red-100 rounded-full"
-                  aria-label={`Remover link ${link.text}`}
-                >
-                  <FaTrash />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
 
-      <button
-        type="button"
-        onClick={handleSave}
-        className={`w-full p-3 text-white font-bold rounded-md ${isButtonDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
-          }`}
-        disabled={isButtonDisabled}
-      >
-        {loading ? "Salvando..." : "Salvar Menu"}
-      </button>
-    </div>
-  );
+                {links.length > 0 && (
+                    <ul className="space-y-2">
+                        {links.map((link) => (
+                            <li
+                                key={link.id}
+                                className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700"
+                            >
+                                <div>
+                                    <p className="font-semibold text-gray-800 dark:text-gray-200">{link.text}</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">{link.url}</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">Abre em: {link.target === "_blank" ? "Nova aba" : "Mesma aba"}</p>
+                                </div>
+                                <div className="flex space-x-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleEditLink(link)}
+                                        className="p-2 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-full transition-colors"
+                                        aria-label={`Editar link ${link.text}`}
+                                    >
+                                        <FaEdit />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleLinkRemove(link.id)}
+                                        className="p-2 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 rounded-full transition-colors"
+                                        aria-label={`Remover link ${link.text}`}
+                                    >
+                                        <FaTrash />
+                                    </button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+
+            <button
+                type="button"
+                onClick={handleSave}
+                className={`w-full p-3 text-white font-bold rounded-md ${isButtonDisabled ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed" : "bg-green-500 dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-700"}`}
+                disabled={isButtonDisabled}
+            >
+                {loading ? "Salvando..." : "Salvar Menu"}
+            </button>
+        </div>
+    );
 }
