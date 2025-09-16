@@ -131,7 +131,7 @@ export default function Home({ banners, menu, testimonials, faqs, destinos, gall
         <>
             <Head>
                 {/* Google Analytics tag (gtag.js) */}
-                <Script async src="https://www.googletagmanager.com/gtag/js?id=G-9MF40MDMXN" strategy="afterInteractive" />
+                {/* <Script async src="https://www.googletagmanager.com/gtag/js?id=G-9MF40MDMXN" strategy="afterInteractive" />
                 <Script id="google-analytics" strategy="afterInteractive">
                     {`
                         window.dataLayer = window.dataLayer || [];
@@ -139,7 +139,7 @@ export default function Home({ banners, menu, testimonials, faqs, destinos, gall
                         gtag('js', new Date());
                         gtag('config', 'G-9MF40MDMXN');
                     `}
-                </Script>
+                </Script> */}
                 <title>D' Hages Turismo | Agência de Viagens em Belém - Pacotes e Destinos</title>
                 <meta
                     name="description"
