@@ -133,11 +133,11 @@ export default function Home({ banners, menu, testimonials, faqs, destinos, gall
                 <title>D' Hages Turismo | Agência de Viagens em Belém - Pacotes e Destinos</title>
                 <meta
                     name="description"
-                    content="Descubra os melhores pacotes de viagens e destinos com a D' Hages Turismo em Belém. Aventuras memoráveis, atendimento personalizado e as melhores ofertas para sua próxima viagem."
+                    content="Descubra os melhores pacotes de viagens e destinos com a D' Hages Turismo em Belém. Aventuras memoráveis, atendimento personalizado e as melhores ofertas para sua próxima viagem. Viaje com a D' Hages Turismo para Salinas, Lençóis Maranhenses, Carolina-MA, São Luís, Fortaleza, Jericoacoara, Marajó, Ajuruteua, Algodoal, Nordeste e muito mais!"
                 />
                 <meta
                     name="keywords"
-                    content="D' Hages Turismo, viagens, pacotes de viagens, Belém, Pará, destinos turísticos, agência de viagens, excursões, aventura, turismo"
+                    content="D' Hages Turismo, viagens, pacotes de viagens, Belém, Pará, destinos turísticos, agência de viagens, excursões, aventura, turismo, agência turismo Belém, agencia turismo belem, agencia de viagens belem, agencia de viagens em belem, agencia de turismo em belem, pacotes de viagens belem, pacotes de viagens em belem, destinos turísticos belem, destinos turísticos em belem"
                 />
                 <link rel="canonical" href="https://seusite.com/" />
                 <meta name="robots" content="index, follow" />
@@ -191,6 +191,16 @@ export default function Home({ banners, menu, testimonials, faqs, destinos, gall
                     }
                     `}
                 </script>
+                {/* Google tag (gtag.js) */}
+                <Script async src="https://www.googletagmanager.com/gtag/js?id=AW-16741033488" strategy="afterInteractive" />
+                <Script id="google-analytics" strategy="afterInteractive">
+                    {`
+                        window.dataLayer = window.dataLayer || [];
+                        function gtag(){dataLayer.push(arguments);}
+                        gtag('js', new Date());
+                        gtag('config', 'AW-16741033488');
+                    `}
+                </Script>
             </Head>
 
             <div className="min-h-screen">
