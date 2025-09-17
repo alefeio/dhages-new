@@ -297,7 +297,8 @@ export default function AdminDestinos() {
                     price: date.price || 0,
                     price_card: date.price_card || 0,
                     status: date.status || "disponivel",
-                    notes: date.notes || ""
+                    notes: date.notes || "",
+                    whatsapp: (date as any).whatsapp || ""
                 }))
             }))
         });
