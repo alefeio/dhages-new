@@ -592,7 +592,6 @@ export default function AdminDestinos() {
                                             <div key={pacote.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm flex flex-col md:flex-row gap-4 items-center mb-2">
                                                 <div className="flex-1">
                                                     <h5 className="font-semibold text-gray-800 dark:text-gray-400">{pacote.title}</h5>
-                                                    <p className="text-sm text-gray-500">Slug: {pacote.slug}</p>
                                                 </div>
                                                 <button onClick={() => handleDelete(pacote.id as string, true)} className="bg-red-400 text-white p-2 rounded-lg text-sm hover:bg-red-500 transition duration-200">Excluir Pacote</button>
                                             </div>
