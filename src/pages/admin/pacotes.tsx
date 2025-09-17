@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
 import { MdAdd, MdAddPhotoAlternate, MdDelete, MdEdit, MdCalendarMonth } from 'react-icons/md';
+// Importe as novas tags de collapse
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import AdminLayout from "components/admin/AdminLayout";
 import { slugify } from "utils/slugify";
 import dynamic from "next/dynamic";
@@ -35,7 +37,6 @@ interface Pacote {
     id?: string;
     title: string;
     subtitle: string;
-    slug?: string;
     // Descrição do Pacote é um objeto { html: string } na API, mas string no form state
     description: { html: string };
     fotos: PacoteFoto[];
@@ -106,6 +107,10 @@ export default function AdminDestinos() {
             }],
         }],
     });
+    // NOVO ESTADO: para controlar qual pacote está aberto no formulário
+    const [openPacotes, setOpenPacotes] = useState<Record<string, boolean>>({});
+    // NOVO ESTADO: para controlar qual destino está aberto na lista de destinos
+    const [openDestinos, setOpenDestinos] = useState<Record<string, boolean>>({});
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -156,6 +161,8 @@ export default function AdminDestinos() {
                 }],
             }],
         });
+        // Resetar o estado de collapse ao limpar o formulário
+        setOpenPacotes({});
     };
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -399,6 +406,22 @@ export default function AdminDestinos() {
         }
     };
 
+    // NOVO: Função para alternar o estado de collapse de um pacote
+    const togglePacote = (index: number) => {
+        setOpenPacotes(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
+    };
+
+    // NOVO: Função para alternar o estado de collapse de um destino
+    const toggleDestino = (id: string) => {
+        setOpenDestinos(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
     return (
         <>
             <Head>
@@ -429,80 +452,90 @@ export default function AdminDestinos() {
                         <h3 className="text-xl font-bold mt-6 text-gray-700 dark:text-gray-400">Pacotes do Destino</h3>
                         {form.pacotes.map((pacote, pacoteIndex) => (
                             <div key={pacote.id || pacoteIndex} className="p-6 border border-dashed border-gray-400 rounded-xl relative mb-8">
-                                <button type="button" onClick={() => handleRemovePacote(pacoteIndex)} className="absolute top-2 right-2 text-red-500 hover:text-red-700 transition duration-200">
-                                    <MdDelete size={24} />
-                                </button>
-
-                                <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-400 mb-4">Pacote #{pacoteIndex + 1}</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <input type="text" name="title" value={pacote.title} onChange={(e) => handlePacoteChange(e, pacoteIndex)} placeholder="Título do Pacote" required className="p-3 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                    <input type="text" name="subtitle" value={pacote.subtitle} onChange={(e) => handlePacoteChange(e, pacoteIndex)} placeholder="Subtítulo do Pacote" className="p-3 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                    <label className="block text-gray-700 dark:text-gray-400 font-semibold mt-4 col-span-2">Descrição do Pacote:</label>
+                                {/* NOVO: Botão para abrir/fechar e título do pacote */}
+                                <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => togglePacote(pacoteIndex)}>
+                                    <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-400">Pacote #{pacoteIndex + 1}: {pacote.title || "Novo Pacote"}</h4>
+                                    <div className="flex items-center gap-2">
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); handleRemovePacote(pacoteIndex); }} className="text-red-500 hover:text-red-700 transition duration-200">
+                                            <MdDelete size={24} />
+                                        </button>
+                                        {openPacotes[pacoteIndex] ? <IoIosArrowUp size={24} /> : <IoIosArrowDown size={24} />}
+                                    </div>
                                 </div>
-                                <RichTextEditor value={pacote.description} onChange={(value) => handlePacoteDescriptionChange(value, pacoteIndex)} placeholder="Descrição rica do pacote" />
+                                
+                                {/* NOVO: Conteúdo do pacote em collapse */}
+                                {openPacotes[pacoteIndex] && (
+                                    <>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <input type="text" name="title" value={pacote.title} onChange={(e) => handlePacoteChange(e, pacoteIndex)} placeholder="Título do Pacote" required className="p-3 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                            <input type="text" name="subtitle" value={pacote.subtitle} onChange={(e) => handlePacoteChange(e, pacoteIndex)} placeholder="Subtítulo do Pacote" className="p-3 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                            <label className="block text-gray-700 dark:text-gray-400 font-semibold mt-4 col-span-2">Descrição do Pacote:</label>
+                                        </div>
+                                        <RichTextEditor value={pacote.description} onChange={(value) => handlePacoteDescriptionChange(value, pacoteIndex)} placeholder="Descrição rica do pacote" />
 
-                                {/* Seção de Fotos */}
-                                <h5 className="text-md font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-400">Fotos</h5>
-                                {pacote.fotos.map((foto, fotoIndex) => (
-                                    <div key={foto.id || fotoIndex} className="flex gap-4 items-center mb-2">
-                                        <button type="button" onClick={() => handleRemoveFoto(pacoteIndex, fotoIndex)} className="text-red-500 hover:text-red-700">
-                                            <MdDelete size={20} />
+                                        {/* Seção de Fotos */}
+                                        <h5 className="text-md font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-400">Fotos</h5>
+                                        {pacote.fotos.map((foto, fotoIndex) => (
+                                            <div key={foto.id || fotoIndex} className="flex gap-4 items-center mb-2">
+                                                <button type="button" onClick={() => handleRemoveFoto(pacoteIndex, fotoIndex)} className="text-red-500 hover:text-red-700">
+                                                    <MdDelete size={20} />
+                                                </button>
+                                                {typeof foto.url === 'string' && foto.url && (
+                                                    <img src={foto.url} alt="Visualização" className="w-16 h-16 object-cover rounded-lg" />
+                                                )}
+                                                <input type="text" name="caption" value={foto.caption} onChange={(e) => handleFotoChange(e, pacoteIndex, fotoIndex)} placeholder="Legenda da foto" className="flex-1 p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                                <label htmlFor={`foto-${pacoteIndex}-${fotoIndex}`} className="cursor-pointer text-blue-500 hover:text-blue-700">
+                                                    <MdAddPhotoAlternate size={24} />
+                                                </label>
+                                                <input type="file" name="url" id={`foto-${pacoteIndex}-${fotoIndex}`} onChange={(e) => handleFotoChange(e, pacoteIndex, fotoIndex)} required={!foto.url || foto.url instanceof File} className="hidden" />
+                                            </div>
+                                        ))}
+                                        <button type="button" onClick={() => handleAddFoto(pacoteIndex)} className="mt-2 text-blue-500 flex items-center gap-1 hover:text-blue-700">
+                                            <MdAdd size={20} /> Adicionar Foto
                                         </button>
-                                        {typeof foto.url === 'string' && foto.url && (
-                                            <img src={foto.url} alt="Visualização" className="w-16 h-16 object-cover rounded-lg" />
-                                        )}
-                                        <input type="text" name="caption" value={foto.caption} onChange={(e) => handleFotoChange(e, pacoteIndex, fotoIndex)} placeholder="Legenda da foto" className="flex-1 p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        <label htmlFor={`foto-${pacoteIndex}-${fotoIndex}`} className="cursor-pointer text-blue-500 hover:text-blue-700">
-                                            <MdAddPhotoAlternate size={24} />
-                                        </label>
-                                        <input type="file" name="url" id={`foto-${pacoteIndex}-${fotoIndex}`} onChange={(e) => handleFotoChange(e, pacoteIndex, fotoIndex)} required={!foto.url || foto.url instanceof File} className="hidden" />
-                                    </div>
-                                ))}
-                                <button type="button" onClick={() => handleAddFoto(pacoteIndex)} className="mt-2 text-blue-500 flex items-center gap-1 hover:text-blue-700">
-                                    <MdAdd size={20} /> Adicionar Foto
-                                </button>
 
-                                {/* Seção de Datas */}
-                                <h5 className="text-md font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-400">Datas de Saída</h5>
-                                {pacote.dates.map((date, dateIndex) => (
-                                    <div key={date.id || dateIndex} className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-gray-300 rounded-lg mb-2 relative">
-                                        <button type="button" onClick={() => handleRemoveDate(pacoteIndex, dateIndex)} className="absolute top-2 right-2 text-red-500 hover:text-red-700">
-                                            <MdDelete size={20} />
+                                        {/* Seção de Datas */}
+                                        <h5 className="text-md font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-400">Datas de Saída</h5>
+                                        {pacote.dates.map((date, dateIndex) => (
+                                            <div key={date.id || dateIndex} className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-gray-300 rounded-lg mb-2 relative">
+                                                <button type="button" onClick={() => handleRemoveDate(pacoteIndex, dateIndex)} className="absolute top-2 right-2 text-red-500 hover:text-red-700">
+                                                    <MdDelete size={20} />
+                                                </button>
+                                                <label className="col-span-1">
+                                                    Saída:
+                                                    <input type="datetime-local" name="saida" value={date.saida} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                                </label>
+                                                <label className="col-span-1">
+                                                    Retorno:
+                                                    <input type="datetime-local" name="retorno" value={date.retorno} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                                </label>
+                                                <label className="col-span-1">
+                                                    Preço à Vista:
+                                                    <input type="number" name="price" value={date.price} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                                </label>
+                                                <label className="col-span-1">
+                                                    Preço a Prazo:
+                                                    <input type="number" name="price_card" value={date.price_card} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                                </label>
+                                                <label className="col-span-1">
+                                                    Status:
+                                                    <select name="status" value={date.status} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg">
+                                                        <option value="disponivel">Disponível</option>
+                                                        <option value="esgotado">Esgotado</option>
+                                                        <option value="cancelado">Cancelado</option>
+                                                    </select>
+                                                </label>
+                                                <label className="col-span-2">
+                                                    Observações:
+                                                    <input type="text" name="notes" value={date.notes} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
+                                                </label>
+                                            </div>
+                                        ))}
+                                        <button type="button" onClick={() => handleAddDate(pacoteIndex)} className="mt-2 text-blue-500 flex items-center gap-1 hover:text-blue-700">
+                                            <MdCalendarMonth size={20} /> Adicionar Data
                                         </button>
-                                        <label className="col-span-1">
-                                            Saída:
-                                            <input type="datetime-local" name="saida" value={date.saida} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        </label>
-                                        <label className="col-span-1">
-                                            Retorno:
-                                            <input type="datetime-local" name="retorno" value={date.retorno} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        </label>
-                                        {/* Campos "Vagas Totais" e "Vagas Disponíveis" foram removidos */}
-                                        <label className="col-span-1">
-                                            Preço à Vista:
-                                            <input type="number" name="price" value={date.price} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        </label>
-                                        <label className="col-span-1">
-                                            Preço a Prazo:
-                                            <input type="number" name="price_card" value={date.price_card} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} required className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        </label>
-                                        <label className="col-span-1">
-                                            Status:
-                                            <select name="status" value={date.status} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg">
-                                                <option value="disponivel">Disponível</option>
-                                                <option value="esgotado">Esgotado</option>
-                                                <option value="cancelado">Cancelado</option>
-                                            </select>
-                                        </label>
-                                        <label className="col-span-2">
-                                            Observações:
-                                            <input type="text" name="notes" value={date.notes} onChange={(e) => handleDateChange(e, pacoteIndex, dateIndex)} className="mt-1 p-2 w-full dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-                                        </label>
-                                    </div>
-                                ))}
-                                <button type="button" onClick={() => handleAddDate(pacoteIndex)} className="mt-2 text-blue-500 flex items-center gap-1 hover:text-blue-700">
-                                    <MdCalendarMonth size={20} /> Adicionar Data
-                                </button>
+                                    </>
+                                )}
                             </div>
                         ))}
                         <button type="button" onClick={handleAddPacote} className="bg-gray-200 text-gray-800 p-3 rounded-lg mt-2 flex items-center justify-center gap-2 font-semibold hover:bg-gray-300 transition duration-200">
@@ -533,21 +566,26 @@ export default function AdminDestinos() {
                     ) : (
                         destinos.map((destino) => (
                             <div key={destino.id} className="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl shadow-sm mb-4">
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                                {/* NOVO: Cabeçalho do Destino com botão de collapse */}
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 cursor-pointer" onClick={() => toggleDestino(destino.id)}>
                                     <div className="flex-1">
                                         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-400">{destino.title}</h3>
                                         <p className="text-sm text-gray-500">{destino.subtitle}</p>
                                     </div>
                                     <div className="flex gap-2 mt-4 md:mt-0">
-                                        <button onClick={() => handleEdit(destino)} className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-600 transition duration-200">
+                                        <button onClick={(e) => { e.stopPropagation(); handleEdit(destino); }} className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-600 transition duration-200">
                                             <MdEdit size={20} className="text-white" />
                                         </button>
-                                        <button onClick={() => handleDelete(destino.id)} className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-600 transition duration-200">
+                                        <button onClick={(e) => { e.stopPropagation(); handleDelete(destino.id); }} className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-600 transition duration-200">
                                             <MdDelete size={20} className="text-white" />
                                         </button>
+                                        <div className="p-2">
+                                            {openDestinos[destino.id] ? <IoIosArrowUp size={24} /> : <IoIosArrowDown size={24} />}
+                                        </div>
                                     </div>
                                 </div>
-                                {destino.pacotes.length > 0 && (
+                                {/* NOVO: Conteúdo dos pacotes em collapse */}
+                                {openDestinos[destino.id] && destino.pacotes.length > 0 && (
                                     <div className="mt-4 border-t border-gray-200 pt-4">
                                         <h4 className="text-lg font-bold mb-2 text-gray-700 dark:text-gray-400">Pacotes:</h4>
                                         {destino.pacotes.map((pacote) => (
