@@ -298,7 +298,6 @@ export default function AdminDestinos() {
                     price_card: date.price_card || 0,
                     status: date.status || "disponivel",
                     notes: date.notes || "",
-                    whatsapp: (date as any).whatsapp || ""
                 }))
             }))
         });
