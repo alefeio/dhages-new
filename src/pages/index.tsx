@@ -5,7 +5,7 @@ import Script from 'next/script';
 import HeroSlider from '../components/HeroSlider';
 import WhatsAppButton from '../components/WhatsAppButton';
 import PacotesGallery from '../components/PacotesGallery';
-import GalleryPhotos from '../components/GalleryPhotos';
+import GalleryPhotos from '../components/GalleryPhotos'; // Importação do componente de galeria
 import Testimonials from '../components/Testimonials';
 import FAQ from '../components/FAQ';
 import LocationMap from '../components/LocationMap';
@@ -14,6 +14,7 @@ import { Menu as MenuComponent } from 'components/Menu';
 import Hero from 'components/Hero';
 import { Analytics } from "@vercel/analytics/next";
 import { HomePageProps, Destino } from '../types/index';
+// Importe a interface de galeria do arquivo correto
 import { Gallery } from '../types/gallery';
 import PromotionsForm from 'components/PromotionsForm';
 import { useState, useEffect } from 'react';
@@ -129,17 +130,18 @@ export default function Home({ banners, menu, testimonials, faqs, destinos, gall
     return (
         <>
             <Head>
-                {/* Google Analytics & Ads Tags */}
-                <Script async src="https://www.googletagmanager.com/gtag/js?id=G-9MF40MDMXN" strategy="afterInteractive" />
-                <Script id="google-analytics-ads" strategy="afterInteractive">
-                    {`
-                        window.dataLayer = window.dataLayer || [];
-                        function gtag(){dataLayer.push(arguments);}
-                        gtag('js', new Date());
-                        gtag('config', 'G-9MF40MDMXN');
-                        gtag('config', 'AW-16741033488');
-                    `}
-                </Script>
+                {/* Google Tag Manager */}
+                <Script
+                    id="gtm-script"
+                    strategy="afterInteractive"
+                    dangerouslySetInnerHTML={{
+                        __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                        })(window,document,'script','dataLayer','GTM-TZDNZCCL');`
+                    }}
+                />
                 
                 <title>D' Hages Turismo | Agência de Viagens em Belém - Pacotes e Destinos</title>
                 <meta
@@ -203,6 +205,16 @@ export default function Home({ banners, menu, testimonials, faqs, destinos, gall
                     `}
                 </script>
             </Head>
+
+            {/* Google Tag Manager (noscript) */}
+            <noscript>
+                <iframe
+                    src="https://www.googletagmanager.com/ns.html?id=GTM-TZDNZCCL"
+                    height="0"
+                    width="0"
+                    style={{ display: 'none', visibility: 'hidden' }}
+                ></iframe>
+            </noscript>
 
             <div className="min-h-screen">
                 <Analytics />
