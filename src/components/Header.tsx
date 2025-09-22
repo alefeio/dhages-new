@@ -49,12 +49,12 @@ export default function AboutSection() {
                     <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6 leading-tight text-primary-900 drop-shadow-md">
                         Explore o Brasil com a D'Hages Turismo
                     </h2>
-                    {/* <p className="py-6 text-neutral-700 max-w-2xl mx-auto text-lg">
-                        Desde 2015, a D’Hages Turismo é sua agência de viagens em Belém, PA, especializada em excursões por todo o Brasil. Nosso foco é em viagens econômicas e rápidas, sempre com o máximo de conforto e segurança.
-                    </p> */}
                     <p className="py-6 text-neutral-700 max-w-2xl mx-auto text-lg">
-                        Descubra os melhores pacotes de viagem com a D'Hages Turismo em Belém/PA. Excursões para Ajuruteua, Salinas, Marajó, Lençóis Maranhenses, Fortaleza, Jericoacoara, São Luís, Serra Gaúcha e mais. Viagens econômicas com segurança e conforto.
+                        Desde 2015, a D’Hages Turismo é sua agência de viagens em Belém, PA, especializada em excursões por todo o Brasil. Nosso foco é em viagens econômicas e rápidas, sempre com o máximo de conforto e segurança.
                     </p>
+                    {/* <p className="py-6 text-neutral-700 max-w-2xl mx-auto text-lg">
+                        Descubra os melhores pacotes de viagem com a D'Hages Turismo em Belém/PA. Excursões para Ajuruteua, Salinas, Marajó, Lençóis Maranhenses, Fortaleza, Jericoacoara, São Luís, Serra Gaúcha e mais. Viagens econômicas com segurança e conforto.
+                    </p> */}
                 </div>
 
                 {/* Container de Conteúdo em Duas Colunas */}
