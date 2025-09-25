@@ -54,7 +54,7 @@ export const PacoteDate = ({ pacoteId, date, shareUrl, formatPrice, pacote }: Pa
                 rel="noopener noreferrer"
                 className="mt-4 flex items-center justify-center gap-2 text-white bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-full transition-colors"
             >
-                <FaWhatsapp size={18} /> Mais Informações
+                <FaWhatsapp size={18} className='text-white' /> Mais Informações
             </a>
         </div>
     );
