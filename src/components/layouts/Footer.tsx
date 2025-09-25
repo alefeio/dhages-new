@@ -12,9 +12,7 @@ const Footer = () => {
           <div className="mb-4 md:mb-0">
             <h3 className="text-lg font-semibold mb-2">D' Hages Turismo</h3>
             <p className="text-sm text-gray-400">
-              Tv. Mauriti, 479 - Pedreira, Belém - PA
-              <br />
-              Belém - PA, 66087-740
+              Av. Senador Lemos, 3153, lojas 30/31 - 1º piso, It Center - Sacramenta - Belém/PA
             </p>
           </div>
 

@@ -93,7 +93,7 @@ const Footer = ({ menuData }: MenuProps) => {
                                 </a>
                             </p> */}
                                 <address className="not-italic">
-                                    Tv. Mauriti, 479 - Pedreira, Belém - PA, 66087-740
+                                    Av. Senador Lemos, 3153, lojas 30/31 - 1º piso, It Center - Sacramenta - Belém/PA
                                 </address>
                             </div>
                             <h4 className="font-bold text-white text-lg mt-6 mb-2">Siga-nos</h4>

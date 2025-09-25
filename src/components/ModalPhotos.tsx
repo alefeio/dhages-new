@@ -266,7 +266,7 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
 
                                 <h3 className="text-lg font-semibold text-primary-800 mt-4 mb-2">INFORMAÇÕES E RESERVAS:</h3>
                                 <div className="text-sm text-neutral-700">
-                                    <p><strong>D’ HAGES TURISMO</strong> - Trav. Mauriti, 479 (entre Rua Nova e Senador Lemos) Belém – Pará – Brasil - CEP: 66083-000</p>
+                                    <p><strong>D’ HAGES TURISMO</strong> - Av. Senador Lemos, 3153, lojas 30/31 - 1º piso, It Center - Sacramenta - Belém/PA</p>
                                     <p>E-mail: <a href="mailto:dhagesturismo@gmail.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">dhagesturismo@gmail.com</a></p>
                                     <p><a href="https://facebook.com/dhagesturismo" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">facebook.com/dhagesturismo</a></p>
                                     <p>Instagram: <a href="https://www.instagram.com/dhages_turismo" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@dhages_turismo</a></p>

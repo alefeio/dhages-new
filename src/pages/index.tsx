@@ -173,10 +173,10 @@ export default function Home({ banners, menu, testimonials, faqs, destinos, gall
                       "description": "Sua agência de viagens em Belém, Pará. Especializada em pacotes turísticos e destinos memoráveis.",
                       "address": {
                         "@type": "PostalAddress",
-                        "streetAddress": "Trav. Mauriti, 479",
+                        "streetAddress": "Av. Senador Lemos, 3153, lojas 30/31 - 1º piso, It Center - Sacramenta",
                         "addressLocality": "Belém",
                         "addressRegion": "PA",
-                        "postalCode": "66083-000",
+                        "postalCode": "66120-000",
                         "addressCountry": "BR"
                       },
                       "contactPoint": {
