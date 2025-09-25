@@ -130,7 +130,7 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
             <div className="relative w-full max-w-7xl h-full md:max-h-[90vh] bg-white rounded-lg shadow-2xl flex flex-col md:flex-row overflow-y-auto md:overflow-hidden" onClick={(e) => e.stopPropagation()}>
 
                 <button className="absolute top-2 right-2 z-20 text-white bg-black/40 hover:bg-black/60 rounded-full p-2" onClick={onClose} aria-label="Fechar">
-                    <FaTimes size={20} />
+                    <FaTimes size={20} className="text-white" />
                 </button>
 
                 {/* Contêiner de Mídia */}
