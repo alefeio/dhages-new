@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       take: 8,
     });
 
-    // --- Datas mais clicadas em WhatsApp (pré-reserva) ---
+    // --- Datas mais clicadas em WhatsApp (mais informações) ---
     // Incluímos o pacote aqui para obter o título
     const topWhatsAppClickedDatesRaw = await prisma.pacoteDate.findMany({
       orderBy: { whatsapp: "desc" },

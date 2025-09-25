@@ -86,10 +86,10 @@ export default function Hero() {
             {/* Bloco de Texto Principal */}
             <div className="w-full flex flex-col justify-center mb-12 md:mb-0 bg-gray-900/80 p-6 rounded-xl shadow-lg md:w-2/3">
               <h3 className="text-2xl text-white md:text-4xl mb-4 font-bold">
-                Nossos ônibus são modernos e projetados para oferecer uma experiência de viagem de primeira classe.
+                Nossos ônibus são modernos e seguros, para que você tenha uma experiência inesquecível.
               </h3>
               <p className="text-base text-white mb-4">
-                Com interiores modernos, assentos confortáveis e reclináveis, e um sistema de ar-condicionado de última geração, garantimos que sua jornada será tranquila e totalmente agradável.
+                Com interiores modernos, assentos confortáveis e reclináveis e um sistema de ar-condicionado de última geração, sua jornada será tranquila e agradável.
               </p>
               <p className="text-base text-white mb-6">
                 Cada detalhe foi pensado para a sua segurança e bem-estar, para que você e sua família possam relaxar e aproveitar o trajeto.

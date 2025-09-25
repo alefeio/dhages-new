@@ -193,7 +193,7 @@ export default function AdminDashboard() {
                                 )}
                             </section>
 
-                            {/* Gráfico de Datas mais clicadas em WhatsApp (pré-reserva) */}
+                            {/* Gráfico de Datas mais clicadas em WhatsApp (mais informações) */}
                             <section className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg col-span-1 lg:col-span-2">
                                 <h2 className="text-2xl font-bold mb-6 text-gray-700 dark:text-gray-400">Datas mais clicadas no WhatsApp 📅</h2>
                                 {datesData.length === 0 ? (

@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         return res.status(200).json({
             success: true,
-            message: 'Clique de pré-reserva registrado com sucesso.',
+            message: 'Clique de Mais Informações registrado com sucesso.',
             data: updatedPacoteDate,
         });
 
@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return res.status(404).json({ message: 'Pacote ou data de saída não encontrados.' });
             }
         }
-        console.error('Erro na API de pré-reserva:', e);
+        console.error('Erro na API de mais informações:', e);
         return res.status(500).json({ message: 'Erro interno do servidor.' });
     } finally {
         await prisma.$disconnect();

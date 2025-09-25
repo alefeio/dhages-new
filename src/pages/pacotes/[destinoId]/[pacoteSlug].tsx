@@ -215,7 +215,7 @@ export default function PacotePage({ pacote, menu }: PacotePageProps) {
                 body: JSON.stringify({ pacoteId: pacote.id, dateSaida }),
             });
         } catch (error) {
-            console.error('Falha ao registrar clique de pré-reserva:', error);
+            console.error('Falha ao registrar clique de mais informações:', error);
         }
     }, [pacote.id]);
 
@@ -401,7 +401,7 @@ export default function PacotePage({ pacote, menu }: PacotePageProps) {
                             {availableDates?.length > 0 ? (
                                 <div className="flex flex-wrap gap-4 justify-start">
                                     {availableDates.map((date, index) => {
-                                        const whatsappText = `Olá! Gostaria de fazer uma pré-reserva para o pacote: *${pacote.title}*.\n\n` +
+                                        const whatsappText = `Olá! Gostaria de mais informações sobre o pacote: *${pacote.title}*.\n\n` +
                                             `Data de Saída: *${format(date.saida, 'dd/MM/yyyy', { locale: ptBR })}*\n` +
                                             (date.retorno ? `Data de Retorno: *${format(date.retorno, 'dd/MM/yyyy', { locale: ptBR })}*\n` : '') +
                                             `\nLink para o pacote: ${shareUrl}`; // ALTERAÇÃO: Usa a URL completa
@@ -429,7 +429,7 @@ export default function PacotePage({ pacote, menu }: PacotePageProps) {
                                                     rel="noopener noreferrer"
                                                     className="mt-4 flex items-center justify-center gap-2 text-white bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-full transition-colors"
                                                 >
-                                                    <FaWhatsapp size={18} className='text-white' /> Pré-Reserva
+                                                    <FaWhatsapp size={18} className='text-white' /> Mais Informações
                                                 </a>
                                             </div>
                                         );
