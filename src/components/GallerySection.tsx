@@ -295,7 +295,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                         )}
 
                                         <div className="mt-auto pt-4 border-t border-neutral-200">
-                                            {firstDate && (
+                                            {/* {firstDate && (
                                                 <div className="flex justify-between items-end mb-4">
                                                     <div>
                                                         <p className="text-2xl font-bold text-primary-800">
@@ -309,7 +309,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                                         </p>
                                                     </div>
                                                 </div>
-                                            )}
+                                            )} */}
 
                                             <div className="flex justify-between items-center gap-2">
                                                 <a
