@@ -89,7 +89,7 @@ export default function Hero() {
                 Nossos ônibus são modernos e seguros, para que você tenha uma experiência inesquecível.
               </h3>
               <p className="text-base text-white mb-4">
-                Com interiores modernos, assentos confortáveis e reclináveis e um sistema de ar-condicionado de última geração, sua jornada será tranquila e agradável.
+                Com interiores modernos, assentos confortáveis e reclináveis, sua jornada será tranquila e agradável.
               </p>
               <p className="text-base text-white mb-6">
                 Cada detalhe foi pensado para a sua segurança e bem-estar, para que você e sua família possam relaxar e aproveitar o trajeto.
