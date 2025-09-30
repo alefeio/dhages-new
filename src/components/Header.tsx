@@ -42,7 +42,7 @@ export default function AboutSection() {
     const [open, setOpen] = useState<number | null>(null);
 
     return (
-        <section id="empresa" className="py-32 bg-white">
+        <section id="empresa" className="py-32 bg-white"> 
             <div className="max-w-7xl mx-auto">
                 {/* Título Principal */}
                 <div className="mb-12 text-center">
