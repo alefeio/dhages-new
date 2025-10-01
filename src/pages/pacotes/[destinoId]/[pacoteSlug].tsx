@@ -12,7 +12,6 @@ import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
 import { MenuInterno as MenuComponent } from 'components/MenuInterno';
 import Footer from 'components/Footer';
-import Script from 'next/script';
 
 const prisma = new PrismaClient();
 
@@ -305,23 +304,16 @@ export default function PacotePage({ pacote, menu }: PacotePageProps) {
                                                 }
                                         `}
                 </script>
-                <Script
-                    strategy="afterInteractive"
-                    src="https://www.googletagmanager.com/gtag/js?id=AW-16741033488"
-                />
-                {/* Script de Inicialização da Camada de Dados (Data Layer) */}
-                <Script
-                    id="google-analytics-init"
-                    strategy="afterInteractive"
-                    dangerouslySetInnerHTML={{
-                        __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', 'AW-16741033488'); // Seu ID de Conversão
-              `,
-                    }}
-                />
+                <script>
+                    {`
+                        gtag('event', 'conversion', {
+                            'send_to': 'AW-16741033488/WHo9CK7jrqUbEJDM364-',
+                            'value': 1.0,
+                            'currency': 'BRL',
+                            'transaction_id': ''
+                        });
+                    `}
+                </script>
             </Head>
             <div className="container mx-auto px-4">
                 <MenuComponent menuData={menu} />
