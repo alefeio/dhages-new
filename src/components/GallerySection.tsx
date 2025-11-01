@@ -5,6 +5,7 @@ import { Destino, Pacote } from "../types";
 import Image from "next/image";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { richTextToHtml } from "utils/richTextToHtml";
 
 type GallerySectionProps = {
     destino: Destino;
@@ -197,7 +198,8 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
             </div>
 
             <div className="max-w-7xl mx-auto px-2 md:px-4 py-12">
-                <div className="grid grid-cols-2 gap-2 md:gap-8">
+                {/* CORREÇÃO 1: Garante grid-cols-3 para Fretamento e grid-cols-2 para os outros */}
+                <div className={`grid ${destino.title === "Fretamento" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"} gap-2 md:gap-8`}>
                     {pacotesComDatasFuturas.map(pacote => {
                         const shareUrl = `${originUrl}/pacotes/${destino.slug}/${pacote.slug}`;
                         const firstMedia = pacote.fotos[0] || { url: '/placeholder.jpg' };
@@ -213,14 +215,19 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                         const hasDates = availableDates && availableDates.length > 0;
                         const firstDate = hasDates ? availableDates[0] : null;
 
+                        // Variável para determinar se deve usar o layout lateral (apenas se não for Fretamento)
+                        const isHorizontalLayout = destino.title !== "Fretamento";
+
                         return (
                             <div
                                 key={pacote.id}
                                 className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer"
-                                onClick={() => handleItemClick(pacote.id)} // Alterado para chamar a nova função
+                                onClick={() => handleItemClick(pacote.id)} 
                             >
-                                <div className="flex flex-col sm:flex-row h-full">
-                                    <div className="relative w-full h-72 sm:w-1/2 sm:h-auto">
+                                {/* CORREÇÃO 2.1: Aplica sm:flex-row (layout lateral) apenas se NÃO for Fretamento */}
+                                <div className={`flex flex-col ${isHorizontalLayout ? "sm:flex-row" : ""} h-full`}>
+                                    {/* CORREÇÃO 2.2: sm:w-1/2 na imagem só se NÃO for Fretamento */}
+                                    <div className={`relative w-full h-72 ${isHorizontalLayout ? "sm:w-1/2 sm:h-auto" : ""}`}>
                                         {isFirstMediaVideo ? (
                                             <>
                                                 <video
@@ -274,13 +281,14 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="p-4 flex flex-col flex-grow w-full sm:w-1/2">
+                                    {/* CORREÇÃO 2.3: sm:w-1/2 no conteúdo só se NÃO for Fretamento */}
+                                    <div className={`p-4 flex flex-col flex-grow w-full ${isHorizontalLayout ? "sm:w-1/2" : ""}`}>
                                         <h3 className="font-serif text-lg md:text-2xl font-semibold mb-1 text-orange-500">{pacote.title}</h3>
                                         {pacote.subtitle && (
                                             <p className="text-sm text-neutral-600 mb-4">{pacote.subtitle}</p>
                                         )}
 
-                                        {hasDates && (
+                                        {hasDates && destino.title !== "Fretamento" ? (
                                             <div className="mb-4 text-sm text-neutral-700">
                                                 <p className="font-bold">{availableDates.length > 1 ? 'Próximas Saídas:' : 'Próxima Saída:'}</p>
                                                 {availableDates.slice(0, 3).map((date, index) => (
@@ -292,9 +300,12 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                                                     <p>...</p>
                                                 )}
                                             </div>
+                                        ) : (
+                                            <div className="prose prose-sm max-w-none text-neutral-700" dangerouslySetInnerHTML={{ __html: richTextToHtml(pacote.description) }} />
                                         )}
 
                                         <div className="mt-auto pt-4 border-t border-neutral-200">
+                                            {/* Preços (Comentados no código original) */}
                                             {/* {firstDate && (
                                                 <div className="flex justify-between items-end mb-4">
                                                     <div>

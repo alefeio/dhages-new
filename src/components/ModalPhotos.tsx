@@ -125,6 +125,20 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
             retorno: date.retorno ? new Date(date.retorno) : undefined
         }));
 
+    // **********************************************
+    // LÓGICA DE FRETAMENTO/ANO 2500
+    // **********************************************
+    const firstAvailableYear = availableDates?.length
+        ? availableDates[0].saida.getFullYear()
+        : 0;
+    
+    // Define se deve entrar no modo "Frete" (ano >= 2500)
+    const isFretamentoMode = firstAvailableYear >= 2500;
+
+    // Define o título baseado no modo
+    const detailsTitle = isFretamentoMode ? "Detalhes do Frete" : "Detalhes do Pacote:";
+    // **********************************************
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-fade-in" onClick={onClose}>
             <div className="relative w-full max-w-7xl h-full md:max-h-[90vh] bg-white rounded-lg shadow-2xl flex flex-col md:flex-row overflow-y-auto md:overflow-hidden" onClick={(e) => e.stopPropagation()}>
@@ -212,58 +226,76 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                                 )}
                             </div>
 
-                            <div className="border-t border-neutral-200 pt-4">
-                                <h3 className="text-lg font-semibold text-primary-800 mb-2 uppercase">Saídas:</h3>
-                                {availableDates?.length > 0 ? (
-                                    <div className="flex flex-wrap gap-4 justify-start">
-                                        {availableDates.map((date, index) => (
-                                            <PacoteDate
-                                                key={index}
-                                                pacoteId={pacote.id}
-                                                date={date}
-                                                shareUrl={shareUrl}
-                                                formatPrice={formatPrice}
-                                                pacote={pacote}
-                                            />
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-neutral-500">Nenhuma data de saída disponível no momento.</p>
-                                )}
-                            </div>
+                            {/* SEÇÃO DE SAÍDAS (Condicional) */}
+                            {/* Só exibe se NÃO estiver em modo Fretamento (ano < 2500) */}
+                            {!isFretamentoMode && (
+                                <div className="border-t border-neutral-200 pt-4">
+                                    <h3 className="text-lg font-semibold text-primary-800 mb-2 uppercase">Saídas:</h3>
+                                    {availableDates?.length > 0 ? (
+                                        <div className="flex flex-wrap gap-4 justify-start">
+                                            {availableDates.map((date, index) => (
+                                                <PacoteDate
+                                                    key={index}
+                                                    pacoteId={pacote.id}
+                                                    date={date}
+                                                    shareUrl={shareUrl}
+                                                    formatPrice={formatPrice}
+                                                    pacote={pacote}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-neutral-500">Nenhuma data de saída disponível no momento.</p>
+                                    )}
+                                </div>
+                            )}
 
+                            {/* DETALHES (Título Condicional) */}
                             <div className="mt-6 border-t border-neutral-200 pt-4">
-                                <h3 className="text-lg font-semibold text-primary-800 mb-2 uppercase">Detalhes do Pacote:</h3>
+                                <h3 className="text-lg font-semibold text-primary-800 mb-2 uppercase">{detailsTitle}</h3>
                                 <div className="prose prose-sm max-w-none text-neutral-700" dangerouslySetInnerHTML={{ __html: richTextToHtml(pacote.description) }} />
                             </div>
 
-                            <div className="mt-6 border-t border-neutral-200 pt-4">
-                                <h3 className="text-lg font-semibold text-primary-800 mb-2">NOSSO PACOTE INCLUI:</h3>
-                                <ul className="list-disc list-inside space-y-1 text-neutral-700">
-                                    <li>Transporte em ônibus de turismo, hospedagem com café da manhã, guia acompanhante</li>
-                                </ul>
+                            {/* NOSSO PACOTE INCLUI: (Condicional) */}
+                            {/* Só exibe se NÃO estiver em modo Fretamento (ano < 2500) */}
+                            {!isFretamentoMode && (
+                                <div className="mt-6 border-t border-neutral-200 pt-4">
+                                    <h3 className="text-lg font-semibold text-primary-800 mb-2">NOSSO PACOTE INCLUI:</h3>
+                                    <ul className="list-disc list-inside space-y-1 text-neutral-700">
+                                        <li>Transporte em ônibus de turismo, hospedagem com café da manhã, guia acompanhante</li>
+                                    </ul>
+                                </div>
+                            )}
 
-                                <h3 className="text-lg font-semibold text-primary-800 mt-4 mb-2">IMPORTANTE:</h3>
-                                <ul className="list-disc list-inside space-y-1 text-neutral-700">
-                                    <li>Este roteiro não inclui ingressos, nem despesas extras de quaisquer espécies.</li>
-                                    <li>A D’ Hages Turismo reserva-se o direito de alterar a ordem da programação e horários, caso necessário, para o bom andamento da excursão.</li>
-                                    <li>A D’ Hages não se responsabiliza por alterações de valores, horários e funcionamento dos atrativos citados no roteiro</li>
-                                    <li>As poltronas do ônibus serão reservadas conforme a ordem de compra, sendo informado no ato do embarque.</li>
-                                    <li>Este roteiro está sujeito a reajuste, sem aviso prévio.</li>
-                                    <li>Reservas só serão garantidas mediante confirmação de pagamento.</li>
-                                    <li>Parcelamentos em dinheiro ou depósito bancário devem estar quitados até 20 dias antes da saída da viagem.</li>
-                                    <li>Hospedagens iniciam às 14h. Entrada antecipada somente se houver disponibilidade.</li>
-                                    <li>A acomodação no hotel poderá ser em Apartamento Duplo, Triplo ou Quadruplo, de acordo com a estrutura do hotel/pousada contratado.</li>
-                                    <li>A acomodação em Apartamento Duplo será preferencialmente para casais, de acordo com a disponibilidade do hotel.</li>
-                                    <li>Documentação exigida para hospedagem de menor: Conforme previsto no Estatuto da Criança e do Adolescente, é proibida a hospedagem em hotel, pousadas e similares de CRIANÇAS ou ADOLESCENTES, menor de 18 anos desacompanhados. É necessário que todas as Crianças e Adolescentes apresentem seus documentos de identidade (RG) ou certidão de nascimento no Check-In. Lei 8.069/90 arts. 82 e 250.
-                                        <ul className="list-disc list-inside space-y-1 ml-4 mt-1">
-                                            <li>Se acompanhado de pai e/ou mãe: certidão de nascimento, cédula de identidade ou passaporte.</li>
-                                            <li>Se desacompanhado de pai e/ou mãe: Autorização formal para hospedagem, assinada por pai e mãe, com firma reconhecida em cartório.</li>
-                                        </ul>
-                                    </li>
-                                    <li>Favor ler o contrato que rege a compra deste produto.</li>
-                                </ul>
+                            {/* IMPORTANTE: (Condicional) */}
+                            {/* Só exibe se NÃO estiver em modo Fretamento (ano < 2500) */}
+                            {!isFretamentoMode && (
+                                <div className="mt-6 border-t border-neutral-200 pt-4">
+                                    <h3 className="text-lg font-semibold text-primary-800 mt-4 mb-2">IMPORTANTE:</h3>
+                                    <ul className="list-disc list-inside space-y-1 text-neutral-700">
+                                        <li>Este roteiro não inclui ingressos, nem despesas extras de quaisquer espécies.</li>
+                                        <li>A D’ Hages Turismo reserva-se o direito de alterar a ordem da programação e horários, caso necessário, para o bom andamento da excursão.</li>
+                                        <li>A D’ Hages não se responsabiliza por alterações de valores, horários e funcionamento dos atrativos citados no roteiro</li>
+                                        <li>As poltronas do ônibus serão reservadas conforme a ordem de compra, sendo informado no ato do embarque.</li>
+                                        <li>Este roteiro está sujeito a reajuste, sem aviso prévio.</li>
+                                        <li>Reservas só serão garantidas mediante confirmação de pagamento.</li>
+                                        <li>Parcelamentos em dinheiro ou depósito bancário devem estar quitados até 20 dias antes da saída da viagem.</li>
+                                        <li>Hospedagens iniciam às 14h. Entrada antecipada somente se houver disponibilidade.</li>
+                                        <li>A acomodação no hotel poderá ser em Apartamento Duplo, Triplo ou Quadruplo, de acordo com a estrutura do hotel/pousada contratado.</li>
+                                        <li>A acomodação em Apartamento Duplo será preferencialmente para casais, de acordo com a disponibilidade do hotel.</li>
+                                        <li>Documentação exigida para hospedagem de menor: Conforme previsto no Estatuto da Criança e do Adolescente, é proibida a hospedagem em hotel, pousadas e similares de CRIANÇAS ou ADOLESCENTES, menor de 18 anos desacompanhados. É necessário que todas as Crianças e Adolescentes apresentem seus documentos de identidade (RG) ou certidão de nascimento no Check-In. Lei 8.069/90 arts. 82 e 250.
+                                            <ul className="list-disc list-inside space-y-1 ml-4 mt-1">
+                                                <li>Se acompanhado de pai e/ou mãe: certidão de nascimento, cédula de identidade ou passaporte.</li>
+                                                <li>Se desacompanhado de pai e/ou mãe: Autorização formal para hospedagem, assinada por pai e mãe, com firma reconhecida em cartório.</li>
+                                            </ul>
+                                        </li>
+                                        <li>Favor ler o contrato que rege a compra deste produto.</li>
+                                    </ul>
+                                </div>
+                            )}
 
+                            {/* INFORMAÇÕES E RESERVAS (Não Condicional) */}
+                            <div className={`mt-6 ${isFretamentoMode ? '' : 'border-t border-neutral-200 pt-4'}`}>
                                 <h3 className="text-lg font-semibold text-primary-800 mt-4 mb-2">INFORMAÇÕES E RESERVAS:</h3>
                                 <div className="text-sm text-neutral-700">
                                     <p><strong>D’ HAGES TURISMO</strong> - Av. Senador Lemos, 3153, lojas 30/31 - 1º piso, It Center - Sacramenta - Belém/PA</p>
