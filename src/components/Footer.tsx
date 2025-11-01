@@ -116,7 +116,7 @@ const Footer = ({ menuData }: MenuProps) => {
                             <div className="w-full h-48 rounded-lg overflow-hidden shadow-lg">
                                 <iframe
                                     title="Curva Engenharia e Arquitetura"
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.5865824872267!2d-48.478051099999995!3d-1.4237423000000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x92a48bfd43755a27%3A0xdc646d0aff8ecc5e!2sTv.%20Mauriti%2C%20479%20-%20Tel%C3%A9grafo%2C%20Bel%C3%A9m%20-%20PA%2C%2066083-000!5e0!3m2!1spt-BR!2sbr!4v1757520589048!5m2!1spt-BR!2sbr"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.5995167843826!2d-48.4817324241409!3d-1.4162469357838077!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x92a48bfd67c896fd%3A0x1200efcf3165952!2sD&#39;%20Hages%20Turismo!5e0!3m2!1spt-BR!2sbr!4v1762031479679!5m2!1spt-BR!2sbr"
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}

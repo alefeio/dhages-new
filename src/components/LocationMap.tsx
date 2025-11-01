@@ -16,7 +16,7 @@ export default function LocationMap() {
     const address = "Av. Senador Lemos, 3153, lojas 30/31 - 1º piso, It Center - Sacramenta - Belém/PA";
     const phone = "(91) 98114-9800";
     // O link do mapa que funciona na sua versão anterior
-    const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.620020138243!2d-48.47271032598379!3d-1.455243098555913!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x92a48e71861a3577%3A0x6b49c7161b979502!2sTv.%20Mauriti%2C%20479%20-%20Pedreira%2C%20Bel%C3%A9m%20-%20PA%2C%2066087-740!5e0!3m2!1spt-BR!2sbr!4v1700676451000!5m2!1spt-BR!2sbr";
+    const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.5995167843826!2d-48.4817324241409!3d-1.4162469357838077!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x92a48bfd67c896fd%3A0x1200efcf3165952!2sD&#39;%20Hages%20Turismo!5e0!3m2!1spt-BR!2sbr!4v1762031479679!5m2!1spt-BR!2sbr";
     const whatsappLink = `https://wa.me/5591981149800?text=Olá, D'Hages! Gostaria de mais informações. Estou entrando em contato através do site.`;
     const instagramLink = "https://www.instagram.com/dhages_turismo/";
     const facebookLink = "https://www.facebook.com/dhagesturismo";
