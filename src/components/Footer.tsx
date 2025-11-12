@@ -132,6 +132,7 @@ const Footer = ({ menuData }: MenuProps) => {
                     <div className="text-center md:text-left border-t border-gray-700 mt-8 pt-6">
                         <p className="text-sm text-white font-bold">
                             © 2025 D' Hages Turismo. Todos os direitos reservados.<br />
+                            Razão social: D Hages Agência Transporte e Turismo<br />
                             CNPJ: 23.167.053/0001-05
                         </p>
                     </div>
