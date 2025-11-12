@@ -526,52 +526,54 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-    try {
-        const { destinoId, pacoteSlug } = params as { destinoId: string; pacoteSlug: string };
+  try {
+    const { destinoId, pacoteSlug } = params as { destinoId: string; pacoteSlug: string };
 
-        const [menus] = await Promise.all([
-            prisma.menu.findMany(),
-        ]);
+    const [menus] = await Promise.all([prisma.menu.findMany()]);
+    const menu: any | null = menus.length > 0 ? menus[0] : null;
 
-        const menu: any | null = menus.length > 0 ? menus[0] : null;
-        const destinoIdReal = destinoId.split('-')[1];
+    const pacote = await prisma.pacote.findUnique({
+      where: { slug: pacoteSlug },
+      include: {
+        fotos: true,
+        dates: { orderBy: { saida: 'asc' } },
+        destino: true,
+      },
+    });
 
-        const pacote = await prisma.pacote.findUnique({
-            where: { slug: pacoteSlug },
-            include: {
-                fotos: true,
-                dates: { orderBy: { saida: 'asc' } },
-                destino: true,
-            },
-        });
+    if (!pacote) return { notFound: true };
 
-        if (!pacote) return { notFound: true };
+    const serializedPacote = {
+      ...pacote,
+      createdAt: pacote.createdAt?.toISOString() || null,
+      updatedAt: pacote.updatedAt?.toISOString() || null,
+      dates: pacote.dates.map(date => ({
+        ...date,
+        createdAt: date.createdAt.toISOString(),
+        updatedAt: date.updatedAt.toISOString(),
+        saida: date.saida.toISOString(),
+        retorno: date.retorno?.toISOString() || null,
+      })),
+      fotos: pacote.fotos.map(foto => ({
+        ...foto,
+        createdAt: foto.createdAt.toISOString(),
+        updatedAt: foto.updatedAt.toISOString(),
+      })),
+      destino: pacote.destino
+        ? {
+            ...pacote.destino,
+            createdAt: pacote.destino.createdAt?.toISOString() || null,
+            updatedAt: pacote.destino.updatedAt?.toISOString() || null,
+          }
+        : null,
+    };
 
-        const serializedPacote = {
-            ...pacote,
-            createdAt: pacote.createdAt?.toISOString() || null,
-            updatedAt: pacote.updatedAt?.toISOString() || null,
-            dates: pacote.dates.map(date => ({
-                ...date,
-                createdAt: date.createdAt.toISOString(),
-                updatedAt: date.updatedAt.toISOString(),
-                saida: date.saida.toISOString(),
-                retorno: date.retorno?.toISOString() || null,
-            })),
-            fotos: pacote.fotos.map(foto => ({
-                ...foto,
-                createdAt: foto.createdAt.toISOString(),
-                updatedAt: foto.updatedAt.toISOString(),
-            })),
-        };
-
-        return {
-            props: { pacote: serializedPacote, menu },
-            revalidate: 60,
-        };
-    } catch (error) {
-        console.error('Erro em getStaticProps:', error);
-        // Evita quebrar o build
-        return { notFound: true, revalidate: 60 };
-    }
+    return {
+      props: { pacote: serializedPacote, menu },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error('Erro em getStaticProps:', error);
+    return { notFound: true, revalidate: 60 };
+  }
 };
