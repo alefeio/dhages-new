@@ -156,6 +156,10 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
         pacote.dates?.some(date => new Date(date.saida) >= new Date())
     );
 
+    if (pacotesComDatasFuturas.length === 0) {
+        return null;
+    }
+
     return (
         <article className="py-8 bg-">
             <div className="relative w-full py-24 overflow-hidden">
@@ -222,7 +226,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
                             <div
                                 key={pacote.id}
                                 className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer"
-                                onClick={() => handleItemClick(pacote.id)} 
+                                onClick={() => handleItemClick(pacote.id)}
                             >
                                 {/* CORREÇÃO 2.1: Aplica sm:flex-row (layout lateral) apenas se NÃO for Fretamento */}
                                 <div className={`flex flex-col ${isHorizontalLayout ? "sm:flex-row" : ""} h-full`}>
