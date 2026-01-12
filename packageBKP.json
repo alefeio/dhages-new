@@ -2,7 +2,6 @@
   "name": "party-dresses-landing",
   "version": "1.0.0",
   "description": "A landing page showcasing party dresses with a focus on styles and designs.",
-  "private": true,
   "main": "src/pages/index.tsx",
   "scripts": {
     "dev": "next dev",
@@ -26,12 +25,12 @@
     "cloudinary": "^2.7.0",
     "date-fns": "^4.1.0",
     "formidable": "^3.5.4",
-    "next": "14.2.15",
-    "next-auth": "^4.24.13",
-    "nodemailer": "^7.0.7",
+    "next": "latest",
+    "next-auth": "^4.24.11",
+    "nodemailer": "^6.10.1",
     "prisma": "^6.14.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "latest",
+    "react-dom": "latest",
     "react-icons": "^5.5.0",
     "react-quill": "^2.0.0",
     "react-swipeable": "^7.0.2",
@@ -43,16 +42,16 @@
   "devDependencies": {
     "@types/busboy": "^1.5.4",
     "@types/date-fns": "^2.6.3",
-    "@types/formidable": "^3.4.6",
-    "@types/node": "^20.11.30",
-    "@types/react": "^18.3.11",
+    "@types/formidable": "^3.4.5",
+    "@types/node": "24.2.0",
+    "@types/react": "19.1.9",
     "@types/recharts": "^1.8.29",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.21",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.15",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.6.3"
+    "typescript": "latest"
   }
 }
