@@ -47,7 +47,7 @@ export default function DestinoSharePage({ destino, shareBaseUrl }: DestinoShare
 
   const handleWhatsappClick = (pacote: Pacote) => {
     const whatsappMessage = `Olá! Gostaria de reservar o pacote ${pacote.title} do destino ${destino.title}. Link: ${shareBaseUrl}/${pacote.slug}`;
-    const whatsappUrl = `https://wa.me/5591981149800?text=${encodeURIComponent(whatsappMessage)}`;
+    const whatsappUrl = `https://wa.me/5591992152727?text=${encodeURIComponent(whatsappMessage)}`;
     window.open(whatsappUrl, '_blank');
   };
 

@@ -83,8 +83,8 @@ const Footer = ({ menuData }: MenuProps) => {
                             <h4 className="font-bold text-white text-lg mb-4">Contato</h4>
                             <div className="space-y-2">
                                 <p>
-                                    <a href="tel:+5591981149800" className="hover:text-orange-500 transition-colors text-white">
-                                        +55 (91) 98114-9800
+                                    <a href="tel:+5591992152727" className="hover:text-orange-500 transition-colors text-white">
+                                        +55 (91) 99215-2727
                                     </a>
                                 </p>
                                 {/* <p>
@@ -98,7 +98,7 @@ const Footer = ({ menuData }: MenuProps) => {
                             </div>
                             <h4 className="font-bold text-white text-lg mt-6 mb-2">Siga-nos</h4>
                             <div className="flex space-x-4">
-                                <a href="https://wa.me//5591981149800?text=Gostaria de solicitar um orçamento. Estou entrando em contato através do site." target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="text-2xl hover:text-green-500 transition-colors">
+                                <a href="https://wa.me//5591992152727?text=Gostaria de solicitar um orçamento. Estou entrando em contato através do site." target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="text-2xl hover:text-green-500 transition-colors">
                                     <FaWhatsapp className="text-white" />
                                 </a>
                                 <a href="https://www.instagram.com/dhages_turismo" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-2xl hover:text-pink-500 transition-colors">

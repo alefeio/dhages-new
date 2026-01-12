@@ -28,7 +28,7 @@ function DestinoGallerySection({ destino, openModal }: DestinoGallerySectionProp
     );
     
     const whatsAppMessage = `Olá! Gostaria de mais informações sobre os pacotes de ${destino.title}.`;
-    const whatsappUrl = `https://wa.me/5591981149800?text=${encodeURIComponent(whatsAppMessage)}`;
+    const whatsappUrl = `https://wa.me/5591992152727?text=${encodeURIComponent(whatsAppMessage)}`;
 
     return (
         <GallerySection

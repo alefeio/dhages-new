@@ -206,7 +206,7 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
 
                                 {/* Botões de Ação ao lado do Curtir */}
                                 <a
-                                    href={`https://wa.me/5591981149800?text=Olá! Gostaria de mais informações sobre o pacote: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
+                                    href={`https://wa.me/5591992152727?text=Olá! Gostaria de mais informações sobre o pacote: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="p-2 text-green-600 hover:text-green-800 transition-colors"
@@ -302,7 +302,7 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                                     <p>E-mail: <a href="mailto:dhagesturismo@gmail.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">dhagesturismo@gmail.com</a></p>
                                     <p><a href="https://facebook.com/dhagesturismo" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">facebook.com/dhagesturismo</a></p>
                                     <p>Instagram: <a href="https://www.instagram.com/dhages_turismo" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@dhages_turismo</a></p>
-                                    <p>Fones: <a href="https://wa.me/5591981149800" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">91 3348-5063 / 98114-9800 WhatsAp</a></p>
+                                    <p>Fones: <a href="https://wa.me/5591992152727" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">91 3348-5063 / 99215-2727 WhatsAp</a></p>
                                 </div>
                             </div>
                         </div>
@@ -310,7 +310,7 @@ export default function ModalPhotos({ pacote, onClose, shareUrl }: ModalPhotosPr
                     {/* Botões - Fixos no final */}
                     <div className="bg-white/90 backdrop-blur-sm p-2 md:p-6 border-t border-neutral-200 flex flex-row gap-2 flex-shrink-0">
                         <a
-                            href={`https://wa.me/5591981149800?text=Olá! Gostaria de mais informações sobre o pacote: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
+                            href={`https://wa.me/5591992152727?text=Olá! Gostaria de mais informações sobre o pacote: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex-1 text-center bg-green-600 hover:bg-green-700 text-white text-xs md:text-base font-bold py-3 px-6 rounded-full transition-colors flex items-center justify-center gap-2"

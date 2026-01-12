@@ -48,7 +48,7 @@ export const PacoteDate = ({ pacoteId, date, shareUrl, formatPrice, pacote }: Pa
                 <span className="text-sm text-neutral-600">ou <span className="font-medium">{formatPrice(date.price_card)}</span> no cartão</span>
             </div>
             <a
-                href={`https://wa.me/5591981149800?text=${encodeURIComponent(whatsappText)}`}
+                href={`https://wa.me/5591992152727?text=${encodeURIComponent(whatsappText)}`}
                 onClick={handlePreReservaClick}
                 target="_blank"
                 rel="noopener noreferrer"

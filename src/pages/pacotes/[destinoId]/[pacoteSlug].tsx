@@ -201,7 +201,7 @@ export default function PacotePage({ pacote, menu }: PacotePageProps) {
     }, [canShare, handleSharedClick, pacote.title, pacote.subtitle, shareUrl]);
 
     const handleWhatsApp = useCallback(() => {
-        const whatsappNumber = "5591981149800";
+        const whatsappNumber = "5591992152727";
         const message = encodeURIComponent(`Olá, tenho interesse no pacote "${pacote.title}" (${shareUrl}). Poderia me dar mais informações?`);
         window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
         handleWhatsAppClick();
@@ -433,7 +433,7 @@ export default function PacotePage({ pacote, menu }: PacotePageProps) {
                                                     <span className="text-sm text-neutral-600">ou <span className="font-medium">{formatPrice(date.price_card)}</span> no cartão</span>
                                                 </div>
                                                 <a
-                                                    href={`https://wa.me/5591981149800?text=${encodeURIComponent(whatsappText)}`}
+                                                    href={`https://wa.me/5591992152727?text=${encodeURIComponent(whatsappText)}`}
                                                     onClick={() => handlePreReservaClick(date.saida.toISOString())}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
@@ -488,7 +488,7 @@ export default function PacotePage({ pacote, menu }: PacotePageProps) {
                                 <p>E-mail: <a href="mailto:dhagesturismo@gmail.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">dhagesturismo@gmail.com</a></p>
                                 <p><a href="https://www.facebook.com/dhagesturismo" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Facebook.com/dhagesturismo</a></p>
                                 <p>Instagram: <a href="https://www.instagram.com/dhages_turismo" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@dhages_turismo</a></p>
-                                <p>Fones/WhatsApp: <a href="https://wa.me/559133485063" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">91 3348-5063</a> / <a href="https://wa.me/5591981149800" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">91 98114-9800</a></p>
+                                <p>Fones/WhatsApp: <a href="https://wa.me/559133485063" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">91 3348-5063</a> / <a href="https://wa.me/5591992152727" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">91 99215-2727</a></p>
                             </div>
                         </div>
                     </div>

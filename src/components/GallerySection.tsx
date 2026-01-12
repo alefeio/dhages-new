@@ -328,7 +328,7 @@ export function GallerySection({ destino, onOpenModal, buttonHref }: GallerySect
 
                                             <div className="flex justify-between items-center gap-2">
                                                 <a
-                                                    href={`https://wa.me/5591981149800?text=Olá! Gostaria de mais informações sobre o pacote de ${destino.title}: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
+                                                    href={`https://wa.me/5591992152727?text=Olá! Gostaria de mais informações sobre o pacote de ${destino.title}: ${pacote.title}. Link: ${encodeURIComponent(shareUrl)}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex-1 inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded-full shadow-md py-3 font-bold transition-colors duration-300"
