@@ -399,32 +399,30 @@ export default function AdminDestinos() {
 
 
     const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>, pacoteIndex: number, fotoIndex: number) => {
-
-        const { name, value, files } = e.target;
-
+        const { name, value, files, type } = e.target;
         const newPacotes = [...form.pacotes];
-
         const newFotos = [...newPacotes[pacoteIndex].fotos];
 
-
-
-        if (name === "url" && files) {
-
-            newFotos[fotoIndex] = { ...newFotos[fotoIndex], [name]: files[0] };
-
-        } else {
-
-            newFotos[fotoIndex] = { ...newFotos[fotoIndex], [name]: value };
-
+        // Se o input for do tipo FILE (Upload)
+        if (type === "file") {
+            if (files && files[0]) {
+                newFotos[fotoIndex] = {
+                    ...newFotos[fotoIndex],
+                    url: files[0] // Armazena o objeto File
+                };
+            }
+        }
+        // Se o input for de texto (pode ser o "caption" ou a "url" colada)
+        else {
+            newFotos[fotoIndex] = {
+                ...newFotos[fotoIndex],
+                [name]: value
+            };
         }
 
         newPacotes[pacoteIndex].fotos = newFotos;
-
         setForm({ ...form, pacotes: newPacotes });
-
     };
-
-
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, pacoteIndex: number, dateIndex: number) => {
 
@@ -611,164 +609,90 @@ export default function AdminDestinos() {
 
 
     const handleSubmit = async (e: React.FormEvent) => {
-
         e.preventDefault();
-
         setLoading(true);
-
         setError("");
 
-
-
         try {
-
+            // 1. Tratamento da Imagem Principal do Destino
             let imageUrl = form.image;
-
             if (form.image instanceof File) {
-
                 const formData = new FormData();
-
                 formData.append("file", form.image);
-
                 const uploadRes = await fetch("/api/upload", {
-
                     method: "POST",
-
                     body: formData,
-
                 });
-
                 const uploadData = await uploadRes.json();
-
-                if (!uploadRes.ok) {
-
-                    throw new Error(uploadData.message || "Erro no upload da imagem do destino.");
-
-                }
-
+                if (!uploadRes.ok) throw new Error(uploadData.message || "Erro no upload da imagem do destino.");
                 imageUrl = uploadData.url;
-
             }
+            // Se form.image já for uma string (URL colada), imageUrl continuará sendo essa string.
 
-
-
+            // 2. Tratamento das Fotos dos Pacotes
             const pacotesWithUrls = await Promise.all(
-
                 form.pacotes.map(async (pacote) => {
-
                     const fotosWithUrls = await Promise.all(
-
                         pacote.fotos.map(async (foto) => {
-
+                            // Se for um novo arquivo de imagem
                             if (foto.url instanceof File) {
-
                                 const formData = new FormData();
-
                                 formData.append("file", foto.url);
-
                                 const uploadRes = await fetch("/api/upload", {
-
                                     method: "POST",
-
                                     body: formData,
-
                                 });
-
                                 const uploadData = await uploadRes.json();
-
-                                if (!uploadRes.ok) {
-
-                                    throw new Error(uploadData.message || `Erro no upload da foto ${foto.caption || ''}.`);
-
-                                }
+                                if (!uploadRes.ok) throw new Error(`Erro na foto ${foto.caption}: ${uploadData.message}`);
 
                                 return { ...foto, url: uploadData.url };
-
                             }
 
+                            // IMPORTANTE: Se não for File nem String válida, você pode decidir se remove ou mantém
+                            // Aqui, se for string (URL colada), ele apenas retorna o objeto como está
                             return foto;
-
                         })
-
                     );
 
                     return {
-
                         ...pacote,
-
                         slug: slugify(pacote.title),
-
                         fotos: fotosWithUrls,
-
-                        description: { html: pacote.description }
-
+                        // Ajuste: certifique-se que o banco espera um objeto ou apenas a string
+                        description: typeof pacote.description === 'string' ? pacote.description : pacote.description.html
                     };
-
                 })
-
             );
 
-
-
+            // 3. Envio Final
             const method = form.id ? "PUT" : "POST";
-
             const body = {
-
                 ...form,
-
                 slug: slugify(form.title),
-
-                image: imageUrl,
-
-                description: { html: form.description },
-
+                image: imageUrl, // URL final (vinda do upload ou do campo de texto)
                 pacotes: pacotesWithUrls
-
             };
 
-
-
             const res = await fetch("/api/crud/destinos", {
-
                 method,
-
                 headers: { "Content-Type": "application/json" },
-
                 body: JSON.stringify(body),
-
             });
 
-
-
             const data = await res.json();
-
             if (res.ok && data.success) {
-
                 alert(`Destino ${form.id ? 'atualizado' : 'criado'} com sucesso!`);
-
                 resetForm();
-
                 fetchDestinos();
-
             } else {
-
-                setError(data.message || `Erro ao ${form.id ? 'atualizar' : 'criar'} destino.`);
-
+                setError(data.message || `Erro ao salvar destino.`);
             }
-
         } catch (e: any) {
-
-            setError(e.message || "Erro ao conectar com a API ou no upload da imagem.");
-
+            setError(e.message || "Erro ao processar formulário.");
         } finally {
-
             setLoading(false);
-
         }
-
     };
-
-
 
     const handleDelete = async (id: string, isPacote = false) => {
 
@@ -876,18 +800,41 @@ export default function AdminDestinos() {
 
                         <RichTextEditor value={form.description} onChange={handleDestinoDescriptionChange} placeholder="Descrição rica do destino" />
 
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-col gap-2 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border">
+                            <label className="block text-gray-700 dark:text-gray-400 font-bold">Imagem do Destino</label>
 
-                            <label className="block text-gray-700 dark:text-gray-400">Imagem do Destino</label>
+                            <div className="flex flex-col md:flex-row items-center gap-4">
+                                {/* Preview da Imagem */}
+                                {form.image && (
+                                    <img
+                                        src={typeof form.image === 'string' ? form.image : URL.createObjectURL(form.image)}
+                                        alt="Preview Destino"
+                                        className="w-24 h-24 object-cover rounded-lg border-2 border-blue-500"
+                                    />
+                                )}
 
-                            {typeof form.image === 'string' && form.image && (
+                                <div className="flex-1 w-full space-y-3">
+                                    {/* Opção 1: Colar URL */}
+                                    <input
+                                        type="text"
+                                        name="image"
+                                        value={typeof form.image === 'string' ? form.image : ''}
+                                        onChange={handleFormChange}
+                                        placeholder="Cole a URL da imagem existente aqui..."
+                                        className="w-full p-2 text-sm dark:bg-gray-600 border rounded-lg"
+                                    />
 
-                                <img src={form.image} alt="Destino" className="w-24 h-24 object-cover rounded-lg" />
-
-                            )}
-
-                            <input type="file" name="image" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-bold text-gray-400 uppercase">Ou faça upload:</span>
+                                        <input
+                                            type="file"
+                                            name="image_file"
+                                            onChange={handleImageChange}
+                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <label className="block text-gray-700 dark:text-gray-400">Ordem de exibição:</label>
@@ -953,33 +900,68 @@ export default function AdminDestinos() {
                                         <h5 className="text-md font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-400">Fotos</h5>
 
                                         {pacote.fotos.map((foto, fotoIndex) => (
+                                            <div key={foto.id || fotoIndex} className="flex flex-col gap-3 p-4 border rounded-lg bg-white dark:bg-gray-800 mb-4 shadow-sm">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs font-bold text-gray-400 uppercase">Foto #{fotoIndex + 1}</span>
+                                                    <button type="button" onClick={() => handleRemoveFoto(pacoteIndex, fotoIndex)} className="text-red-500 hover:text-red-700">
+                                                        <MdDelete size={20} />
+                                                    </button>
+                                                </div>
 
-                                            <div key={foto.id || fotoIndex} className="flex gap-4 items-center mb-2">
+                                                <div className="flex flex-col md:flex-row gap-4 items-start">
+                                                    {/* Preview */}
+                                                    <div className="w-20 h-20 flex-shrink-0">
+                                                        {foto.url ? (
+                                                            <img
+                                                                src={typeof foto.url === 'string' ? foto.url : URL.createObjectURL(foto.url)}
+                                                                alt="Visualização"
+                                                                className="w-full h-full object-cover rounded-lg border"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-400">
+                                                                <MdAddPhotoAlternate size={24} />
+                                                            </div>
+                                                        )}
+                                                    </div>
 
-                                                <button type="button" onClick={() => handleRemoveFoto(pacoteIndex, fotoIndex)} className="text-red-500 hover:text-red-700">
+                                                    <div className="flex-1 w-full space-y-2">
+                                                        {/* Legenda */}
+                                                        <input
+                                                            type="text"
+                                                            name="caption"
+                                                            value={foto.caption}
+                                                            onChange={(e) => handleFotoChange(e, pacoteIndex, fotoIndex)}
+                                                            placeholder="Legenda da foto"
+                                                            className="w-full p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg text-sm"
+                                                        />
 
-                                                    <MdDelete size={20} />
+                                                        {/* URL da Foto */}
+                                                        <input
+                                                            type="text"
+                                                            name="url"
+                                                            value={typeof foto.url === 'string' ? foto.url : ''}
+                                                            onChange={(e) => handleFotoChange(e, pacoteIndex, fotoIndex)}
+                                                            placeholder="URL da imagem (Cole aqui para manter a atual)"
+                                                            className="w-full p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg text-xs font-mono"
+                                                        />
 
-                                                </button>
-
-                                                {typeof foto.url === 'string' && foto.url && (
-
-                                                    <img src={foto.url} alt="Visualização" className="w-16 h-16 object-cover rounded-lg" />
-
-                                                )}
-
-                                                <input type="text" name="caption" value={foto.caption} onChange={(e) => handleFotoChange(e, pacoteIndex, fotoIndex)} placeholder="Legenda da foto" className="flex-1 p-2 dark:bg-gray-600 dark:text-gray-200 border rounded-lg" />
-
-                                                <label htmlFor={`foto-${pacoteIndex}-${fotoIndex}`} className="cursor-pointer text-blue-500 hover:text-blue-700">
-
-                                                    <MdAddPhotoAlternate size={24} />
-
-                                                </label>
-
-                                                <input type="file" name="url" id={`foto-${pacoteIndex}-${fotoIndex}`} onChange={(e) => handleFotoChange(e, pacoteIndex, fotoIndex)} required={!foto.url || foto.url instanceof File} className="hidden" />
-
+                                                        {/* Upload Alternativo */}
+                                                        <div className="flex items-center gap-2">
+                                                            <label htmlFor={`foto-${pacoteIndex}-${fotoIndex}`} className="flex items-center gap-1 cursor-pointer text-xs font-bold text-blue-500 hover:text-blue-700 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
+                                                                <MdAddPhotoAlternate size={16} /> NOVO UPLOAD
+                                                            </label>
+                                                            <input
+                                                                type="file"
+                                                                name="url_file"
+                                                                id={`foto-${pacoteIndex}-${fotoIndex}`}
+                                                                onChange={(e) => handleFotoChange(e, pacoteIndex, fotoIndex)}
+                                                                className="hidden"
+                                                            />
+                                                            {foto.url instanceof File && <span className="text-[10px] text-green-500 font-bold italic">Arquivo selecionado!</span>}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-
                                         ))}
 
                                         <button type="button" onClick={() => handleAddFoto(pacoteIndex)} className="mt-2 text-blue-500 flex items-center gap-1 hover:text-blue-700">
