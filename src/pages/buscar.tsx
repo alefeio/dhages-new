@@ -174,24 +174,67 @@ export default function PaginaBusca() {
       {/* Grid de Resultados */}
       <main className="max-w-6xl mx-auto px-4 mt-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {results.map((item, index) => (
-            <Link href={`/pacotes/${item.destinoSlug}/${item.slug}`} key={index}>
-              <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100">
-                {/* ... (conteúdo do card igual ao anterior) ... */}
-                <div className="relative h-48">
-                  <Image src={item.fotos[0]?.url || '/placeholder.jpg'} alt={item.title} layout="fill" objectFit="cover" />
-                </div>
-                <div className="p-5">
-                  <span className="text-orange-500 text-xs font-bold uppercase tracking-wider">{item.destinoTitle}</span>
-                  <h3 className="text-xl font-bold text-gray-900 mt-1">{item.title}</h3>
-                  <p className="text-gray-500 text-sm mt-3 flex items-center gap-2">
-                    <Calendar size={14} />
-                    {format(new Date(item.currentDate.saida), "dd/MM/yyyy")}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
+          {results.map((item, index) => {
+            // Lógica para detectar se o primeiro item da mídia é um vídeo
+            const firstMediaUrl = item.fotos[0]?.url || '';
+            const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(firstMediaUrl);
+
+            if (item.destinoTitle !== "Fretamento") {
+              return (
+                <Link href={`/pacotes/${item.destinoSlug}/${item.slug}`} key={index}>
+                  <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100 group">
+
+                    {/* Container de Mídia (Foto ou Vídeo) */}
+                    <div className="relative h-48 bg-gray-200">
+                      {firstMediaUrl ? (
+                        isVideo ? (
+                          <video
+                            src={firstMediaUrl}
+                            className="w-full h-full object-cover"
+                            muted
+                            loop
+                            onMouseOver={(e) => e.currentTarget.play()}
+                            onMouseOut={(e) => e.currentTarget.pause()}
+                            poster="/placeholder-video.jpg" // Opcional: uma imagem enquanto não carrega
+                          />
+                        ) : (
+                          <Image
+                            src={firstMediaUrl}
+                            alt={item.title}
+                            layout="fill"
+                            objectFit="cover"
+                            className="group-hover:scale-105 transition-transform duration-500"
+                          />
+                        )
+                      ) : (
+                        <Image src="/placeholder.jpg" alt="Sem imagem" layout="fill" objectFit="cover" />
+                      )}
+
+                      {/* Badge indicativo para vídeo */}
+                      {isVideo && (
+                        <div className="absolute top-2 right-2 bg-black/50 p-1 rounded-full text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-5">
+                      <span className="text-orange-500 text-xs font-bold uppercase tracking-wider">
+                        {item.destinoTitle}
+                      </span>
+                      <h3 className="text-xl font-bold text-gray-900 mt-1 line-clamp-1">
+                        {item.title}
+                      </h3>
+                      <p className="text-gray-500 text-sm mt-3 flex items-center gap-2">
+                        <Calendar size={14} />
+                        {format(new Date(item.currentDate.saida), "dd/MM/yyyy")}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              )
+            };
+          })}
         </div>
       </main>
     </div>
