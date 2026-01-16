@@ -37,14 +37,20 @@ export default function PaginaBusca() {
 
     // Busca dados do Menu (Assumindo que você tenha essa rota ou possa mockar)
     // Se você já recebe isso via props de algum layout, pode remover este fetch
-    fetch('/api/menu') 
+    fetch('/api/menu')
       .then(res => res.json())
       .then(data => setMenuData(data))
       .catch(() => {
-        // Fallback caso a API de menu não exista isolada
+        // Fallback corrigido: adicionado a propriedade 'id'
         setMenuData({
           logoUrl: "/images/logo.png",
-          links: [{ text: "Ir para o site", url: "/" }]
+          links: [
+            {
+              id: "home-fallback", // Adicione esta linha
+              text: "Ir para o site",
+              url: "/"
+            }
+          ]
         });
       });
   }, []);
@@ -75,7 +81,7 @@ export default function PaginaBusca() {
       destino.pacotes.forEach(pacote => {
         pacote.dates.forEach(date => {
           const dSaida = new Date(date.saida);
-          const matchesText = !searchTerm || 
+          const matchesText = !searchTerm ||
             pacote.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             destino.title.toLowerCase().includes(searchTerm.toLowerCase());
           const matchesDestino = !selectedDestino || destino.slug === selectedDestino;
@@ -110,15 +116,15 @@ export default function PaginaBusca() {
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center font-serif">
             Encontre sua próxima experiência
           </h1>
-          
+
           <div className="bg-white p-4 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-4 gap-4 items-end border-t-4 border-orange-500">
             {/* ... (campos de busca permanecem iguais) ... */}
             <div className="flex flex-col">
               <label className="text-xs font-bold text-gray-500 mb-1 ml-1 uppercase">O que você busca?</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-xl outline-none focus:ring-2 ring-orange-500"
                   value={searchTerm}
                   onChange={(e) => { setSearchTerm(e.target.value); updateQueryParams({ q: e.target.value }); }}
@@ -128,7 +134,7 @@ export default function PaginaBusca() {
 
             <div className="flex flex-col">
               <label className="text-xs font-bold text-gray-500 mb-1 ml-1 uppercase">Destino</label>
-              <select 
+              <select
                 className="w-full px-4 py-3 bg-gray-100 rounded-xl outline-none focus:ring-2 ring-orange-500 appearance-none"
                 value={selectedDestino}
                 onChange={(e) => { setSelectedDestino(e.target.value); updateQueryParams({ destino: e.target.value }); }}
@@ -155,7 +161,7 @@ export default function PaginaBusca() {
               </div>
             </div>
 
-            <button 
+            <button
               onClick={() => { setSearchTerm(''); setSelectedDestino(''); setDateRange([null, null]); router.push('/buscar'); }}
               className="py-3 px-6 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all"
             >
@@ -170,20 +176,20 @@ export default function PaginaBusca() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {results.map((item, index) => (
             <Link href={`/pacotes/${item.destinoSlug}/${item.slug}`} key={index}>
-                <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100">
-                    {/* ... (conteúdo do card igual ao anterior) ... */}
-                    <div className="relative h-48">
-                        <Image src={item.fotos[0]?.url || '/placeholder.jpg'} alt={item.title} layout="fill" objectFit="cover" />
-                    </div>
-                    <div className="p-5">
-                        <span className="text-orange-500 text-xs font-bold uppercase tracking-wider">{item.destinoTitle}</span>
-                        <h3 className="text-xl font-bold text-gray-900 mt-1">{item.title}</h3>
-                        <p className="text-gray-500 text-sm mt-3 flex items-center gap-2">
-                            <Calendar size={14} /> 
-                            {format(new Date(item.currentDate.saida), "dd/MM/yyyy")}
-                        </p>
-                    </div>
+              <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-gray-100">
+                {/* ... (conteúdo do card igual ao anterior) ... */}
+                <div className="relative h-48">
+                  <Image src={item.fotos[0]?.url || '/placeholder.jpg'} alt={item.title} layout="fill" objectFit="cover" />
                 </div>
+                <div className="p-5">
+                  <span className="text-orange-500 text-xs font-bold uppercase tracking-wider">{item.destinoTitle}</span>
+                  <h3 className="text-xl font-bold text-gray-900 mt-1">{item.title}</h3>
+                  <p className="text-gray-500 text-sm mt-3 flex items-center gap-2">
+                    <Calendar size={14} />
+                    {format(new Date(item.currentDate.saida), "dd/MM/yyyy")}
+                  </p>
+                </div>
+              </div>
             </Link>
           ))}
         </div>
