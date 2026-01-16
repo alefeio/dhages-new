@@ -658,8 +658,10 @@ export default function AdminDestinos() {
                         ...pacote,
                         slug: slugify(pacote.title),
                         fotos: fotosWithUrls,
-                        // Ajuste: certifique-se que o banco espera um objeto ou apenas a string
-                        description: typeof pacote.description === 'string' ? pacote.description : pacote.description.html
+                        // Forçamos o tipo para garantir que o TS entenda que buscamos o conteúdo da descrição
+                        description: typeof pacote.description === 'object' && pacote.description !== null
+                            ? (pacote.description as any).html || (pacote.description as any).text
+                            : pacote.description
                     };
                 })
             );
