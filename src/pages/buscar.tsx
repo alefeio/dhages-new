@@ -104,7 +104,7 @@ export default function PaginaBusca() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <Head>
-        <title>Buscar Pacotes | Curva Engenharia</title>
+        <title>Buscar Pacotes | D' Hages Turismo</title>
       </Head>
 
       {/* RENDERIZAÇÃO DO SEU MENU EXISTENTE */}
