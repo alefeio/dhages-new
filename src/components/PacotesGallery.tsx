@@ -1,6 +1,6 @@
 // src/components/PacotesGallery.tsx
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/router";
 import ModalPhotos from "./ModalPhotos";
 import DestinoGallerySection from "./DestinoGallerySection";
@@ -11,6 +11,27 @@ interface PacotesGalleryProps {
     destinos: Destino[];
 }
 
+function startOfDay(d: Date): number {
+    const x = new Date(d);
+    x.setHours(0, 0, 0, 0);
+    return x.getTime();
+}
+
+function pacoteTemDataSaidaApartirDeHoje(pacote: Pacote): boolean {
+    const dates = pacote.dates;
+    if (!dates?.length) return false;
+    const hoje = startOfDay(new Date());
+    return dates.some((dt) => {
+        const saida = dt.saida instanceof Date ? dt.saida : new Date(dt.saida as unknown as string);
+        if (Number.isNaN(saida.getTime())) return false;
+        return startOfDay(saida) >= hoje;
+    });
+}
+
+function destinoTemPacoteComDataValida(destino: Destino): boolean {
+    return (destino.pacotes ?? []).some(pacoteTemDataSaidaApartirDeHoje);
+}
+
 export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
     const [showModal, setShowModal] = useState(false);
     const [pacoteExibido, setPacoteExibido] = useState<Pacote | null>(null);
@@ -19,9 +40,14 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
     const router = useRouter();
     const { destinoSlug, pacoteId } = router.query;
 
+    const destinosFiltrados = useMemo(
+        () => (destinos ?? []).filter(destinoTemPacoteComDataValida),
+        [destinos]
+    );
+
     const openModal = useCallback((id: string) => {
-        const destino = destinos.find(d => d.pacotes.some(p => p.id === id));
-        const pacote = destino?.pacotes.find(p => p.id === id);
+        const destino = destinosFiltrados.find((d: Destino) => d.pacotes.some((p: Pacote) => p.id === id));
+        const pacote = destino?.pacotes.find((p: Pacote) => p.id === id);
 
         if (destino && pacote) {
             router.push({
@@ -31,7 +57,7 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
         } else {
             console.error("Erro: destino ou pacote não encontrado.");
         }
-    }, [router, destinos]);
+    }, [router, destinosFiltrados]);
 
     const closeModal = useCallback(() => {
         setPacoteExibido(null);
@@ -41,10 +67,10 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
     }, [router]);
 
     useEffect(() => {
-        if (router.isReady && destinos.length > 0) {
+        if (router.isReady && destinosFiltrados.length > 0) {
             if (typeof destinoSlug === "string" && typeof pacoteId === "string") {
-                const destino = destinos.find(d => d.slug === destinoSlug);
-                const pacote = destino?.pacotes.find(p => p.id === pacoteId);
+                const destino = destinosFiltrados.find((d: Destino) => d.slug === destinoSlug);
+                const pacote = destino?.pacotes.find((p: Pacote) => p.id === pacoteId);
 
                 if (destino && pacote) {
                     setPacoteExibido(pacote);
@@ -59,7 +85,7 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
                 closeModal();
             }
         }
-    }, [router.isReady, destinoSlug, pacoteId, destinos, showModal, closeModal, router.pathname]);
+    }, [router.isReady, destinoSlug, pacoteId, destinosFiltrados, showModal, closeModal, router.pathname]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -75,6 +101,14 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
         return <p className="text-center py-8">Nenhum destino de pacote encontrado.</p>;
     }
 
+    if (destinosFiltrados.length === 0) {
+        return (
+            <p className="text-center py-8">
+                Nenhum destino com pacotes em datas a partir de hoje.
+            </p>
+        );
+    }
+
     return (
         <>
             <section className="bg-blue-100 py-32">
@@ -88,10 +122,10 @@ export default function PacotesGallery({ destinos }: PacotesGalleryProps) {
                     </p>
                 </div>
                 <div className="block sticky top-24 md:top-32 transform -translate-y-1/2 z-20">
-                    <FloatingButtons destinos={destinos} />
+                    <FloatingButtons destinos={destinosFiltrados} />
                 </div>
 
-                {destinos.map((destino: Destino) => (
+                {destinosFiltrados.map((destino: Destino) => (
                     <div key={destino.slug} id={destino.slug}>
                         <DestinoGallerySection
                             destino={destino}
