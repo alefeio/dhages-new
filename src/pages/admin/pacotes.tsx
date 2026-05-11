@@ -360,12 +360,11 @@ export default function AdminDestinos() {
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
-        const { name, files } = e.target;
+        const { files } = e.target;
 
         if (files && files[0]) {
-
-            setForm({ ...form, [name]: files[0] });
-
+            // A imagem principal do destino deve sempre ir para `form.image`
+            setForm({ ...form, image: files[0] });
         }
 
     }
@@ -830,7 +829,7 @@ export default function AdminDestinos() {
                                         <span className="text-xs font-bold text-gray-400 uppercase">Ou faça upload:</span>
                                         <input
                                             type="file"
-                                            name="image_file"
+                                            name="image"
                                             onChange={handleImageChange}
                                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                         />

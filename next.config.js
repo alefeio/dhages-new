@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['res.cloudinary.com'],
+    domains: ['res.cloudinary.com', 'apimg.com.br', 'www.apimg.com.br'],
   },
   serverRuntimeConfig: {
     // Aumenta o limite do corpo da requisição para 100mb
