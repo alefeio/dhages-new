@@ -129,7 +129,6 @@ export default function GalleryForm() {
                 newPhotos.map(async (file, index) => {
                     const formData = new FormData();
                     formData.append("file", file);
-                    formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "");
 
                     const uploadResponse = await fetch("/api/upload", {
                         method: "POST",

@@ -119,7 +119,6 @@ export default function BannerForm() {
         if (newFile) {
             const formData = new FormData();
             formData.append("file", newFile);
-            formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "");
 
             try {
                 const uploadResponse = await fetch("/api/upload", {

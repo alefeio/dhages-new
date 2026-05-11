@@ -47,7 +47,6 @@ export default function Testimonials() {
     const uploadFile = async (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '');
 
         const res = await fetch('/api/upload', {
             method: 'POST',

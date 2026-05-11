@@ -101,7 +101,6 @@ export default function MenuForm() {
         if (logoFile) {
             const formData = new FormData();
             formData.append("file", logoFile);
-            formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "");
 
             try {
                 const response = await fetch("/api/upload", {
